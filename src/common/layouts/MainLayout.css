@@ -1,0 +1,25 @@
+.layout{
+    display:flex;
+    height:100vh;
+    overflow:hidden;
+}
+
+.layout-content{
+    flex:1;
+    margin-left:240px;
+
+    display:flex;
+    flex-direction:column;
+
+    transition:margin-left .3s ease;
+}
+
+.layout-content.collapsed{
+    margin-left:72px;
+}
+
+.layout-main{
+    flex:1;
+    overflow:auto;
+    padding:20px;
+}

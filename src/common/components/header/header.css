@@ -1,0 +1,12 @@
+.header {
+  height: 60px;
+  background: var(--panel-bg);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--divider);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 0 24px;
+}

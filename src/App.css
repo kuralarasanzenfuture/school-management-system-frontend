@@ -1,0 +1,142 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    font-size:16px;
+}
+
+body{
+    font-family:"Inter",sans-serif;
+    font-size:14px;
+    font-weight:400;
+    line-height:1.5;
+    color:var(--text-primary);
+    background:var(--bg);
+}
+
+:root {
+  --bg: #f0f4ff;
+  --panel-bg: #ffffff;
+  --side-bg: #1a237e;
+  --side-accent: #3949ab;
+  --side-text: rgba(255, 255, 255, 0.85);
+  --side-muted: rgba(255, 255, 255, 0.5);
+  --text-primary: #1a1a2e;
+  --text-secondary: #5c6278;
+  --text-muted: #9ea3b8;
+  --input-bg: #f5f7ff;
+  --input-border: #dde1f0;
+  --input-focus: #3949ab;
+  --btn-bg: #1a237e;
+  --btn-hover: #3949ab;
+  --btn-text: #ffffff;
+  --link: #3949ab;
+  --shadow: 0 20px 60px rgba(26, 35, 126, 0.12);
+  --card-shadow: 0 4px 20px rgba(26, 35, 126, 0.08);
+  --toggle-bg: #e8ecff;
+  --toggle-icon: #3949ab;
+  --accent: #e91e63;
+  --accent2: #7c4dff;
+  --stat-bg: rgba(255, 255, 255, 0.12);
+  --divider: #eaedf8;
+  --badge-bg: #e8ecff;
+  --badge-text: #3949ab;
+}
+[data-theme="dark"] {
+  --bg: #0d0f1e;
+  --panel-bg: #151929;
+  --side-bg: #0a0d1a;
+  --side-accent: #1a237e;
+  --side-text: rgba(255, 255, 255, 0.9);
+  --side-muted: rgba(255, 255, 255, 0.4);
+  --text-primary: #e8eaf6;
+  --text-secondary: #9ea3b8;
+  --text-muted: #5c6278;
+  --input-bg: #1e2235;
+  --input-border: #2a2f4a;
+  --input-focus: #7986cb;
+  --btn-bg: #3949ab;
+  --btn-hover: #5c6bc0;
+  --btn-text: #ffffff;
+  --link: #7986cb;
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --toggle-bg: #1e2235;
+  --toggle-icon: #7986cb;
+  --accent: #f06292;
+  --accent2: #b39ddb;
+  --stat-bg: rgba(255, 255, 255, 0.06);
+  --divider: #1e2235;
+  --badge-bg: #1e2235;
+  --badge-text: #7986cb;
+}
+
+:root {
+  --sidebar-bg: var(--side-bg);
+  --sidebar-border: rgba(255, 255, 255, 0.05);
+  --sidebar-divider: rgba(255, 255, 255, 0.08);
+  --sidebar-text: rgba(255, 255, 255, 0.65);
+  --sidebar-text-strong: #ffffff;
+  --sidebar-text-muted: rgba(255, 255, 255, 0.3);
+  --sidebar-text-faint: rgba(255, 255, 255, 0.4);
+  --sidebar-hover-bg: rgba(255, 255, 255, 0.08);
+  --sidebar-control-bg: rgba(255, 255, 255, 0.06);
+  --sidebar-control-bg-hover: rgba(255, 255, 255, 0.15);
+  --sidebar-card-bg: rgba(255, 255, 255, 0.06);
+
+  --sidebar-logo-grad: linear-gradient(135deg, var(--side-accent, #3949ab), var(--side-bg, #1a237e));
+  --sidebar-avatar-grad: linear-gradient(135deg, var(--accent2, #7c4dff), var(--side-accent, #3949ab));
+  --sidebar-active-grad: linear-gradient(135deg, var(--side-accent, #3949ab), var(--side-bg, #1a237e));
+  --sidebar-active-shadow: 0 6px 16px rgba(57, 73, 171, 0.4);
+
+  --sidebar-badge-bg: rgba(124, 77, 255, 0.25);
+  --sidebar-badge-text: #c4b5fd;
+
+  --sidebar-width-expanded: 240px;
+  --sidebar-width-collapsed: 72px;
+}
+
+h1{
+    font-size:32px;
+    font-weight:600;
+}
+
+h2{
+    font-size:26px;
+    font-weight:700;
+}
+
+h3{
+    font-size:20px;
+    font-weight:600;
+}
+
+h4{
+    font-size:18px;
+    font-weight:600;
+}
+
+.title{
+    font-size:16px;
+    font-weight:600;
+}
+
+.subtitle{
+    font-size:14px;
+    color:#64748b;
+}
+
+.text{
+    font-size:14px;
+}
+
+.small{
+    font-size:13px;
+}
+
+.caption{
+    font-size:12px;
+}

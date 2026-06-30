@@ -1,0 +1,139 @@
+src/
+│
+├── app/
+│   ├── store.js
+│   ├── rootReducer.js
+│   ├── rootSaga.js (optional)
+│   ├── provider.jsx
+│   └── hooks.js
+│
+├── assets/
+│   ├── images/
+│   ├── icons/
+│   ├── fonts/
+│   └── styles/
+│       ├── variables.css
+│       ├── global.css
+│       └── theme.css
+│
+├── common/
+│   ├── components/
+│   │   ├── Button/
+│   │   ├── Input/
+│   │   ├── Modal/
+│   │   ├── Table/
+│   │   ├── Loader/
+│   │   ├── Pagination/
+│   │   ├── Card/
+│   │   └── Empty/
+│   │
+│   ├── hooks/
+│   │   ├── useDebounce.js
+│   │   ├── usePagination.js
+│   │   └── useAuth.js
+│   │
+│   ├── utils/
+│   │   ├── helpers.js
+│   │   ├── constants.js
+│   │   ├── validation.js
+│   │   ├── formatDate.js
+│   │   └── permissions.js
+│   │
+│   ├── services/
+│   │   ├── api.js
+│   │   ├── axios.js
+│   │   └── interceptors.js
+│   │
+│   └── layouts/
+│       ├── DashboardLayout.jsx
+│       ├── AuthLayout.jsx
+│       └── BlankLayout.jsx
+│
+├── features/
+│
+│   ├── auth/
+│   │   ├── api/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── slice.js
+│   │   ├── selectors.js
+│   │   └── routes.js
+│   │
+│   ├── dashboard/
+│   │
+│   ├── students/
+│   │   ├── api/
+│   │   │     studentApi.js
+│   │   │
+│   │   ├── components/
+│   │   │     StudentForm.jsx
+│   │   │     StudentTable.jsx
+│   │   │     StudentCard.jsx
+│   │   │
+│   │   ├── pages/
+│   │   │     StudentList.jsx
+│   │   │     AddStudent.jsx
+│   │   │     EditStudent.jsx
+│   │   │     StudentProfile.jsx
+│   │   │
+│   │   ├── slice.js
+│   │   ├── selectors.js
+│   │   ├── thunk.js
+│   │   ├── validation.js
+│   │   └── constants.js
+│   │
+│   ├── teachers/
+│   │
+│   ├── parents/
+│   │
+│   ├── classes/
+│   │
+│   ├── sections/
+│   │
+│   ├── attendance/
+│   │
+│   ├── exams/
+│   │
+│   ├── marks/
+│   │
+│   ├── homework/
+│   │
+│   ├── timetable/
+│   │
+│   ├── transport/
+│   │
+│   ├── hostel/
+│   │
+│   ├── fees/
+│   │
+│   ├── payroll/
+│   │
+│   ├── library/
+│   │
+│   ├── inventory/
+│   │
+│   ├── notifications/
+│   │
+│   ├── reports/
+│   │
+│   └── settings/
+│
+├── routes/
+│   ├── AppRoutes.jsx
+│   ├── ProtectedRoute.jsx
+│   └── RoleRoute.jsx
+│
+├── config/
+│   ├── env.js
+│   ├── permissions.js
+│   └── sidebar.js
+│
+├── contexts/
+│
+├── constants/
+│
+├── types/
+│
+├── App.jsx
+├── main.jsx
+└── vite.config.js

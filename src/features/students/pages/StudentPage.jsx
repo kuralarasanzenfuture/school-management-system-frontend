@@ -1,61 +1,3 @@
-// import React, { useState } from "react";
-// import AddStudentModal from "../components/AddStudentModal";
-
-// const StudentList = () => {
-//   const [open, setOpen] = useState(false);
-//   return (
-//     <div className="student">
-//       <h1>Student</h1>
-//       <button
-//         onClick={() => setOpen(true)}
-//         className="rounded-xl bg-indigo-600 px-5 py-3 text-white"
-//       >
-//         Add Student
-//       </button>
-
-//       <AddStudentModal isOpen={open} onClose={() => setOpen(false)} />
-//     </div>
-//   );
-// };
-
-// export default StudentList;
-
-// import React, { useState } from "react";
-// import AddStudentModal from "../components/AddStudentModal";
-// import StudentAdmissionForm from "../components/StudentAdmissionForm";
-
-// const StudentList = () => {
-//   const [open, setOpen] = useState(false);
-
-//   return (
-//     <div className="p-8">
-//       <div className="flex justify-between items-center mb-8">
-//         <h1 className="text-3xl font-bold">
-//           Students
-//         </h1>
-
-//         <button
-//           onClick={() => setOpen(true)}
-//           className="rounded-xl bg-indigo-600 px-6 py-3 text-white hover:bg-indigo-700 transition"
-//         >
-//           Add Student
-//         </button>
-//       </div>
-
-//       <AddStudentModal
-//         isOpen={open}
-//         onClose={() => setOpen(false)}
-//       >
-//         <StudentAdmissionForm />
-//       </AddStudentModal>
-//     </div>
-//   );
-// };
-
-// export default StudentList;
-
-// -----------------------------------------------------------
-
 import React, { useState, useMemo, useEffect } from "react";
 import {
   Users,
@@ -81,112 +23,9 @@ import {
   deleteStudent,
   getStudents,
 } from "../../../redux/student/studentSlice";
-import { avatarColors, colors } from "../../../common/utils/colors";
-
-const STUDENTS = [
-  {
-    id: 1,
-    name: "Aryan Kapoor",
-    email: "aryan.k@school.in",
-    initials: "AK",
-    color: "bg-rose-500",
-    roll: "1042",
-    cls: "X-A",
-    gender: "Male",
-    attendance: 94,
-    grade: "A+",
-    gradeColor: "bg-emerald-50 text-emerald-600",
-    fee: "Paid",
-    feeColor: "bg-emerald-50 text-emerald-600",
-    status: "Active",
-    statusColor: "bg-emerald-50 text-emerald-600",
-  },
-  {
-    id: 2,
-    name: "Sneha Mehta",
-    email: "sneha.m@school.in",
-    initials: "SM",
-    color: "bg-emerald-500",
-    roll: "0987",
-    cls: "IX-B",
-    gender: "Female",
-    attendance: 88,
-    grade: "B+",
-    gradeColor: "bg-blue-50 text-blue-600",
-    fee: "Paid",
-    feeColor: "bg-emerald-50 text-emerald-600",
-    status: "Active",
-    statusColor: "bg-emerald-50 text-emerald-600",
-  },
-  {
-    id: 3,
-    name: "Rohan Nair",
-    email: "rohan.n@school.in",
-    initials: "RN",
-    color: "bg-blue-500",
-    roll: "1158",
-    cls: "XI-C",
-    gender: "Male",
-    attendance: 76,
-    grade: "C",
-    gradeColor: "bg-amber-50 text-amber-600",
-    fee: "Pending",
-    feeColor: "bg-amber-50 text-amber-600",
-    status: "Warning",
-    statusColor: "bg-amber-50 text-amber-600",
-  },
-  {
-    id: 4,
-    name: "Pooja Joshi",
-    email: "pooja.j@school.in",
-    initials: "PJ",
-    color: "bg-orange-500",
-    roll: "0834",
-    cls: "VIII-A",
-    gender: "Female",
-    attendance: 97,
-    grade: "A+",
-    gradeColor: "bg-emerald-50 text-emerald-600",
-    fee: "Paid",
-    feeColor: "bg-emerald-50 text-emerald-600",
-    status: "Active",
-    statusColor: "bg-emerald-50 text-emerald-600",
-  },
-  {
-    id: 5,
-    name: "Karan Singh",
-    email: "karan.s@school.in",
-    initials: "KS",
-    color: "bg-lime-500",
-    roll: "1267",
-    cls: "XII-A",
-    gender: "Male",
-    attendance: 64,
-    grade: "D",
-    gradeColor: "bg-rose-50 text-rose-600",
-    fee: "Overdue",
-    feeColor: "bg-rose-50 text-rose-600",
-    status: "At Risk",
-    statusColor: "bg-rose-50 text-rose-600",
-  },
-  {
-    id: 6,
-    name: "Divya Rao",
-    email: "divya.r@school.in",
-    initials: "DR",
-    color: "bg-violet-500",
-    roll: "0712",
-    cls: "X-B",
-    gender: "Female",
-    attendance: 91,
-    grade: "A",
-    gradeColor: "bg-emerald-50 text-emerald-600",
-    fee: "Paid",
-    feeColor: "bg-emerald-50 text-emerald-600",
-    status: "Active",
-    statusColor: "bg-emerald-50 text-emerald-600",
-  },
-];
+import { avatarColors } from "../../../common/utils/colors";
+import "../styles/StudentPage.css";
+import { useNavigate } from "react-router-dom";
 
 const CLASS_TABS = [
   "All Classes",
@@ -198,90 +37,104 @@ const CLASS_TABS = [
 ];
 const PAGE_SIZE = 20;
 
-function StatCard({ icon: Icon, iconBg, iconColor, value, label }) {
+function StatCard({ icon: Icon, tone, value, label }) {
   return (
-    <div className="flex items-center gap-3.5 bg-white rounded-2xl border border-slate-100 px-5 py-4 shadow-sm">
+    <div className="sp-stat-card flex items-center gap-3.5 rounded-2xl px-5 py-4">
       <div
-        className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${iconBg}`}
+        className={`sp-stat-icon-${tone}-bg w-11 h-11 rounded-xl flex items-center justify-center shrink-0`}
       >
-        <Icon size={20} className={iconColor} />
+        <Icon size={20} className={`sp-stat-icon-${tone}-color`} />
       </div>
       <div>
-        <p className="text-xl font-bold text-slate-800 leading-none">{value}</p>
-        <p className="text-[12.5px] text-slate-400 mt-1">{label}</p>
+        <p className="sp-stat-value text-xl font-bold leading-none">{value}</p>
+        <p className="sp-stat-label text-[12.5px] mt-1">{label}</p>
       </div>
     </div>
   );
 }
 
-function Badge({ children, className }) {
+function Badge({ children, className = "sp-badge-neutral" }) {
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-semibold ${className}`}
+      className={`${className} inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-semibold`}
     >
       {children}
     </span>
   );
 }
 
-function AttendanceBar({ value }) {
-  const color =
-    value >= 90
-      ? "bg-emerald-500"
-      : value >= 80
-        ? "bg-amber-500"
-        : "bg-rose-500";
-  return (
-    <div className="flex items-center gap-2 w-[120px]">
-      <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-        <div
-          className={`h-full rounded-full ${color}`}
-          style={{ width: `${value}%` }}
-        />
-      </div>
-      <span className="text-[12.5px] font-semibold text-slate-600 w-8 shrink-0">
-        {value}%
-      </span>
-    </div>
-  );
+// Formats an ISO date of birth into a short readable date; falls back to "—".
+function formatDob(dob) {
+  if (!dob) return "—";
+  const d = new Date(dob);
+  if (isNaN(d)) return "—";
+  return d.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
+
+const IMAGE_BASE_URL = "http://localhost:5000"; // Adjust this to your actual API base URL
 
 export default function StudentsPage() {
   const dispatch = useDispatch();
 
   const { students, loading, error } = useSelector((state) => state.students);
-  // console.log(students);
+  // console.log("Students from Redux state:", students);
   const [openModal, setOpenModal] = useState(false);
+  const [editingStudent, setEditingStudent] = useState(null);
   const [activeTab, setActiveTab] = useState("All Classes");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState([]);
+
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [genderFilter, setGenderFilter] = useState("All");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(getStudents());
   }, [dispatch]);
 
+  // Resolve the class value regardless of which key the API uses.
+  const getStudentClass = (s) =>
+    s.student_class || s.class || s.studentClass || null;
+
   const filtered = useMemo(() => {
-    if (!students) return [];
+    let result = students || [];
 
-    if (activeTab === "All Classes") return students;
+    // Class filter
+    if (activeTab !== "All Classes") {
+      const cls = activeTab.replace("Class ", "");
+      result = result.filter(
+        (student) =>
+          student.student_class === cls ||
+          student.class === cls ||
+          student.studentClass === cls,
+      );
+    }
 
-    const cls = activeTab.replace("Class ", "");
+    // Status filter
+    if (statusFilter !== "All") {
+      result = result.filter(
+        (student) =>
+          student.status?.toLowerCase() === statusFilter.toLowerCase(),
+      );
+    }
 
-    return students.filter(
-      (student) =>
-        student.student_class === cls ||
-        student.class === cls ||
-        student.studentClass === cls,
-    );
-  }, [students, activeTab]);
+    // Gender filter
+    if (genderFilter !== "All") {
+      result = result.filter(
+        (student) =>
+          student.gender?.toLowerCase() === genderFilter.toLowerCase(),
+      );
+    }
 
-  if (loading) {
-    return <h3>Loading...</h3>;
-  }
+    return result;
+  }, [students, activeTab, statusFilter, genderFilter]);
 
-  if (error) {
-    return <h3>{error}</h3>;
-  }
+  // console.log(filtered);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageRows = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -293,15 +146,11 @@ export default function StudentsPage() {
       s.includes(id) ? s.filter((x) => x !== id) : [...s, id],
     );
 
-  const randomColor = colors[Math.floor(Math.random() * colors.length)];
-
   const getAvatarColor = (value) => {
     let hash = 0;
-
     for (let i = 0; i < value.length; i++) {
       hash = value.charCodeAt(i) + ((hash << 5) - hash);
     }
-
     return avatarColors[Math.abs(hash) % avatarColors.length];
   };
 
@@ -309,38 +158,57 @@ export default function StudentsPage() {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this student?",
     );
-
     if (!confirmDelete) return;
 
     try {
       await dispatch(deleteStudent(id)).unwrap();
-
-      // alert("Student deleted successfully");
-
-      // Optional if your API doesn't return deleted data correctly
-      // dispatch(getStudents());
-    } catch (error) {
-      alert(error || "Failed to delete student");
+    } catch (err) {
+      alert(err || "Failed to delete student");
     }
   };
 
+  const openAddModal = () => {
+    setEditingStudent(null);
+    setOpenModal(true);
+  };
+
+  const openEditModal = (student) => {
+    setEditingStudent(student);
+    setOpenModal(true);
+  };
+
+  const closeModal = () => {
+    setOpenModal(false);
+    setEditingStudent(null);
+    // Refresh the list in case something changed.
+    dispatch(getStudents());
+  };
+
+  if (loading) {
+    return <h3 className="sp-loading px-6 py-10">Loading...</h3>;
+  }
+
+  if (error) {
+    return <h3 className="sp-error px-6 py-10">{error}</h3>;
+  }
+
   return (
-    <div className="min-h-screen bg-[#F4F6FB]">
+    <div className="sp-page min-h-screen p-6">
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Students</h1>
-          <p className="text-[13.5px] text-slate-400 mt-1">
+          <h1 className="sp-title text-2xl font-bold">Students</h1>
+          <p className="sp-subtitle text-[13.5px] mt-1">
             Manage all enrolled students, track performance and attendance.
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-[13.5px] font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
+          <button className="sp-btn-outline inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors">
             <Download size={16} /> Export
           </button>
           <button
-            onClick={() => setOpenModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-[13.5px] font-semibold hover:bg-indigo-700 active:scale-[0.97] transition-all shadow-sm"
+            onClick={openAddModal}
+            className="sp-btn-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold active:scale-[0.97] transition-all shadow-sm"
           >
             <Plus size={16} /> Add Student
           </button>
@@ -351,36 +219,32 @@ export default function StudentsPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard
           icon={Users}
-          iconBg="bg-indigo-50"
-          iconColor="text-indigo-500"
-          value="1,284"
+          tone="primary"
+          value={students?.length ?? 0}
           label="Total enrolled"
         />
         <StatCard
           icon={UserCheck}
-          iconBg="bg-emerald-50"
-          iconColor="text-emerald-500"
-          value="1,179"
-          label="Present today"
+          tone="success"
+          value={students?.length ?? 0}
+          label="Active students"
         />
         <StatCard
           icon={AlertTriangle}
-          iconBg="bg-amber-50"
-          iconColor="text-amber-500"
-          value="48"
-          label="At risk"
+          tone="warning"
+          value={CLASS_TABS.length - 1}
+          label="Classes tracked"
         />
         <StatCard
           icon={UserX}
-          iconBg="bg-rose-50"
-          iconColor="text-rose-500"
-          value="57"
-          label="Absent today"
+          tone="danger"
+          value={selected.length}
+          label="Selected"
         />
       </div>
 
       {/* Filter bar */}
-      <div className="flex flex-wrap items-center gap-2.5 bg-white rounded-2xl border border-slate-100 px-4 py-3 mb-6 shadow-sm">
+      <div className="sp-filter-bar flex flex-wrap items-center gap-2.5 rounded-2xl px-4 py-3 mb-6">
         <div className="flex items-center gap-1.5 flex-wrap">
           {CLASS_TABS.map((tab) => (
             <button
@@ -390,32 +254,48 @@ export default function StudentsPage() {
                 setPage(1);
               }}
               className={`px-3.5 py-2 rounded-lg text-[13px] font-semibold transition-colors ${
-                activeTab === tab
-                  ? "bg-indigo-50 text-indigo-600"
-                  : "text-slate-500 hover:bg-slate-50"
+                activeTab === tab ? "sp-tab-active" : "sp-tab"
               }`}
             >
               {tab}
             </button>
           ))}
         </div>
-        <div className="w-px h-6 bg-slate-150 bg-slate-200 mx-1" />
-        <button className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-slate-200 text-[13px] font-medium text-slate-500 hover:bg-slate-50 transition-colors">
-          All Status <ChevronDown size={14} />
-        </button>
-        <button className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-slate-200 text-[13px] font-medium text-slate-500 hover:bg-slate-50 transition-colors">
-          All Grades <ChevronDown size={14} />
-        </button>
+        <div className="sp-divider w-px h-6 mx-1" />
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          // className="sp-select-btn px-3.5 py-2 rounded-lg text-[13px] font-medium border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400"
+          className="sp-select-btn px-3.5 py-2 rounded-lg text-[13px] font-medium"
+        >
+          <option value="All">All Status</option>
+          <option value="active">Active</option>
+          <option value="graduated">Graduated</option>
+          <option value="transferred">Transferred</option>
+          <option value="dropped">Dropped</option>
+        </select>
+
+        <select
+          value={genderFilter}
+          onChange={(e) => setGenderFilter(e.target.value)}
+          // className="sp-select-btn px-3.5 py-2 rounded-lg text-[13px] font-medium border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400"
+          className="sp-select-btn px-3.5 py-2 rounded-lg text-[13px] font-medium"
+        >
+          <option value="All">All Genders</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+        </select>
         <div className="ml-auto flex items-center gap-3">
-          <span className="text-[12.5px] text-slate-400">
+          <span className="sp-count-text text-[12.5px]">
             Showing {filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}-
             {Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
           </span>
-          <div className="flex items-center rounded-lg border border-slate-200 overflow-hidden">
-            <button className="p-2 bg-indigo-50 text-indigo-600">
+          <div className="sp-toggle-group flex items-center rounded-lg overflow-hidden">
+            <button className="sp-toggle-btn-active p-2">
               <List size={15} />
             </button>
-            <button className="p-2 text-slate-400 hover:bg-slate-50">
+            <button className="sp-toggle-btn p-2">
               <LayoutGrid size={15} />
             </button>
           </div>
@@ -423,12 +303,12 @@ export default function StudentsPage() {
       </div>
 
       {/* Table card */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-          <h2 className="text-[15px] font-bold text-slate-800">
+      <div className="sp-table-card rounded-2xl overflow-hidden">
+        <div className="sp-table-header flex items-center justify-between px-5 py-4">
+          <h2 className="sp-table-title text-[15px] font-bold">
             Student directory
           </h2>
-          <button className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-slate-200 text-[12.5px] font-semibold text-slate-500 hover:bg-slate-50 transition-colors">
+          <button className="sp-export-btn inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-[12.5px] font-semibold transition-colors">
             <FileText size={14} /> Export CSV
           </button>
         </div>
@@ -436,11 +316,11 @@ export default function StudentsPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-slate-50/70 text-[11.5px] uppercase tracking-wide text-slate-400">
+              <tr className="sp-thead text-[11.5px] uppercase tracking-wide">
                 <th className="px-5 py-3 w-10">
                   <input
                     type="checkbox"
-                    className="w-4 h-4 rounded accent-indigo-600"
+                    className="sp-checkbox w-4 h-4 rounded"
                     onChange={toggleAll}
                     checked={
                       pageRows.length > 0 &&
@@ -455,34 +335,23 @@ export default function StudentsPage() {
                 </th>
                 <th className="px-3 py-3 font-semibold">
                   <span className="inline-flex items-center gap-1">
-                    phone <ArrowUpDown size={11} />
-                  </span>
-                </th>
-                <th className="px-3 py-3 font-semibold">
-                  <span className="inline-flex items-center gap-1">
-                    Roll No <ArrowUpDown size={11} />
-                  </span>
-                </th>
-                <th className="px-3 py-3 font-semibold">
-                  <span className="inline-flex items-center gap-1">
-                    Class <ArrowUpDown size={11} />
+                    Phone <ArrowUpDown size={11} />
                   </span>
                 </th>
                 <th className="px-3 py-3 font-semibold">Gender</th>
                 <th className="px-3 py-3 font-semibold">
                   <span className="inline-flex items-center gap-1">
-                    Attendance <ArrowUpDown size={11} />
+                    Class <ArrowUpDown size={11} />
                   </span>
                 </th>
                 <th className="px-3 py-3 font-semibold">
                   <span className="inline-flex items-center gap-1">
-                    Grade <ArrowUpDown size={11} />
+                    City <ArrowUpDown size={11} />
                   </span>
                 </th>
-                <th className="px-3 py-3 font-semibold">Fee Status</th>
                 <th className="px-3 py-3 font-semibold">
                   <span className="inline-flex items-center gap-1">
-                    Status <ArrowUpDown size={11} />
+                    Date of Birth <ArrowUpDown size={11} />
                   </span>
                 </th>
                 <th className="px-3 py-3 font-semibold text-right pr-5">
@@ -492,105 +361,97 @@ export default function StudentsPage() {
             </thead>
             <tbody>
               {pageRows.map((s) => {
-                const initials = `${s.first_name?.[0] || ""}${s.last_name?.[0] || ""}`;
+                const initials =
+                  `${s.first_name?.[0] || ""}${s.last_name?.[0] || ""}`.toUpperCase();
                 const avatarColor = getAvatarColor(
                   `${s.id}-${s.first_name}-${s.last_name}`,
                 );
+                const studentClass = getStudentClass(s);
+                const city = s.permanent_city || s.current_city || null;
+
+                const imageUrl =
+                  s.photo_url &&
+                  s.photo_url !== "null" &&
+                  s.photo_url.trim() !== ""
+                    ? `${IMAGE_BASE_URL}${s.photo_url.startsWith("/") ? "" : "/"}${s.photo_url}`
+                    : null;
+
+                // console.log("Photo:", s.photo_url);
+                // console.log("Image URL:", s.id, imageUrl);
                 return (
-                  <tr
-                    key={s.id}
-                    className="border-t border-slate-50 hover:bg-slate-50/50 transition-colors"
-                  >
+                  <tr key={s.id} className="sp-row transition-colors">
                     <td className="px-5 py-3.5">
                       <input
                         type="checkbox"
-                        className="w-4 h-4 rounded accent-indigo-600"
+                        className="sp-checkbox w-4 h-4 rounded"
                         checked={selected.includes(s.id)}
                         onChange={() => toggleOne(s.id)}
                       />
                     </td>
                     <td className="px-3 py-3.5">
                       <div className="flex items-center gap-3">
-                        {/* <div
-                        className={`w-9 h-9 rounded-full overflow-hidden flex items-center justify-center text-white text-[12px] font-bold shrink-0 ${randomColor}`}
-                      >
-                        {s.photo_url ? (
-                          <img
-                            src={s.photo_url}
-                            alt={`${s.first_name} ${s.last_name}`}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.target.style.display = "none";
-                              e.target.parentNode.innerHTML = `
-              ${(s.first_name?.[0] || "").toUpperCase()}${(s.last_name?.[0] || "").toUpperCase()}
-            `;
-                            }}
-                          />
-                        ) : (
-                          <>
-                            {(s.first_name?.[0] || "").toUpperCase()}
-                            {(s.last_name?.[0] || "").toUpperCase()}
-                          </>
-                        )}
-                      </div> */}
                         <div
                           className={`w-9 h-9 rounded-full overflow-hidden flex items-center justify-center text-white text-[12px] font-bold shrink-0 ${avatarColor}`}
                         >
-                          {s.photo_url ? (
+                          {imageUrl ? (
                             <img
-                              src={s.photo_url}
+                              src={imageUrl}
                               alt={s.first_name}
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            initials.toUpperCase()
+                            initials
                           )}
                         </div>
-
                         <div>
-                          <p className="text-[13.5px] font-semibold text-slate-800">
+                          <p className="sp-name text-[13.5px] font-semibold">
                             {s.first_name} {s.last_name}
                           </p>
-                          <p className="text-[12px] text-slate-400">
-                            {s.email}
-                          </p>
+                          <p className="sp-email text-[12px]">{s.email}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-3 py-3.5">{s.mobile_no}</td>
-                    <td className="px-3 py-3.5 text-[13.5px] text-slate-600">
-                      {s.roll}
+                    <td className="sp-cell px-3 py-3.5 text-[13.5px]">
+                      {s.mobile_no || <span className="sp-cell-muted">—</span>}
+                    </td>
+                    <td className="sp-cell px-3 py-3.5 text-[13.5px] capitalize">
+                      {s.gender || <span className="sp-cell-muted">—</span>}
                     </td>
                     <td className="px-3 py-3.5">
-                      <Badge className="bg-slate-100 text-slate-600">
-                        {s.cls}
-                      </Badge>
+                      {studentClass ? (
+                        <Badge>{studentClass}</Badge>
+                      ) : (
+                        <Badge className="sp-badge-fallback">—</Badge>
+                      )}
                     </td>
-                    <td className="px-3 py-3.5 text-[13.5px] text-slate-600">
-                      {s.gender}
+                    <td className="sp-cell px-3 py-3.5 text-[13.5px]">
+                      {city || <span className="sp-cell-muted">—</span>}
                     </td>
-                    <td className="px-3 py-3.5">
-                      <AttendanceBar value={s.attendance} />
-                    </td>
-                    <td className="px-3 py-3.5">
-                      <Badge className={s.gradeColor}>{s.grade}</Badge>
-                    </td>
-                    <td className="px-3 py-3.5">
-                      <Badge className={s.feeColor}>{s.fee}</Badge>
-                    </td>
-                    <td className="px-3 py-3.5">
-                      <Badge className={s.statusColor}>{s.status}</Badge>
+                    <td className="sp-cell px-3 py-3.5 text-[13.5px]">
+                      {formatDob(s.date_of_birth)}
                     </td>
                     <td className="px-3 py-3.5">
                       <div className="flex items-center justify-end gap-1 pr-2">
-                        <button className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors">
+                        <button
+                          className="sp-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+                          title="View"
+                          onClick={() => {
+                            console.log(s.id);
+                            navigate(`/students/${s.id}`);
+                          }}
+                        >
                           <Eye size={15} />
                         </button>
-                        <button className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors">
+                        <button
+                          className="sp-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+                          title="Edit"
+                          onClick={() => openEditModal(s)}
+                        >
                           <Pencil size={15} />
                         </button>
                         <button
-                          className="w-8 h-8 rounded-lg hover:bg-rose-50 flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors"
+                          className="sp-action-btn sp-action-btn-danger w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+                          title="Delete"
                           onClick={() => handleDelete(s.id)}
                         >
                           <Trash2 size={15} />
@@ -604,8 +465,8 @@ export default function StudentsPage() {
               {pageRows.length === 0 && (
                 <tr>
                   <td
-                    colSpan={10}
-                    className="px-5 py-10 text-center text-[13.5px] text-slate-400"
+                    colSpan={8}
+                    className="sp-empty-state px-5 py-10 text-center text-[13.5px]"
                   >
                     No students found for this filter.
                   </td>
@@ -616,15 +477,15 @@ export default function StudentsPage() {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between px-5 py-4 border-t border-slate-100">
-          <p className="text-[12.5px] text-slate-400">
+        <div className="sp-table-header flex items-center justify-between px-5 py-4">
+          <p className="sp-pagination-text text-[12.5px]">
             Page {page} of {totalPages}
           </p>
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="sp-page-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
             >
               <ChevronLeft size={15} />
             </button>
@@ -633,9 +494,7 @@ export default function StudentsPage() {
                 key={n}
                 onClick={() => setPage(n)}
                 className={`w-8 h-8 rounded-lg text-[13px] font-semibold transition-colors ${
-                  n === page
-                    ? "bg-indigo-600 text-white"
-                    : "text-slate-500 hover:bg-slate-50 border border-slate-200"
+                  n === page ? "sp-page-btn-active" : "sp-page-btn"
                 }`}
               >
                 {n}
@@ -644,7 +503,7 @@ export default function StudentsPage() {
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="sp-page-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
             >
               <ChevronRight size={15} />
             </button>
@@ -652,7 +511,11 @@ export default function StudentsPage() {
         </div>
       </div>
 
-      <AddStudentModal isOpen={openModal} onClose={() => setOpenModal(false)} />
+      <AddStudentModal
+        isOpen={openModal}
+        onClose={closeModal}
+        student={editingStudent}
+      />
     </div>
   );
 }

@@ -1,0 +1,250 @@
+/* StudentsPage.css
+   All COLOR styling lives here as plain CSS classes, driven by the theme
+   variables in app.css. Tailwind utility classes in the JSX now only handle
+   layout, spacing, and sizing.
+*/
+
+.sp-page {
+  background: var(--bg);
+}
+
+/* ── Header ── */
+.sp-title {
+  color: var(--text-primary);
+}
+.sp-subtitle {
+  color: var(--text-muted);
+}
+
+.sp-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.sp-btn-outline:hover {
+  background: var(--input-bg);
+}
+
+.sp-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.sp-btn-primary:hover {
+  background: var(--btn-hover);
+}
+
+/* ── Stat cards ── */
+.sp-stat-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.sp-stat-value {
+  color: var(--text-primary);
+}
+.sp-stat-label {
+  color: var(--text-muted);
+}
+
+.sp-stat-icon-primary-bg {
+  background: var(--badge-bg);
+}
+.sp-stat-icon-primary-color {
+  color: var(--btn-bg);
+}
+
+.sp-stat-icon-success-bg {
+  background: var(--success-bg);
+}
+.sp-stat-icon-success-color {
+  color: var(--success);
+}
+
+.sp-stat-icon-warning-bg {
+  background: var(--warning-bg);
+}
+.sp-stat-icon-warning-color {
+  color: var(--warning);
+}
+
+.sp-stat-icon-danger-bg {
+  background: var(--danger-bg);
+}
+.sp-stat-icon-danger-color {
+  color: var(--danger);
+}
+
+/* ── Filter bar ── */
+.sp-filter-bar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+
+.sp-tab {
+  color: var(--text-secondary);
+}
+.sp-tab:hover {
+  background: var(--input-bg);
+}
+.sp-tab-active {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+.sp-divider {
+  background: var(--divider);
+}
+
+.sp-select-btn {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.sp-select-btn:hover {
+  background: var(--input-bg);
+}
+
+.sp-count-text {
+  color: var(--text-muted);
+}
+
+.sp-toggle-group {
+  border: 1px solid var(--input-border);
+}
+.sp-toggle-btn {
+  color: var(--text-muted);
+}
+.sp-toggle-btn:hover {
+  background: var(--input-bg);
+}
+.sp-toggle-btn-active {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── Table card ── */
+.sp-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.sp-table-header {
+  border-bottom: 1px solid var(--divider);
+}
+.sp-table-title {
+  color: var(--text-primary);
+}
+.sp-export-btn {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.sp-export-btn:hover {
+  background: var(--input-bg);
+}
+
+.sp-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+
+.sp-row {
+  border-top: 1px solid var(--divider);
+}
+.sp-row:hover {
+  background: var(--input-bg);
+}
+
+.sp-checkbox {
+  accent-color: var(--btn-bg);
+}
+
+.sp-name {
+  color: var(--text-primary);
+}
+.sp-email {
+  color: var(--text-muted);
+}
+.sp-cell {
+  color: var(--text-secondary);
+}
+.sp-cell-muted {
+  color: var(--text-muted);
+}
+
+.sp-badge-neutral {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+}
+.sp-badge-fallback {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+
+.sp-action-btn {
+  color: var(--text-muted);
+}
+.sp-action-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+.sp-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.sp-empty-state {
+  color: var(--text-muted);
+}
+
+/* ── Pagination ── */
+.sp-pagination-text {
+  color: var(--text-muted);
+}
+.sp-page-btn {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.sp-page-btn:hover {
+  background: var(--input-bg);
+}
+.sp-page-btn:disabled {
+  opacity: 0.4;
+}
+.sp-page-btn-active {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  border-color: var(--btn-bg);
+}
+
+/* ── Loading / error states ── */
+.sp-loading,
+.sp-error {
+  color: var(--text-secondary);
+}
+.sp-error {
+  color: var(--danger);
+}
+
+.sp-select-btn {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  min-width: 150px;
+  transition: all 0.2s ease;
+}
+
+.sp-select-btn:hover {
+  background: var(--input-bg);
+}
+
+.sp-select-btn:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 20%, transparent);
+}
+
+.sp-select-btn option {
+  background: var(--panel-bg);
+  color: var(--text-primary);
+}

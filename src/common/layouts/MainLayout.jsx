@@ -24,7 +24,7 @@ const MainLayout = () => {
       >
         <Header />
 
-        <main className="flex-1 overflow-auto p-5">
+        <main className="flex-1 overflow-auto">
           <Outlet />
         </main>
       </div>

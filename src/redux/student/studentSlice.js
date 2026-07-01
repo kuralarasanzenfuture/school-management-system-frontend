@@ -54,15 +54,15 @@ export const createStudent = createAsyncThunk(
 // ================= UPDATE =================
 export const updateStudent = createAsyncThunk(
   "students/update",
-  async ({ id, studentData }, thunkAPI) => {
+  async ({ id, formData }, thunkAPI) => {
     try {
-      return await studentService.updateStudent({ id, studentData });
+      return await studentService.updateStudent({ id, formData });
     } catch (err) {
       return thunkAPI.rejectWithValue(
-        err.response?.data?.message || err.message,
+        err.response?.data?.message || err.message
       );
     }
-  },
+  }
 );
 
 // ================= DELETE =================

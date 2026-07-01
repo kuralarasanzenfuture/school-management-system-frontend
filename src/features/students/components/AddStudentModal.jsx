@@ -258,8 +258,7 @@
 //     </div>
 //   );
 // }
-
-import React, { useState, useMemo, useRef } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Camera,
@@ -282,6 +281,7 @@ import {
   createStudent,
   updateStudent,
 } from "../../../redux/student/studentSlice";
+import "../styles/AddStudentModal.css";
 
 // Sequential IDs 1-4 matching the actual step counter
 const STEPS = [
@@ -297,26 +297,21 @@ const TOTAL_STEPS = STEPS.length;
 function Field({ label, required, error, children }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-[13px] font-medium text-stone-600">
-        {label} {required && <span className="text-rose-500">*</span>}
+      <label className="sm-field-label text-[13px] font-medium">
+        {label} {required && <span className="sm-field-required">*</span>}
       </label>
       {children}
       <div className="h-4">
-        {error && <p className="text-[11px] text-rose-500">{error}</p>}
+        {error && <p className="sm-field-error text-[11px]">{error}</p>}
       </div>
     </div>
   );
 }
 
 const inputBase =
-  "w-full rounded-lg border bg-white px-3.5 py-2.5 text-[14px] text-stone-800 placeholder:text-stone-400 outline-none transition-all duration-200 focus:ring-4";
+  "sm-input w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200";
 
-const tInput = (err) =>
-  `${inputBase} ${
-    err
-      ? "border-rose-400 ring-rose-100 focus:ring-rose-100"
-      : "border-stone-200 focus:border-amber-400 focus:ring-amber-100"
-  }`;
+const tInput = (err) => `${inputBase} ${err ? "sm-input-error" : ""}`;
 
 const stepVariants = {
   enter: (dir) => ({ opacity: 0, x: dir > 0 ? 24 : -24 }),
@@ -327,7 +322,6 @@ const stepVariants = {
 /* ── Initial form state (snake_case matches DB schema) ── */
 const INIT = {
   // Student
-  photo: null,
   school_id: 1,
   first_name: "",
   middle_name: "",
@@ -369,29 +363,140 @@ const INIT = {
   current_state: "",
   current_postal_code: "",
   current_address: "",
-
-  // Documents (stored as { name, size } after pick)
-  birth_certificate: null,
-  aadhaar_front: null,
-  aadhaar_back: null,
-  transfer_certificate: null,
-  previous_marksheets: null,
-
-  // Signature
-  signature: null,
 };
 
-export default function AddStudentModal({ isOpen, onClose }) {
+// Document keys that use the DocCard uploader
+const DOC_KEYS = [
+  { key: "birth_certificate", label: "Birth Certificate" },
+  { key: "transfer_certificate", label: "Transfer Certificate" },
+  { key: "aadhaar_front", label: "Aadhaar Front" },
+  { key: "aadhaar_back", label: "Aadhaar Back" },
+  { key: "previous_marksheets", label: "Previous Marksheet" },
+];
+
+/**
+ * @param {boolean} isOpen
+ * @param {() => void} onClose
+ * @param {object|null} student - pass an existing student record to switch the
+ *   modal into edit mode. Must include `id` plus the same snake_case fields
+ *   used in INIT. File fields may include a `url` so existing uploads render
+ *   instead of showing "not uploaded".
+ */
+export default function AddStudentModal({ isOpen, onClose, student = null }) {
   const dispatch = useDispatch();
+  const isEdit = Boolean(student?.id);
+  // console.log("isEdit", isEdit, student);
 
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [data, setData] = useState(INIT);
 
+  // Files are tracked separately from `data` so we never accidentally send a
+  // blob: preview URL to the server — only real File objects get uploaded.
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [signatureFile, setSignatureFile] = useState(null);
+  const [signaturePreview, setSignaturePreview] = useState(null);
+  const [docFiles, setDocFiles] = useState({}); // { [docKey]: File }
+  const [docMeta, setDocMeta] = useState({}); // { [docKey]: { name, size, url?, existing? } }
+
   const fileRef = useRef(null);
   const sigRef = useRef(null);
+
+  const IMAGE_BASE_URL = "http://localhost:5000";
+  /* ── Hydrate form when opening in edit mode ── */
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (isEdit && student) {
+      setData({
+        ...INIT,
+        ...student,
+        current_address_same_as_permanent: Boolean(
+          Number(student.current_address_same_as_permanent),
+        ),
+      });
+      // console.log("Hydrating form with student data:", student);
+      // console.log(student.current_address_same_as_permanent);
+      // console.log(typeof student.current_address_same_as_permanent);
+
+      // Photo
+      setPhotoPreview(
+        student.photo_url ? `${IMAGE_BASE_URL}${student.photo_url}` : null,
+      );
+
+      // Signature
+      setSignaturePreview(
+        student.signature_url
+          ? `${IMAGE_BASE_URL}${student.signature_url}`
+          : null,
+      );
+
+      // Existing Documents
+      const meta = {
+        birth_certificate: student.birth_certificate_url
+          ? {
+              name: "Birth Certificate",
+              url: `${IMAGE_BASE_URL}${student.birth_certificate_url}`,
+              existing: true,
+            }
+          : null,
+
+        aadhaar_front: student.aadhaar_front_url
+          ? {
+              name: "Aadhaar Front",
+              url: `${IMAGE_BASE_URL}${student.aadhaar_front_url}`,
+              existing: true,
+            }
+          : null,
+
+        aadhaar_back: student.aadhaar_back_url
+          ? {
+              name: "Aadhaar Back",
+              url: `${IMAGE_BASE_URL}${student.aadhaar_back_url}`,
+              existing: true,
+            }
+          : null,
+
+        transfer_certificate: student.transfer_certificate_url
+          ? {
+              name: "Transfer Certificate",
+              url: `${IMAGE_BASE_URL}${student.transfer_certificate_url}`,
+              existing: true,
+            }
+          : null,
+
+        previous_marksheets: student.previous_marksheets_url
+          ? {
+              name: "Previous Marksheet",
+              url: `${IMAGE_BASE_URL}${student.previous_marksheets_url}`,
+              existing: true,
+            }
+          : null,
+      };
+
+      setDocMeta(meta);
+    } else {
+      setData(INIT);
+      setPhotoPreview(null);
+      setSignaturePreview(null);
+      setDocMeta({});
+    }
+
+    setPhotoFile(null);
+    setSignatureFile(null);
+    setDocFiles({});
+    setStep(1);
+    setErrors({});
+    setSubmitted(false);
+  }, [isOpen, isEdit, student]);
+
+  // useEffect(() => {
+  //   console.log(data.current_address_same_as_permanent);
+  // }, [data]);
 
   /* ── Age auto-calc ── */
   const age = useMemo(() => {
@@ -407,32 +512,79 @@ export default function AddStudentModal({ isOpen, onClose }) {
 
   /* ── Helpers ── */
   const set = (key) => (e) => {
-    const v = e?.target ? e.target.value : e;
-    setData((d) => ({ ...d, [key]: v }));
-    if (errors[key]) setErrors((er) => ({ ...er, [key]: null }));
+    const value = e?.target ? e.target.value : e;
+
+    setData((prev) => {
+      const updated = {
+        ...prev,
+        [key]: value,
+      };
+
+      // Sync current address with permanent address
+      if (prev.current_address_same_as_permanent) {
+        const fieldMap = {
+          permanent_area: "current_area",
+          permanent_city: "current_city",
+          permanent_district: "current_district",
+          permanent_state: "current_state",
+          permanent_postal_code: "current_postal_code",
+          permanent_address: "current_address",
+        };
+
+        if (fieldMap[key]) {
+          updated[fieldMap[key]] = value;
+        }
+      }
+
+      return updated;
+    });
+
+    if (errors[key]) {
+      setErrors((prev) => ({
+        ...prev,
+        [key]: null,
+      }));
+    }
   };
 
   const handlePhoto = (e) => {
     const f = e.target.files?.[0];
-    if (f) setData((d) => ({ ...d, photo: URL.createObjectURL(f) }));
+    if (!f) return;
+    setPhotoFile(f);
+    setPhotoPreview(URL.createObjectURL(f));
+    if (errors.photo) setErrors((er) => ({ ...er, photo: null }));
   };
 
   const handleSig = (e) => {
     const f = e.target.files?.[0];
-    if (f) setData((d) => ({ ...d, signature: URL.createObjectURL(f) }));
+    if (!f) return;
+    setSignatureFile(f);
+    setSignaturePreview(URL.createObjectURL(f));
     if (errors.signature) setErrors((er) => ({ ...er, signature: null }));
   };
 
   const setDoc = (key) => (e) => {
     const f = e.target.files?.[0];
-    if (f)
-      setData((d) => ({
-        ...d,
-        [key]: { name: f.name, size: Math.round(f.size / 1024) },
-      }));
+    if (!f) return;
+    setDocFiles((d) => ({ ...d, [key]: f }));
+    setDocMeta((d) => ({
+      ...d,
+      [key]: { name: f.name, size: Math.round(f.size / 1024), existing: false },
+    }));
   };
 
-  const removeDoc = (key) => () => setData((d) => ({ ...d, [key]: null }));
+  const removeDoc = (key) => () => {
+    setDocFiles((d) => {
+      const next = { ...d };
+      delete next[key];
+      return next;
+    });
+    setDocMeta((d) => {
+      const next = { ...d };
+      delete next[key];
+      return next;
+    });
+  };
 
   /* ── Validation per step ── */
   const validate = (s) => {
@@ -482,7 +634,8 @@ export default function AddStudentModal({ isOpen, onClose }) {
     }
 
     if (s === 4) {
-      if (!data.signature) e.signature = "Signature upload is required";
+      if (!signatureFile && !signaturePreview)
+        e.signature = "Signature upload is required";
     }
 
     setErrors(e);
@@ -513,14 +666,17 @@ export default function AddStudentModal({ isOpen, onClose }) {
       setSubmitted(false);
       setErrors({});
       setData(INIT);
+      setPhotoFile(null);
+      setPhotoPreview(null);
+      setSignatureFile(null);
+      setSignaturePreview(null);
+      setDocFiles({});
+      setDocMeta({});
     }, 250);
   };
 
-  const handlesubmit = async (e) => {
-    e.preventDefault();
-
-    if (!validate(TOTAL_STEPS)) return;
-
+  /* ── Build FormData shared by create + update ── */
+  const buildFormData = () => {
     const formData = new FormData();
 
     // Basic Details
@@ -565,7 +721,6 @@ export default function AddStudentModal({ isOpen, onClose }) {
       "current_address_same_as_permanent",
       data.current_address_same_as_permanent,
     );
-
     formData.append("current_area", data.current_area);
     formData.append("current_city", data.current_city);
     formData.append("current_district", data.current_district);
@@ -573,66 +728,83 @@ export default function AddStudentModal({ isOpen, onClose }) {
     formData.append("current_postal_code", data.current_postal_code);
     formData.append("current_address", data.current_address);
 
-    // Images
-    if (data.photo) {
-      formData.append("photo", data.photo);
+    // Files — only append when the user actually picked a new one.
+    // In edit mode, omitting the field means "keep the existing file" on
+    // the backend (adjust if your API instead expects an explicit
+    // "keep_photo" / "keep_signature" flag).
+    if (photoFile) formData.append("photo", photoFile);
+    // if (signatureFile) formData.append("signature", signatureFile);
+
+    DOC_KEYS.forEach(({ key }) => {
+      if (docFiles[key]) formData.append(key, docFiles[key]);
+    });
+
+    return formData;
+  };
+
+  const logFormData = (formData) => {
+    console.log("========== FormData ==========");
+
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}:`, value instanceof File ? value.name : value);
     }
 
-    if (data.birth_certificate) {
-      formData.append("birth_certificate", data.birth_certificate);
-    }
+    console.log("==============================");
+  };
 
-    if (data.aadhaar_front) {
-      formData.append("aadhaar_front", data.aadhaar_front);
-    }
+  const handlesubmit = async (e) => {
+    e.preventDefault();
+    if (!validate(TOTAL_STEPS)) return;
 
-    if (data.aadhaar_back) {
-      formData.append("aadhaar_back", data.aadhaar_back);
-    }
-
-    if (data.transfer_certificate) {
-      formData.append("transfer_certificate", data.transfer_certificate);
-    }
-
-    if (data.previous_marksheets) {
-      formData.append("previous_marksheets", data.previous_marksheets);
-    }
+    const formData = buildFormData();
+    // logFormData(formData);
+    setSubmitting(true);
 
     try {
-      await dispatch(createStudent(formData)).unwrap();
-
-      alert("Student Created Successfully");
-
+      if (isEdit) {
+        await dispatch(updateStudent({ id: student.id, formData })).unwrap();
+        alert("Student Updated Successfully");
+      } else {
+        for (const pair of formData.entries()) {
+          console.log(pair[0], pair[1]);
+        }
+        await dispatch(createStudent(formData)).unwrap();
+        alert("Student Created Successfully");
+      }
       setSubmitted(true);
     } catch (err) {
       console.log(err);
-      alert(err);
+      alert(err?.message || err);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   /* ── Doc upload card ── */
   const DocCard = ({ docKey, label }) => {
-    const f = data[docKey];
+    const f = docMeta[docKey];
     return (
       <div
-        className={`flex items-center justify-between gap-3 rounded-xl border px-3.5 py-3 transition-all duration-300 ${
-          f
-            ? "border-emerald-200 bg-emerald-50/60"
-            : "border-stone-200 bg-stone-50/60"
+        className={`flex items-center justify-between gap-3 rounded-xl px-3.5 py-3 transition-all duration-300 ${
+          f ? "sm-doc-card-filled" : "sm-doc-card"
         }`}
       >
         <div className="flex items-center gap-3 min-w-0">
           {f ? (
-            <FileCheck size={20} className="text-emerald-600 shrink-0" />
+            <FileCheck size={20} className="sm-doc-icon-filled shrink-0" />
           ) : (
-            <Upload size={20} className="text-amber-500 shrink-0" />
+            <Upload size={20} className="sm-doc-icon-empty shrink-0" />
           )}
           <div className="min-w-0">
-            <p className="text-[13px] font-semibold text-stone-700 truncate">
+            <p className="sm-doc-name text-[13px] font-semibold truncate">
               {label}
             </p>
-            <p className="text-[11px] text-stone-400 truncate">
-              {f ? `${f.name} · ${f.size} KB` : "Not uploaded yet"}
+            <p className="sm-doc-meta text-[11px] truncate">
+              {f
+                ? f.existing
+                  ? f.name
+                  : `${f.name} · ${f.size} KB`
+                : "Not uploaded yet"}
             </p>
           </div>
         </div>
@@ -640,12 +812,12 @@ export default function AddStudentModal({ isOpen, onClose }) {
           <button
             type="button"
             onClick={removeDoc(docKey)}
-            className="shrink-0 w-8 h-8 rounded-lg hover:bg-rose-100 text-rose-500 flex items-center justify-center transition-colors"
+            className="sm-doc-remove shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
           >
             <Trash2 size={15} />
           </button>
         ) : (
-          <label className="shrink-0 cursor-pointer text-[12px] font-semibold text-amber-700 bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-lg transition-colors">
+          <label className="sm-doc-upload-btn shrink-0 cursor-pointer text-[12px] font-semibold px-3 py-1.5 rounded-lg transition-colors">
             Upload
             <input
               type="file"
@@ -663,7 +835,7 @@ export default function AddStudentModal({ isOpen, onClose }) {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          className="sm-overlay fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -675,7 +847,7 @@ export default function AddStudentModal({ isOpen, onClose }) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 40 }}
             transition={{ duration: 0.25 }}
-            className="w-full max-w-3xl rounded-3xl bg-white shadow-2xl max-h-[95vh] overflow-hidden flex flex-col"
+            className="sm-panel w-full max-w-3xl rounded-3xl max-h-[95vh] overflow-hidden flex flex-col"
           >
             {/* ── Success screen ── */}
             {submitted ? (
@@ -684,35 +856,43 @@ export default function AddStudentModal({ isOpen, onClose }) {
                   initial={{ scale: 0.6, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ type: "spring", stiffness: 300, damping: 18 }}
-                  className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto mb-5"
+                  className="sm-success-circle w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
                 >
                   <Check
-                    className="text-emerald-600"
+                    className="sm-success-icon"
                     size={30}
                     strokeWidth={2.5}
                   />
                 </motion.div>
-                <h2 className="text-xl font-bold text-stone-800 mb-1.5">
-                  Admission saved
+                <h2 className="sm-success-title text-xl font-bold mb-1.5">
+                  {isEdit ? "Admission updated" : "Admission saved"}
                 </h2>
-                <p className="text-[14px] text-stone-500 mb-6">
-                  {data.first_name} {data.last_name} has been successfully
-                  enrolled.
+                <p className="sm-success-desc text-[14px] mb-6">
+                  {data.first_name} {data.last_name} has been successfully{" "}
+                  {isEdit ? "updated" : "enrolled"}.
                 </p>
                 <div className="flex items-center justify-center gap-3">
-                  <button
-                    onClick={() => {
-                      setSubmitted(false);
-                      setStep(1);
-                      setData(INIT);
-                    }}
-                    className="px-5 py-2.5 rounded-lg border border-stone-200 text-stone-600 text-[14px] font-semibold hover:bg-stone-50 transition-colors"
-                  >
-                    Add another
-                  </button>
+                  {!isEdit && (
+                    <button
+                      onClick={() => {
+                        setSubmitted(false);
+                        setStep(1);
+                        setData(INIT);
+                        setPhotoFile(null);
+                        setPhotoPreview(null);
+                        setSignatureFile(null);
+                        setSignaturePreview(null);
+                        setDocFiles({});
+                        setDocMeta({});
+                      }}
+                      className="sm-btn-outline px-5 py-2.5 rounded-lg text-[14px] font-semibold transition-colors"
+                    >
+                      Add another
+                    </button>
+                  )}
                   <button
                     onClick={resetAndClose}
-                    className="px-5 py-2.5 rounded-lg bg-amber-600 text-white text-[14px] font-semibold hover:bg-amber-700 transition-colors"
+                    className="sm-btn-done px-5 py-2.5 rounded-lg text-[14px] font-semibold transition-colors"
                   >
                     Done
                   </button>
@@ -721,20 +901,22 @@ export default function AddStudentModal({ isOpen, onClose }) {
             ) : (
               <>
                 {/* ── Header + Stepper ── */}
-                <div className="px-6 sm:px-8 pt-6 pb-5 border-b border-stone-100 shrink-0">
+                <div className="sm-header px-6 sm:px-8 pt-6 pb-5 shrink-0">
                   <div className="flex items-center justify-between mb-5">
                     <div>
-                      <h1 className="text-[19px] font-bold text-stone-800 tracking-tight">
-                        New Student Admission
+                      <h1 className="sm-title text-[19px] font-bold tracking-tight">
+                        {isEdit
+                          ? "Edit Student Admission"
+                          : "New Student Admission"}
                       </h1>
-                      <p className="text-[12.5px] text-stone-400">
+                      <p className="sm-subtitle text-[12.5px]">
                         Step {step} of {TOTAL_STEPS} · {STEPS[step - 1].label}{" "}
                         Details
                       </p>
                     </div>
                     <button
                       onClick={resetAndClose}
-                      className="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center text-stone-400 hover:text-stone-600 transition-colors"
+                      className="sm-close-btn w-8 h-8 rounded-full flex items-center justify-center transition-colors"
                     >
                       <X size={18} />
                     </button>
@@ -742,9 +924,9 @@ export default function AddStudentModal({ isOpen, onClose }) {
 
                   {/* Progress bar + dots */}
                   <div className="relative">
-                    <div className="absolute top-4 left-4 right-4 h-[2px] bg-stone-200 rounded-full" />
+                    <div className="sm-step-track absolute top-4 left-4 right-4 h-[2px] rounded-full" />
                     <motion.div
-                      className="absolute top-4 left-4 h-[2px] bg-amber-500 rounded-full"
+                      className="sm-step-fill absolute top-4 left-4 h-[2px] rounded-full"
                       initial={false}
                       animate={{
                         width: `calc(${((step - 1) / (TOTAL_STEPS - 1)) * 100}% - ${((step - 1) / (TOTAL_STEPS - 1)) * 32}px)`,
@@ -772,10 +954,10 @@ export default function AddStudentModal({ isOpen, onClose }) {
                               }}
                               className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors duration-300 ${
                                 done
-                                  ? "bg-amber-500 border-amber-500 text-white"
+                                  ? "sm-step-circle-done"
                                   : active
-                                    ? "bg-white border-amber-500 text-amber-600 shadow-[0_0_0_4px_rgba(245,158,11,0.15)]"
-                                    : "bg-white border-stone-200 text-stone-300"
+                                    ? "sm-step-circle-active"
+                                    : "sm-step-circle"
                               }`}
                             >
                               {done ? (
@@ -787,10 +969,10 @@ export default function AddStudentModal({ isOpen, onClose }) {
                             <span
                               className={`text-[10.5px] font-medium transition-colors hidden sm:block ${
                                 active
-                                  ? "text-amber-600"
+                                  ? "sm-step-label-active"
                                   : done
-                                    ? "text-stone-500"
-                                    : "text-stone-300"
+                                    ? "sm-step-label-done"
+                                    : "sm-step-label"
                               }`}
                             >
                               {s.label}
@@ -827,16 +1009,16 @@ export default function AddStudentModal({ isOpen, onClose }) {
                               className="cursor-pointer group"
                             >
                               <div
-                                className={`w-24 h-24 rounded-full overflow-hidden border-[3px] flex items-center justify-center bg-amber-50 shadow-sm transition-all duration-300 group-hover:shadow-md group-hover:scale-[1.03] ${errors.photo ? "border-rose-400" : "border-amber-400"}`}
+                                className={`w-24 h-24 rounded-full overflow-hidden border-[3px] flex items-center justify-center shadow-sm transition-all duration-300 group-hover:shadow-md group-hover:scale-[1.03] ${errors.photo ? "sm-photo-circle-error" : "sm-photo-circle"}`}
                               >
-                                {data.photo ? (
+                                {photoPreview ? (
                                   <img
-                                    src={data.photo}
+                                    src={photoPreview}
                                     alt=""
                                     className="w-full h-full object-cover"
                                   />
                                 ) : (
-                                  <div className="text-center text-amber-600 text-[10px] font-semibold">
+                                  <div className="sm-photo-placeholder text-center text-[10px] font-semibold">
                                     <Camera
                                       size={20}
                                       className="mx-auto mb-1"
@@ -915,7 +1097,7 @@ export default function AddStudentModal({ isOpen, onClose }) {
                           <Field label="Auto-Calculated Age">
                             <input
                               disabled
-                              className={`${tInput()} bg-stone-50 font-semibold text-stone-500`}
+                              className={`${tInput()} sm-input-disabled font-semibold`}
                               value={age}
                               placeholder="Enter DOB to calculate"
                             />
@@ -1092,7 +1274,7 @@ export default function AddStudentModal({ isOpen, onClose }) {
                         <div className="space-y-7">
                           {/* Permanent */}
                           <div>
-                            <h3 className="text-sm font-bold text-amber-600 border-b border-stone-100 pb-2 mb-4">
+                            <h3 className="sm-section-heading text-sm font-bold pb-2 mb-4">
                               Permanent Address
                             </h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
@@ -1181,41 +1363,42 @@ export default function AddStudentModal({ isOpen, onClose }) {
                             <input
                               type="checkbox"
                               checked={data.current_address_same_as_permanent}
-                              onChange={(e) =>
+                              onChange={(e) => {
+                                const checked = e.target.checked;
+
                                 setData((prev) => ({
                                   ...prev,
-                                  current_address_same_as_permanent:
-                                    e.target.checked,
-                                  current_area: e.target.checked
+                                  current_address_same_as_permanent: checked,
+
+                                  current_area: checked
                                     ? prev.permanent_area
-                                    : "",
-                                  current_city: e.target.checked
+                                    : prev.current_area,
+                                  current_city: checked
                                     ? prev.permanent_city
-                                    : "",
-                                  current_district: e.target.checked
+                                    : prev.current_city,
+                                  current_district: checked
                                     ? prev.permanent_district
-                                    : "",
-                                  current_state: e.target.checked
+                                    : prev.current_district,
+                                  current_state: checked
                                     ? prev.permanent_state
-                                    : "",
-                                  current_postal_code: e.target.checked
+                                    : prev.current_state,
+                                  current_postal_code: checked
                                     ? prev.permanent_postal_code
-                                    : "",
-                                  current_address: e.target.checked
+                                    : prev.current_postal_code,
+                                  current_address: checked
                                     ? prev.permanent_address
-                                    : "",
-                                }))
-                              }
-                              className="w-4 h-4 rounded accent-amber-500"
+                                    : prev.current_address,
+                                }));
+                              }}
                             />
-                            <span className="text-[13px] font-medium text-stone-600">
+                            <span className="sm-checkbox-label text-[13px] font-medium">
                               Current address same as permanent address
                             </span>
                           </label>
 
                           {/* Current */}
                           <div>
-                            <h3 className="text-sm font-bold text-amber-600 border-b border-stone-100 pb-2 mb-4">
+                            <h3 className="sm-section-heading text-sm font-bold pb-2 mb-4">
                               Current Address
                             </h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
@@ -1258,7 +1441,7 @@ export default function AddStudentModal({ isOpen, onClose }) {
                                     disabled={
                                       data.current_address_same_as_permanent
                                     }
-                                    className={`${tInput(err)} ${data.current_address_same_as_permanent ? "bg-stone-50 text-stone-400" : ""}`}
+                                    className={`${tInput(err)} ${data.current_address_same_as_permanent ? "sm-input-disabled" : ""}`}
                                     value={data[key]}
                                     onChange={set(key)}
                                   />
@@ -1277,7 +1460,7 @@ export default function AddStudentModal({ isOpen, onClose }) {
                                     disabled={
                                       data.current_address_same_as_permanent
                                     }
-                                    className={`${tInput(errors.current_address)} ${data.current_address_same_as_permanent ? "bg-stone-50 text-stone-400" : ""}`}
+                                    className={`${tInput(errors.current_address)} ${data.current_address_same_as_permanent ? "sm-input-disabled" : ""}`}
                                     placeholder="House No, Street, Landmark…"
                                     value={data.current_address}
                                     onChange={set("current_address")}
@@ -1293,43 +1476,26 @@ export default function AddStudentModal({ isOpen, onClose }) {
                       {step === 4 && (
                         <div className="flex flex-col gap-6">
                           <div>
-                            <p className="text-[13px] font-bold text-amber-600 mb-3">
+                            <p className="sm-section-heading text-[13px] font-bold mb-3 pb-0 border-none">
                               Required Document Uploads
                             </p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                              <DocCard
-                                docKey="birth_certificate"
-                                label="Birth Certificate"
-                              />
-                              <DocCard
-                                docKey="transfer_certificate"
-                                label="Transfer Certificate"
-                              />
-                              <DocCard
-                                docKey="aadhaar_front"
-                                label="Aadhaar Front"
-                              />
-                              <DocCard
-                                docKey="aadhaar_back"
-                                label="Aadhaar Back"
-                              />
-                              <DocCard
-                                docKey="previous_marksheets"
-                                label="Previous Marksheet"
-                              />
+                              {DOC_KEYS.map(({ key, label }) => (
+                                <DocCard key={key} docKey={key} label={label} />
+                              ))}
                             </div>
                           </div>
 
                           {/* Signature */}
-                          <div className="pt-4 border-t border-stone-100">
-                            <p className="text-[13px] font-medium text-stone-600 mb-2">
+                          <div className="sm-footer pt-4">
+                            <p className="sm-field-label text-[13px] font-medium mb-2">
                               Parent / Guardian Signature{" "}
-                              <span className="text-rose-500">*</span>
+                              <span className="sm-field-required">*</span>
                             </p>
                             <div className="flex items-center gap-3">
                               <label
                                 htmlFor="sig"
-                                className="cursor-pointer inline-flex items-center gap-1.5 text-[12.5px] font-semibold border border-stone-200 hover:border-amber-300 hover:bg-amber-50 text-stone-600 px-3.5 py-2 rounded-lg transition-colors"
+                                className="sm-sig-label cursor-pointer inline-flex items-center gap-1.5 text-[12.5px] font-semibold px-3.5 py-2 rounded-lg transition-colors"
                               >
                                 <Upload size={14} /> Upload Signature
                               </label>
@@ -1341,17 +1507,17 @@ export default function AddStudentModal({ isOpen, onClose }) {
                                 onChange={handleSig}
                                 ref={sigRef}
                               />
-                              {data.signature ? (
-                                <div className="border border-stone-200 rounded-lg bg-white px-3 py-1.5 h-10 flex items-center">
+                              {signaturePreview ? (
+                                <div className="sm-sig-preview rounded-lg px-3 py-1.5 h-10 flex items-center">
                                   <img
-                                    src={data.signature}
+                                    src={signaturePreview}
                                     alt="sig"
                                     className="max-h-7 max-w-[120px]"
                                   />
                                 </div>
                               ) : (
                                 <span
-                                  className={`text-[11.5px] ${errors.signature ? "text-rose-500" : "text-stone-400"}`}
+                                  className={`text-[11.5px] ${errors.signature ? "sm-sig-placeholder-error" : "sm-sig-placeholder"}`}
                                 >
                                   {errors.signature ||
                                     "No signature uploaded yet."}
@@ -1365,11 +1531,11 @@ export default function AddStudentModal({ isOpen, onClose }) {
                   </AnimatePresence>
 
                   {/* ── Footer ── */}
-                  <div className="flex items-center gap-3 mt-7 pt-5 border-t border-stone-100">
-                    {step === 1 && (
+                  <div className="sm-footer flex items-center gap-3 mt-7 pt-5">
+                    {step === 1 && !isEdit && (
                       <button
                         type="button"
-                        className="mr-auto inline-flex items-center gap-1.5 text-[13px] font-semibold text-stone-500 hover:text-amber-600 transition-colors"
+                        className="sm-btn-draft mr-auto inline-flex items-center gap-1.5 text-[13px] font-semibold transition-colors"
                       >
                         <Bookmark size={15} /> Save Draft
                       </button>
@@ -1378,7 +1544,7 @@ export default function AddStudentModal({ isOpen, onClose }) {
                       <button
                         type="button"
                         onClick={goPrev}
-                        className="inline-flex items-center gap-1 text-[13.5px] font-semibold text-stone-600 border border-stone-200 hover:bg-stone-50 px-4 py-2.5 rounded-lg transition-colors"
+                        className="sm-btn-prev inline-flex items-center gap-1 text-[13.5px] font-semibold px-4 py-2.5 rounded-lg transition-colors"
                       >
                         <ChevronLeft size={16} /> Previous
                       </button>
@@ -1386,7 +1552,7 @@ export default function AddStudentModal({ isOpen, onClose }) {
                     <button
                       type="button"
                       onClick={resetAndClose}
-                      className={`${step === 1 ? "" : "ml-auto"} text-[13.5px] font-semibold text-stone-500 hover:text-stone-700 px-4 py-2.5 transition-colors`}
+                      className={`sm-btn-cancel ${step === 1 && !isEdit ? "" : "ml-auto"} text-[13.5px] font-semibold px-4 py-2.5 transition-colors`}
                     >
                       Cancel
                     </button>
@@ -1394,16 +1560,24 @@ export default function AddStudentModal({ isOpen, onClose }) {
                       <button
                         type="button"
                         onClick={goNext}
-                        className="inline-flex items-center gap-1 text-[13.5px] font-semibold text-white bg-amber-600 hover:bg-amber-700 active:scale-[0.97] px-5 py-2.5 rounded-lg transition-all shadow-sm"
+                        className="sm-btn-next inline-flex items-center gap-1 text-[13.5px] font-semibold active:scale-[0.97] px-5 py-2.5 rounded-lg transition-all shadow-sm"
                       >
                         Next <ChevronRight size={16} />
                       </button>
                     ) : (
                       <button
                         type="submit"
-                        className="inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:scale-[0.97] px-5 py-2.5 rounded-lg transition-all shadow-sm"
+                        disabled={submitting}
+                        className="sm-btn-submit inline-flex items-center gap-1.5 text-[13.5px] font-semibold active:scale-[0.97] px-5 py-2.5 rounded-lg transition-all shadow-sm"
                       >
-                        <CircleCheck size={16} /> Save Student
+                        <CircleCheck size={16} />
+                        {submitting
+                          ? isEdit
+                            ? "Updating…"
+                            : "Saving…"
+                          : isEdit
+                            ? "Update Student"
+                            : "Save Student"}
                       </button>
                     )}
                   </div>

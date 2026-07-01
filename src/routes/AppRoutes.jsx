@@ -8,6 +8,7 @@ import Dashboard from "../features/dashboard/pages/Dashboard";
 
 
 import StudentsPage from "../features/students/pages/StudentPage.jsx";
+import StudentDetailsPage from "../features/students/pages/StudentDetailsPage.jsx";
 
 // import TeacherList from "../features/teachers/pages/TeacherList";
 
@@ -23,6 +24,7 @@ const AppRoutes = () => {
         <Route path="/dashboard" element={<Dashboard />} />
 
         <Route path="/students" element={<StudentsPage />} />
+        <Route path="/students/:id" element={<StudentDetailsPage />} />
 
         {/* <Route path="/teachers" element={<TeacherList />} /> */}
       </Route>

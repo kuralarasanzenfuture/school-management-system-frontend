@@ -1,0 +1,259 @@
+/* AddStudentModal.css
+   All COLOR styling for the modal lives here as plain CSS classes,
+   driven by the theme variables defined in app.css ( :root / [data-theme="dark"] ).
+   Layout, spacing, and sizing stay as Tailwind utility classes in the JSX.
+*/
+
+/* ── Overlay & panel ── */
+.sm-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.sm-panel {
+  background: var(--panel-bg);
+  box-shadow: var(--shadow);
+}
+
+/* ── Header ── */
+.sm-header {
+  border-bottom: 1px solid var(--divider);
+}
+
+.sm-title {
+  color: var(--text-primary);
+}
+
+.sm-subtitle {
+  color: var(--text-muted);
+}
+
+.sm-close-btn {
+  color: var(--text-muted);
+}
+.sm-close-btn:hover {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+}
+
+/* ── Field labels / errors ── */
+.sm-field-label {
+  color: var(--text-secondary);
+}
+
+.sm-field-required {
+  color: var(--danger);
+}
+
+.sm-field-error {
+  color: var(--danger);
+}
+
+/* ── Inputs ── */
+.sm-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.sm-input::placeholder {
+  color: var(--text-muted);
+}
+.sm-input:focus {
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+
+.sm-input-error {
+  border-color: var(--danger) !important;
+}
+.sm-input-error:focus {
+  box-shadow: 0 0 0 4px var(--danger-ring);
+}
+
+.sm-input-disabled {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+
+/* ── Photo upload ── */
+.sm-photo-circle {
+  background: var(--input-bg);
+  border-color: var(--btn-bg);
+}
+.sm-photo-circle-error {
+  border-color: var(--danger);
+}
+.sm-photo-placeholder {
+  color: var(--btn-bg);
+}
+
+/* ── Stepper ── */
+.sm-step-track {
+  background: var(--input-border);
+}
+.sm-step-fill {
+  background: var(--btn-bg);
+}
+.sm-step-circle {
+  background: var(--panel-bg);
+  border-color: var(--input-border);
+  color: var(--text-muted);
+}
+.sm-step-circle-active {
+  background: var(--panel-bg);
+  border-color: var(--btn-bg);
+  color: var(--btn-bg);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.sm-step-circle-done {
+  background: var(--btn-bg);
+  border-color: var(--btn-bg);
+  color: var(--btn-text);
+}
+.sm-step-label {
+  color: var(--text-muted);
+}
+.sm-step-label-active {
+  color: var(--btn-bg);
+}
+.sm-step-label-done {
+  color: var(--text-secondary);
+}
+
+/* ── Section headings (Permanent / Current Address) ── */
+.sm-section-heading {
+  color: var(--btn-bg);
+  border-bottom: 1px solid var(--divider);
+}
+
+/* ── Checkbox row ── */
+.sm-checkbox-label {
+  color: var(--text-secondary);
+}
+.sm-checkbox {
+  accent-color: var(--btn-bg);
+}
+
+/* ── Document cards ── */
+.sm-doc-card {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+}
+.sm-doc-card-filled {
+  background: var(--success-bg);
+  border-color: var(--success);
+}
+.sm-doc-icon-empty {
+  color: var(--warning);
+}
+.sm-doc-icon-filled {
+  color: var(--success);
+}
+.sm-doc-name {
+  color: var(--text-secondary);
+}
+.sm-doc-meta {
+  color: var(--text-muted);
+}
+.sm-doc-remove {
+  color: var(--danger);
+}
+.sm-doc-remove:hover {
+  background: var(--danger-bg);
+}
+.sm-doc-upload-btn {
+  color: var(--badge-text);
+  background: var(--badge-bg);
+}
+.sm-doc-upload-btn:hover {
+  opacity: 0.8;
+}
+
+/* ── Signature ── */
+.sm-sig-label {
+  color: var(--text-secondary);
+  border: 1px solid var(--input-border);
+}
+.sm-sig-label:hover {
+  border-color: var(--input-focus);
+  background: var(--input-bg);
+}
+.sm-sig-preview {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+}
+.sm-sig-placeholder {
+  color: var(--text-muted);
+}
+.sm-sig-placeholder-error {
+  color: var(--danger);
+}
+
+/* ── Footer ── */
+.sm-footer {
+  border-top: 1px solid var(--divider);
+}
+.sm-btn-draft {
+  color: var(--text-secondary);
+}
+.sm-btn-draft:hover {
+  color: var(--btn-bg);
+}
+.sm-btn-prev {
+  color: var(--text-secondary);
+  border: 1px solid var(--input-border);
+}
+.sm-btn-prev:hover {
+  background: var(--input-bg);
+}
+.sm-btn-cancel {
+  color: var(--text-secondary);
+}
+.sm-btn-cancel:hover {
+  color: var(--text-primary);
+}
+.sm-btn-next {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.sm-btn-next:hover {
+  background: var(--btn-hover);
+}
+.sm-btn-submit {
+  background: var(--success);
+  color: var(--btn-text);
+}
+.sm-btn-submit:hover {
+  opacity: 0.9;
+}
+.sm-btn-submit:disabled {
+  opacity: 0.6;
+}
+
+/* ── Success screen ── */
+.sm-success-circle {
+  background: var(--success-bg);
+  border: 1px solid var(--success);
+}
+.sm-success-icon {
+  color: var(--success);
+}
+.sm-success-title {
+  color: var(--text-primary);
+}
+.sm-success-desc {
+  color: var(--text-secondary);
+}
+.sm-btn-outline {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.sm-btn-outline:hover {
+  background: var(--input-bg);
+}
+.sm-btn-done {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.sm-btn-done:hover {
+  background: var(--btn-hover);
+}

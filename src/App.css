@@ -1,20 +1,20 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-html{
-    font-size:16px;
+html {
+  font-size: 16px;
 }
 
-body{
-    font-family:"Inter",sans-serif;
-    font-size:14px;
-    font-weight:400;
-    line-height:1.5;
-    color:var(--text-primary);
-    background:var(--bg);
+body {
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: var(--bg);
 }
 
 :root {
@@ -44,6 +44,14 @@ body{
   --divider: #eaedf8;
   --badge-bg: #e8ecff;
   --badge-text: #3949ab;
+
+  /* Semantic status colors — used for form validation, doc upload states, success screens */
+  --success: #059669;
+  --success-bg: #ecfdf5;
+  --danger: #e11d48;
+  --danger-bg: #fff1f2;
+  --warning: #d97706;
+  --warning-bg: #fffbeb;
 }
 [data-theme="dark"] {
   --bg: #0d0f1e;
@@ -72,6 +80,13 @@ body{
   --divider: #1e2235;
   --badge-bg: #1e2235;
   --badge-text: #7986cb;
+
+  --success: #34d399;
+  --success-bg: rgba(52, 211, 153, 0.1);
+  --danger: #fb7185;
+  --danger-bg: rgba(251, 113, 133, 0.1);
+  --warning: #fbbf24;
+  --warning-bg: rgba(251, 191, 36, 0.1);
 }
 
 :root {
@@ -87,9 +102,21 @@ body{
   --sidebar-control-bg-hover: rgba(255, 255, 255, 0.15);
   --sidebar-card-bg: rgba(255, 255, 255, 0.06);
 
-  --sidebar-logo-grad: linear-gradient(135deg, var(--side-accent, #3949ab), var(--side-bg, #1a237e));
-  --sidebar-avatar-grad: linear-gradient(135deg, var(--accent2, #7c4dff), var(--side-accent, #3949ab));
-  --sidebar-active-grad: linear-gradient(135deg, var(--side-accent, #3949ab), var(--side-bg, #1a237e));
+  --sidebar-logo-grad: linear-gradient(
+    135deg,
+    var(--side-accent, #3949ab),
+    var(--side-bg, #1a237e)
+  );
+  --sidebar-avatar-grad: linear-gradient(
+    135deg,
+    var(--accent2, #7c4dff),
+    var(--side-accent, #3949ab)
+  );
+  --sidebar-active-grad: linear-gradient(
+    135deg,
+    var(--side-accent, #3949ab),
+    var(--side-bg, #1a237e)
+  );
   --sidebar-active-shadow: 0 6px 16px rgba(57, 73, 171, 0.4);
 
   --sidebar-badge-bg: rgba(124, 77, 255, 0.25);
@@ -99,44 +126,44 @@ body{
   --sidebar-width-collapsed: 72px;
 }
 
-h1{
-    font-size:32px;
-    font-weight:600;
+h1 {
+  font-size: 32px;
+  font-weight: 600;
 }
 
-h2{
-    font-size:26px;
-    font-weight:700;
+h2 {
+  font-size: 26px;
+  font-weight: 700;
 }
 
-h3{
-    font-size:20px;
-    font-weight:600;
+h3 {
+  font-size: 20px;
+  font-weight: 600;
 }
 
-h4{
-    font-size:18px;
-    font-weight:600;
+h4 {
+  font-size: 18px;
+  font-weight: 600;
 }
 
-.title{
-    font-size:16px;
-    font-weight:600;
+.title {
+  font-size: 16px;
+  font-weight: 600;
 }
 
-.subtitle{
-    font-size:14px;
-    color:#64748b;
+.subtitle {
+  font-size: 14px;
+  color: #64748b;
 }
 
-.text{
-    font-size:14px;
+.text {
+  font-size: 14px;
 }
 
-.small{
-    font-size:13px;
+.small {
+  font-size: 13px;
 }
 
-.caption{
-    font-size:12px;
+.caption {
+  font-size: 12px;
 }

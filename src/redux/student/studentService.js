@@ -15,8 +15,8 @@ const createStudent = async (studentData) => {
   return response.data;
 };
 
-const updateStudent = async ({ id, studentData }) => {
-  const response = await api.put(`/students/${id}`, studentData);
+const updateStudent = async ({ id, formData }) => {
+  const response = await api.put(`/students/${id}`, formData);
   return response.data;
 };
 

@@ -248,3 +248,37 @@
   background: var(--panel-bg);
   color: var(--text-primary);
 }
+
+/* ── Student Status Badges ── */
+
+.sp-status {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* Active */
+.sp-status-active {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+/* Graduated */
+.sp-status-graduated {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* Transferred */
+.sp-status-transferred {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+
+/* Dropped */
+.sp-status-dropped {
+  background: var(--danger-bg);
+  color: var(--danger);
+}

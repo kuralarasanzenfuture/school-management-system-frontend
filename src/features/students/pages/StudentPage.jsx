@@ -354,6 +354,7 @@ export default function StudentsPage() {
                     Date of Birth <ArrowUpDown size={11} />
                   </span>
                 </th>
+                <th className="px-3 py-3 font-semibold">Status</th>
                 <th className="px-3 py-3 font-semibold text-right pr-5">
                   Actions
                 </th>
@@ -429,6 +430,15 @@ export default function StudentsPage() {
                     </td>
                     <td className="sp-cell px-3 py-3.5 text-[13.5px]">
                       {formatDob(s.date_of_birth)}
+                    </td>
+                    <td className="sp-cell px-3 py-3.5 text-[13.5px]">
+                      {s.status ? (
+                        <span className={`sp-status sp-status-${s.status}`}>
+                          {s.status}
+                        </span>
+                      ) : (
+                        <span className="sp-cell-muted">—</span>
+                      )}
                     </td>
                     <td className="px-3 py-3.5">
                       <div className="flex items-center justify-end gap-1 pr-2">

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   ArrowLeft,
   Download,
@@ -12,7 +12,7 @@ import {
   Loader2,
 } from "lucide-react";
 import * as XLSX from "xlsx"; // npm install xlsx
-import { getStudents } from "../../../redux/student/studentSlice";
+import { getStudentById } from "../../../redux/student/studentSlice";
 import "../styles/StudentDetailsPage.css";
 
 // const BASE_URL = process.env.REACT_APP_BASE_URL;
@@ -68,11 +68,11 @@ const CURRENT_ADDRESS_FIELDS = [
 const DOC_FIELDS = [
   ["Photo", "photo_url", "photo"],
   ["Signature", "signature_url", "signature"],
-  ["Birth Certificate", "birth_certificate"],
-  ["Transfer Certificate", "transfer_certificate"],
-  ["Aadhaar Front", "aadhaar_front"],
-  ["Aadhaar Back", "aadhaar_back"],
-  ["Previous Marksheet", "previous_marksheets"],
+  ["Birth Certificate", "birth_certificate_url", "birth_certificate"],
+  ["Transfer Certificate", "transfer_certificate_url", "transfer_certificate"],
+  ["Aadhaar Front", "aadhaar_front_url", "aadhaar_front"],
+  ["Aadhaar Back", "aadhaar_back_url", "aadhaar_back"],
+  ["Previous Marksheet", "previous_marksheets_url", "previous_marksheets"],
 ];
 
 /* ── Helpers ── */
@@ -197,8 +197,9 @@ function StudentDetailsPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { students, loading } = useSelector((state) => state.students);
-  console.log("students", students);
+  const [student, setStudent] = useState(null);
+  const [fetching, setFetching] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
   const [lightbox, setLightbox] = useState(null); // { src, label }
 
   // Tracks which document keys failed to render as an <img> — this is how we
@@ -207,26 +208,27 @@ function StudentDetailsPage() {
   // Tracks in-flight downloads so the button can show a spinner per doc.
   const [downloading, setDownloading] = useState({});
 
-  useEffect(() => {
-    if (!students || students.length === 0) {
-      dispatch(getStudentById());
-    }
-  }, [dispatch, students]);
+  const loadStudent = () => {
+    setFetching(true);
+    setFetchError(null);
+    dispatch(getStudentById(id))
+      .unwrap()
+      .then((payload) => {
+        // Unwrap common response shapes ({ student }, { data }, or the raw object).
+        const data = payload?.student || payload?.data || payload;
+        setStudent(data || null);
+      })
+      .catch((err) => {
+        setFetchError(err?.message || err || "Failed to load student");
+        setStudent(null);
+      })
+      .finally(() => setFetching(false));
+  };
 
-  const student = useMemo(() => {
-    if (!students) return null;
-    return students.find((s) => String(s.id) === String(id)) || null;
-  }, [students, id]);
-
-  // TEMP DEBUG: if documents still show "Not uploaded" for files you know
-  // exist, open devtools → check this log for the real field names your
-  // API returns, then remove this once findDocValue is confirmed correct.
   useEffect(() => {
-    if (student) {
-      // eslint-disable-next-line no-console
-      console.log("[StudentDetailsPage] raw student object:", student);
-    }
-  }, [student]);
+    loadStudent();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, id]);
 
   const age = student ? computeAge(student.date_of_birth) : null;
   const photoUrl = student
@@ -331,7 +333,7 @@ function StudentDetailsPage() {
     XLSX.writeFile(wb, fileName);
   };
 
-  if (loading && !student) {
+  if (fetching && !student) {
     return (
       <div className="sd-page min-h-screen p-6">
         <p className="sd-loading">Loading student details…</p>
@@ -353,10 +355,10 @@ function StudentDetailsPage() {
             Student not found
           </h2>
           <p className="sd-notfound text-[13.5px]">
-            This student may not exist, or the list hasn't loaded yet.
+            {fetchError || "This student may not exist, or hasn't loaded yet."}
           </p>
           <button
-            onClick={() => dispatch(getStudents())}
+            onClick={loadStudent}
             className="sd-btn-outline inline-flex items-center gap-1.5 mt-4 px-4 py-2 rounded-lg text-[13px] font-semibold transition-colors"
           >
             Retry

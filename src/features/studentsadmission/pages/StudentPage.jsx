@@ -77,10 +77,7 @@ import {
 } from "lucide-react";
 import AddStudentModal from "../components/AddStudentModal";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  deleteStudent,
-  getStudents,
-} from "../../../redux/student/studentSlice";
+import { getStudents } from "../../../redux/student/studentSlice";
 import { avatarColors, colors } from "../../../common/utils/colors";
 
 const STUDENTS = [
@@ -250,7 +247,7 @@ export default function StudentsPage() {
   const dispatch = useDispatch();
 
   const { students, loading, error } = useSelector((state) => state.students);
-  // console.log(students);
+  console.log(students);
   const [openModal, setOpenModal] = useState(false);
   const [activeTab, setActiveTab] = useState("All Classes");
   const [page, setPage] = useState(1);
@@ -303,25 +300,6 @@ export default function StudentsPage() {
     }
 
     return avatarColors[Math.abs(hash) % avatarColors.length];
-  };
-
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this student?",
-    );
-
-    if (!confirmDelete) return;
-
-    try {
-      await dispatch(deleteStudent(id)).unwrap();
-
-      // alert("Student deleted successfully");
-
-      // Optional if your API doesn't return deleted data correctly
-      // dispatch(getStudents());
-    } catch (error) {
-      alert(error || "Failed to delete student");
-    }
   };
 
   return (
@@ -589,10 +567,7 @@ export default function StudentsPage() {
                         <button className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors">
                           <Pencil size={15} />
                         </button>
-                        <button
-                          className="w-8 h-8 rounded-lg hover:bg-rose-50 flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors"
-                          onClick={() => handleDelete(s.id)}
-                        >
+                        <button className="w-8 h-8 rounded-lg hover:bg-rose-50 flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors">
                           <Trash2 size={15} />
                         </button>
                       </div>

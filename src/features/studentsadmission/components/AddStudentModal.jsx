@@ -269,6 +269,7 @@ import {
   Upload,
   Trash2,
   User,
+  GraduationCap,
   Users,
   MapPin,
   FileText,
@@ -277,23 +278,15 @@ import {
   X,
   CircleCheck,
 } from "lucide-react";
-import { useDispatch } from "react-redux";
-import {
-  createStudent,
-  updateStudent,
-} from "../../../redux/student/studentSlice";
 
-// Sequential IDs 1-4 matching the actual step counter
 const STEPS = [
   { id: 1, label: "Personal", icon: User },
-  { id: 2, label: "Guardian", icon: Users },
-  { id: 3, label: "Address", icon: MapPin },
-  { id: 4, label: "Documents", icon: FileText },
+  { id: 2, label: "Academic", icon: GraduationCap },
+  { id: 3, label: "Guardian", icon: Users },
+  { id: 4, label: "Address", icon: MapPin },
+  { id: 5, label: "Documents", icon: FileText },
 ];
 
-const TOTAL_STEPS = STEPS.length;
-
-/* ── Field wrapper ── */
 function Field({ label, required, error, children }) {
   return (
     <div className="flex flex-col gap-1.5">
@@ -311,12 +304,13 @@ function Field({ label, required, error, children }) {
 const inputBase =
   "w-full rounded-lg border bg-white px-3.5 py-2.5 text-[14px] text-stone-800 placeholder:text-stone-400 outline-none transition-all duration-200 focus:ring-4";
 
-const tInput = (err) =>
-  `${inputBase} ${
+function tInput(err) {
+  return `${inputBase} ${
     err
       ? "border-rose-400 ring-rose-100 focus:ring-rose-100"
       : "border-stone-200 focus:border-amber-400 focus:ring-amber-100"
   }`;
+}
 
 const stepVariants = {
   enter: (dir) => ({ opacity: 0, x: dir > 0 ? 24 : -24 }),
@@ -324,88 +318,81 @@ const stepVariants = {
   exit: (dir) => ({ opacity: 0, x: dir > 0 ? -24 : 24 }),
 };
 
-/* ── Initial form state (snake_case matches DB schema) ── */
-const INIT = {
-  // Student
-  photo: null,
-  school_id: 1,
-  first_name: "",
-  middle_name: "",
-  last_name: "",
-  email: "",
-  mobile_no: "",
-  date_of_birth: "",
-  gender: "male",
-  blood_group: "A+",
-  aadhaar_no: "",
-  religion: "",
-  nationality: "INDIAN",
-  mother_tongue: "",
-
-  // Parents
-  father_name: "",
-  mother_name: "",
-  father_occupation: "",
-  mother_occupation: "",
-  parent_mobile: "",
-  alternate_mobile: "",
-  parent_email: "",
-  emergency_contact: "",
-  emergency_relationship: "Father",
-
-  // Permanent address
-  permanent_area: "",
-  permanent_city: "",
-  permanent_district: "",
-  permanent_state: "",
-  permanent_postal_code: "",
-  permanent_address: "",
-
-  // Current address
-  current_address_same_as_permanent: false,
-  current_area: "",
-  current_city: "",
-  current_district: "",
-  current_state: "",
-  current_postal_code: "",
-  current_address: "",
-
-  // Documents (stored as { name, size } after pick)
-  birth_certificate: null,
-  aadhaar_front: null,
-  aadhaar_back: null,
-  transfer_certificate: null,
-  previous_marksheets: null,
-
-  // Signature
-  signature: null,
-};
-
 export default function AddStudentModal({ isOpen, onClose }) {
-  const dispatch = useDispatch();
-
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
-  const [data, setData] = useState(INIT);
-
   const fileRef = useRef(null);
   const sigRef = useRef(null);
 
-  /* ── Age auto-calc ── */
+  const [data, setData] = useState({
+    photo: null,
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    email: "",
+    dob: "",
+    gender: "Male",
+    bloodGroup: "A+",
+    studentMobile: "",
+    aadhaarNumber: "",
+    religion: "",
+    motherTongue: "",
+    studentClass: "I",
+    section: "A",
+    admissionNo: "",
+    roll: "",
+    academicYear: "2026-2027",
+    previousSchool: "",
+    joiningDate: "",
+    houseTeam: "Red",
+    subjectsGroup: "",
+    transportRequired: "No",
+    hostelRequired: "No",
+    fatherName: "",
+    motherName: "",
+    parentOccupation: "",
+    parentMobile: "",
+    alternateMobile: "",
+    parentEmail: "",
+    emergencyContact: "",
+    relationship: "Father",
+    permanentAddress: "",
+    sameAddress: false,
+    currentAddress: "",
+    city: "",
+    state: "",
+    pincode: "",
+    allergies: "",
+    medicalConditions: "",
+    doctorName: "",
+    emergencyMedicalNotes: "",
+    feeCategory: "Regular",
+    scholarshipDetails: "",
+    busRoute: "",
+    pickupPoint: "",
+    signature: null,
+    docs: {
+      birthCert: null,
+      transCert: null,
+      aadhaarCopy: null,
+      marksheet: null,
+      passportPhoto: null,
+    },
+  });
+
   const age = useMemo(() => {
-    if (!data.date_of_birth) return "";
-    const b = new Date(data.date_of_birth);
+    if (!data.dob) return "";
+    const b = new Date(data.dob);
     if (isNaN(b)) return "";
     const now = new Date();
     let a = now.getFullYear() - b.getFullYear();
     const m = now.getMonth() - b.getMonth();
     if (m < 0 || (m === 0 && now.getDate() < b.getDate())) a--;
     return a >= 0 ? `${a} years` : "";
-  }, [data.date_of_birth]);
+  }, [data.dob]);
 
-  /* ── Helpers ── */
   const set = (key) => (e) => {
     const v = e?.target ? e.target.value : e;
     setData((d) => ({ ...d, [key]: v }));
@@ -416,84 +403,72 @@ export default function AddStudentModal({ isOpen, onClose }) {
     const f = e.target.files?.[0];
     if (f) setData((d) => ({ ...d, photo: URL.createObjectURL(f) }));
   };
-
   const handleSig = (e) => {
     const f = e.target.files?.[0];
     if (f) setData((d) => ({ ...d, signature: URL.createObjectURL(f) }));
-    if (errors.signature) setErrors((er) => ({ ...er, signature: null }));
   };
-
   const setDoc = (key) => (e) => {
     const f = e.target.files?.[0];
     if (f)
       setData((d) => ({
         ...d,
-        [key]: { name: f.name, size: Math.round(f.size / 1024) },
+        docs: {
+          ...d.docs,
+          [key]: { name: f.name, size: Math.round(f.size / 1024) },
+        },
       }));
   };
+  const removeDoc = (key) => () =>
+    setData((d) => ({ ...d, docs: { ...d.docs, [key]: null } }));
 
-  const removeDoc = (key) => () => setData((d) => ({ ...d, [key]: null }));
-
-  /* ── Validation per step ── */
   const validate = (s) => {
     const e = {};
-
     if (s === 1) {
-      if (!data.first_name.trim()) e.first_name = "First name is required";
-      if (!data.last_name.trim()) e.last_name = "Last name is required";
+      if (!data.firstName.trim()) e.firstName = "First name is required";
+      if (!data.lastName.trim()) e.lastName = "Last name is required";
       if (!data.email.trim()) e.email = "Email is required";
       else if (!/^\S+@\S+\.\S+$/.test(data.email))
         e.email = "Enter a valid email";
-      if (!data.date_of_birth) e.date_of_birth = "Date of birth is required";
-      if (data.mobile_no && !/^\d{10}$/.test(data.mobile_no))
-        e.mobile_no = "Enter a 10-digit number";
-      if (data.aadhaar_no && !/^\d{12}$/.test(data.aadhaar_no))
-        e.aadhaar_no = "Aadhaar must be 12 digits";
+      if (!data.dob) e.dob = "Date of birth is required";
+      if (data.studentMobile && !/^\d{10}$/.test(data.studentMobile))
+        e.studentMobile = "Enter a 10-digit number";
+      if (data.aadhaarNumber && !/^\d{12}$/.test(data.aadhaarNumber))
+        e.aadhaarNumber = "Aadhaar must be 12 digits";
     }
-
     if (s === 2) {
-      if (!data.father_name.trim()) e.father_name = "Father's name is required";
-      if (!/^\d{10}$/.test(data.parent_mobile))
-        e.parent_mobile = "Enter a 10-digit number";
-      if (!data.emergency_contact.trim())
-        e.emergency_contact = "Emergency contact is required";
-      if (data.parent_email && !/^\S+@\S+\.\S+$/.test(data.parent_email))
-        e.parent_email = "Enter a valid email";
+      if (!data.admissionNo.trim()) e.admissionNo = "Admission ID is required";
+      if (!data.roll.trim()) e.roll = "Roll number is required";
+      if (!data.joiningDate) e.joiningDate = "Joining date is required";
     }
-
     if (s === 3) {
-      if (!data.permanent_address.trim()) e.permanent_address = "Required";
-      if (!data.permanent_area.trim()) e.permanent_area = "Required";
-      if (!data.permanent_city.trim()) e.permanent_city = "Required";
-      if (!data.permanent_district.trim()) e.permanent_district = "Required";
-      if (!data.permanent_state.trim()) e.permanent_state = "Required";
-      if (!/^\d{6}$/.test(data.permanent_postal_code))
-        e.permanent_postal_code = "Enter a valid 6-digit code";
-
-      if (!data.current_address_same_as_permanent) {
-        if (!data.current_address.trim()) e.current_address = "Required";
-        if (!data.current_area.trim()) e.current_area = "Required";
-        if (!data.current_city.trim()) e.current_city = "Required";
-        if (!data.current_district.trim()) e.current_district = "Required";
-        if (!data.current_state.trim()) e.current_state = "Required";
-        if (!/^\d{6}$/.test(data.current_postal_code))
-          e.current_postal_code = "Enter a valid 6-digit code";
-      }
+      if (!data.fatherName.trim()) e.fatherName = "Father's name is required";
+      if (!/^\d{10}$/.test(data.parentMobile))
+        e.parentMobile = "Enter a 10-digit number";
+      if (!data.emergencyContact.trim())
+        e.emergencyContact = "Emergency contact is required";
+      if (data.parentEmail && !/^\S+@\S+\.\S+$/.test(data.parentEmail))
+        e.parentEmail = "Enter a valid email";
     }
-
     if (s === 4) {
+      if (!data.permanentAddress.trim())
+        e.permanentAddress = "Permanent address is required";
+      if (!data.sameAddress && !data.currentAddress.trim())
+        e.currentAddress = "Current address is required";
+      if (!data.city.trim()) e.city = "City is required";
+      if (!data.state.trim()) e.state = "State is required";
+      if (!/^\d{6}$/.test(data.pincode)) e.pincode = "Enter a 6-digit pincode";
+    }
+    if (s === 5) {
       if (!data.signature) e.signature = "Signature upload is required";
     }
-
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
-  /* ── Navigation ── */
   const goNext = () => {
     if (!validate(step)) return;
     setDirection(1);
-    setStep((s) => Math.min(TOTAL_STEPS, s + 1));
+    setStep((s) => Math.min(5, s + 1));
   };
   const goPrev = () => {
     setDirection(-1);
@@ -508,162 +483,25 @@ export default function AddStudentModal({ isOpen, onClose }) {
 
   const resetAndClose = () => {
     onClose();
+    // Reset after the close animation finishes so it doesn't flash mid-exit
     setTimeout(() => {
       setStep(1);
       setSubmitted(false);
       setErrors({});
-      setData(INIT);
     }, 250);
   };
 
-  const handlesubmit = async (e) => {
+  const submit = (e) => {
     e.preventDefault();
-
-    if (!validate(TOTAL_STEPS)) return;
-
-    const formData = new FormData();
-
-    // Basic Details
-    formData.append("school_id", data.school_id);
-    formData.append("first_name", data.first_name);
-    formData.append("middle_name", data.middle_name);
-    formData.append("last_name", data.last_name);
-    formData.append("email", data.email);
-    formData.append("mobile_no", data.mobile_no);
-
-    formData.append("date_of_birth", data.date_of_birth);
-    formData.append("gender", data.gender);
-    formData.append("blood_group", data.blood_group);
-    formData.append("aadhaar_no", data.aadhaar_no);
-    formData.append("religion", data.religion);
-    formData.append("nationality", data.nationality);
-    formData.append("mother_tongue", data.mother_tongue);
-
-    // Parent Details
-    formData.append("father_name", data.father_name);
-    formData.append("mother_name", data.mother_name);
-    formData.append("father_occupation", data.father_occupation);
-    formData.append("mother_occupation", data.mother_occupation);
-
-    formData.append("parent_mobile", data.parent_mobile);
-    formData.append("alternate_mobile", data.alternate_mobile);
-    formData.append("parent_email", data.parent_email);
-
-    formData.append("emergency_contact", data.emergency_contact);
-    formData.append("emergency_relationship", data.emergency_relationship);
-
-    // Permanent Address
-    formData.append("permanent_area", data.permanent_area);
-    formData.append("permanent_city", data.permanent_city);
-    formData.append("permanent_district", data.permanent_district);
-    formData.append("permanent_state", data.permanent_state);
-    formData.append("permanent_postal_code", data.permanent_postal_code);
-    formData.append("permanent_address", data.permanent_address);
-
-    // Current Address
-    formData.append(
-      "current_address_same_as_permanent",
-      data.current_address_same_as_permanent,
-    );
-
-    formData.append("current_area", data.current_area);
-    formData.append("current_city", data.current_city);
-    formData.append("current_district", data.current_district);
-    formData.append("current_state", data.current_state);
-    formData.append("current_postal_code", data.current_postal_code);
-    formData.append("current_address", data.current_address);
-
-    // Images
-    if (data.photo) {
-      formData.append("photo", data.photo);
-    }
-
-    if (data.birth_certificate) {
-      formData.append("birth_certificate", data.birth_certificate);
-    }
-
-    if (data.aadhaar_front) {
-      formData.append("aadhaar_front", data.aadhaar_front);
-    }
-
-    if (data.aadhaar_back) {
-      formData.append("aadhaar_back", data.aadhaar_back);
-    }
-
-    if (data.transfer_certificate) {
-      formData.append("transfer_certificate", data.transfer_certificate);
-    }
-
-    if (data.previous_marksheets) {
-      formData.append("previous_marksheets", data.previous_marksheets);
-    }
-
-    try {
-      await dispatch(createStudent(formData)).unwrap();
-
-      alert("Student Created Successfully");
-
-      setSubmitted(true);
-    } catch (err) {
-      console.log(err);
-      alert(err);
-    }
-  };
-
-  /* ── Doc upload card ── */
-  const DocCard = ({ docKey, label }) => {
-    const f = data[docKey];
-    return (
-      <div
-        className={`flex items-center justify-between gap-3 rounded-xl border px-3.5 py-3 transition-all duration-300 ${
-          f
-            ? "border-emerald-200 bg-emerald-50/60"
-            : "border-stone-200 bg-stone-50/60"
-        }`}
-      >
-        <div className="flex items-center gap-3 min-w-0">
-          {f ? (
-            <FileCheck size={20} className="text-emerald-600 shrink-0" />
-          ) : (
-            <Upload size={20} className="text-amber-500 shrink-0" />
-          )}
-          <div className="min-w-0">
-            <p className="text-[13px] font-semibold text-stone-700 truncate">
-              {label}
-            </p>
-            <p className="text-[11px] text-stone-400 truncate">
-              {f ? `${f.name} · ${f.size} KB` : "Not uploaded yet"}
-            </p>
-          </div>
-        </div>
-        {f ? (
-          <button
-            type="button"
-            onClick={removeDoc(docKey)}
-            className="shrink-0 w-8 h-8 rounded-lg hover:bg-rose-100 text-rose-500 flex items-center justify-center transition-colors"
-          >
-            <Trash2 size={15} />
-          </button>
-        ) : (
-          <label className="shrink-0 cursor-pointer text-[12px] font-semibold text-amber-700 bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-lg transition-colors">
-            Upload
-            <input
-              type="file"
-              accept=".pdf,.jpg,.jpeg,.png"
-              className="hidden"
-              onChange={setDoc(docKey)}
-            />
-          </label>
-        )}
-      </div>
-    );
+    if (!validate(5)) return;
+    setSubmitted(true);
   };
 
   return (
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -677,7 +515,6 @@ export default function AddStudentModal({ isOpen, onClose }) {
             transition={{ duration: 0.25 }}
             className="w-full max-w-3xl rounded-3xl bg-white shadow-2xl max-h-[95vh] overflow-hidden flex flex-col"
           >
-            {/* ── Success screen ── */}
             {submitted ? (
               <div className="p-10 text-center">
                 <motion.div
@@ -696,15 +533,14 @@ export default function AddStudentModal({ isOpen, onClose }) {
                   Admission saved
                 </h2>
                 <p className="text-[14px] text-stone-500 mb-6">
-                  {data.first_name} {data.last_name} has been successfully
-                  enrolled.
+                  {data.firstName} {data.lastName} has been enrolled into Class{" "}
+                  {data.studentClass} - {data.section}.
                 </p>
                 <div className="flex items-center justify-center gap-3">
                   <button
                     onClick={() => {
                       setSubmitted(false);
                       setStep(1);
-                      setData(INIT);
                     }}
                     className="px-5 py-2.5 rounded-lg border border-stone-200 text-stone-600 text-[14px] font-semibold hover:bg-stone-50 transition-colors"
                   >
@@ -720,7 +556,7 @@ export default function AddStudentModal({ isOpen, onClose }) {
               </div>
             ) : (
               <>
-                {/* ── Header + Stepper ── */}
+                {/* Header */}
                 <div className="px-6 sm:px-8 pt-6 pb-5 border-b border-stone-100 shrink-0">
                   <div className="flex items-center justify-between mb-5">
                     <div>
@@ -728,7 +564,7 @@ export default function AddStudentModal({ isOpen, onClose }) {
                         New Student Admission
                       </h1>
                       <p className="text-[12.5px] text-stone-400">
-                        Step {step} of {TOTAL_STEPS} · {STEPS[step - 1].label}{" "}
+                        Step {step} of 5 &middot; {STEPS[step - 1].label}{" "}
                         Details
                       </p>
                     </div>
@@ -740,14 +576,14 @@ export default function AddStudentModal({ isOpen, onClose }) {
                     </button>
                   </div>
 
-                  {/* Progress bar + dots */}
+                  {/* Stepper */}
                   <div className="relative">
                     <div className="absolute top-4 left-4 right-4 h-[2px] bg-stone-200 rounded-full" />
                     <motion.div
                       className="absolute top-4 left-4 h-[2px] bg-amber-500 rounded-full"
                       initial={false}
                       animate={{
-                        width: `calc(${((step - 1) / (TOTAL_STEPS - 1)) * 100}% - ${((step - 1) / (TOTAL_STEPS - 1)) * 32}px)`,
+                        width: `calc(${((step - 1) / (STEPS.length - 1)) * 100}% - ${((step - 1) / (STEPS.length - 1)) * 32}px)`,
                       }}
                       transition={{ duration: 0.4, ease: "easeOut" }}
                     />
@@ -761,7 +597,7 @@ export default function AddStudentModal({ isOpen, onClose }) {
                             key={s.id}
                             type="button"
                             onClick={() => onStepClick(s.id)}
-                            className="flex flex-col items-center gap-1.5"
+                            className="flex flex-col items-center gap-1.5 group"
                           >
                             <motion.div
                               animate={{ scale: active ? 1.12 : 1 }}
@@ -802,9 +638,9 @@ export default function AddStudentModal({ isOpen, onClose }) {
                   </div>
                 </div>
 
-                {/* ── Form body ── */}
+                {/* Body */}
                 <form
-                  onSubmit={handlesubmit}
+                  onSubmit={submit}
                   className="px-6 sm:px-8 py-6 overflow-y-auto grow"
                 >
                   <AnimatePresence mode="wait" custom={direction}>
@@ -817,17 +653,19 @@ export default function AddStudentModal({ isOpen, onClose }) {
                       exit="exit"
                       transition={{ duration: 0.25, ease: "easeOut" }}
                     >
-                      {/* ═══ STEP 1 — Personal ═══ */}
                       {step === 1 && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
-                          {/* Photo upload */}
                           <div className="sm:col-span-2 flex justify-center mb-1">
                             <label
                               htmlFor="photo"
                               className="cursor-pointer group"
                             >
                               <div
-                                className={`w-24 h-24 rounded-full overflow-hidden border-[3px] flex items-center justify-center bg-amber-50 shadow-sm transition-all duration-300 group-hover:shadow-md group-hover:scale-[1.03] ${errors.photo ? "border-rose-400" : "border-amber-400"}`}
+                                className={`w-24 h-24 rounded-full overflow-hidden border-[3px] flex items-center justify-center bg-amber-50 shadow-sm transition-all duration-300 group-hover:shadow-md group-hover:scale-[1.03] ${
+                                  errors.photo
+                                    ? "border-rose-400"
+                                    : "border-amber-400"
+                                }`}
                               >
                                 {data.photo ? (
                                   <img
@@ -859,33 +697,33 @@ export default function AddStudentModal({ isOpen, onClose }) {
                           <Field
                             label="First Name"
                             required
-                            error={errors.first_name}
+                            error={errors.firstName}
                           >
                             <input
-                              className={tInput(errors.first_name)}
+                              className={tInput(errors.firstName)}
                               placeholder="Aryan"
-                              value={data.first_name}
-                              onChange={set("first_name")}
+                              value={data.firstName}
+                              onChange={set("firstName")}
                             />
                           </Field>
                           <Field
                             label="Last Name"
                             required
-                            error={errors.last_name}
+                            error={errors.lastName}
                           >
                             <input
-                              className={tInput(errors.last_name)}
+                              className={tInput(errors.lastName)}
                               placeholder="Kapoor"
-                              value={data.last_name}
-                              onChange={set("last_name")}
+                              value={data.lastName}
+                              onChange={set("lastName")}
                             />
                           </Field>
                           <Field label="Middle Name">
                             <input
                               className={tInput()}
                               placeholder="Dev"
-                              value={data.middle_name}
-                              onChange={set("middle_name")}
+                              value={data.middleName}
+                              onChange={set("middleName")}
                             />
                           </Field>
                           <Field
@@ -903,13 +741,13 @@ export default function AddStudentModal({ isOpen, onClose }) {
                           <Field
                             label="Date of Birth"
                             required
-                            error={errors.date_of_birth}
+                            error={errors.dob}
                           >
                             <input
                               type="date"
-                              className={tInput(errors.date_of_birth)}
-                              value={data.date_of_birth}
-                              onChange={set("date_of_birth")}
+                              className={tInput(errors.dob)}
+                              value={data.dob}
+                              onChange={set("dob")}
                             />
                           </Field>
                           <Field label="Auto-Calculated Age">
@@ -926,16 +764,16 @@ export default function AddStudentModal({ isOpen, onClose }) {
                               value={data.gender}
                               onChange={set("gender")}
                             >
-                              <option value="male">Male</option>
-                              <option value="female">Female</option>
-                              <option value="other">Other</option>
+                              <option>Male</option>
+                              <option>Female</option>
+                              <option>Other</option>
                             </select>
                           </Field>
                           <Field label="Blood Group">
                             <select
                               className={tInput()}
-                              value={data.blood_group}
-                              onChange={set("blood_group")}
+                              value={data.bloodGroup}
+                              onChange={set("bloodGroup")}
                             >
                               {[
                                 "A+",
@@ -951,23 +789,26 @@ export default function AddStudentModal({ isOpen, onClose }) {
                               ))}
                             </select>
                           </Field>
-                          <Field label="Mobile Number" error={errors.mobile_no}>
+                          <Field
+                            label="Student Mobile Number"
+                            error={errors.studentMobile}
+                          >
                             <input
-                              className={tInput(errors.mobile_no)}
+                              className={tInput(errors.studentMobile)}
                               placeholder="9876543210"
-                              value={data.mobile_no}
-                              onChange={set("mobile_no")}
+                              value={data.studentMobile}
+                              onChange={set("studentMobile")}
                             />
                           </Field>
                           <Field
                             label="Aadhaar / National ID"
-                            error={errors.aadhaar_no}
+                            error={errors.aadhaarNumber}
                           >
                             <input
-                              className={tInput(errors.aadhaar_no)}
+                              className={tInput(errors.aadhaarNumber)}
                               placeholder="12-digit number"
-                              value={data.aadhaar_no}
-                              onChange={set("aadhaar_no")}
+                              value={data.aadhaarNumber}
+                              onChange={set("aadhaarNumber")}
                             />
                           </Field>
                           <Field label="Religion">
@@ -982,101 +823,228 @@ export default function AddStudentModal({ isOpen, onClose }) {
                             <input
                               className={tInput()}
                               placeholder="Hindi / Tamil / English"
-                              value={data.mother_tongue}
-                              onChange={set("mother_tongue")}
+                              value={data.motherTongue}
+                              onChange={set("motherTongue")}
                             />
                           </Field>
                         </div>
                       )}
 
-                      {/* ═══ STEP 2 — Guardian ═══ */}
                       {step === 2 && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
+                          <Field label="Class" required>
+                            <select
+                              className={tInput()}
+                              value={data.studentClass}
+                              onChange={set("studentClass")}
+                            >
+                              {[
+                                "LKG",
+                                "UKG",
+                                "I",
+                                "II",
+                                "III",
+                                "IV",
+                                "V",
+                                "VI",
+                                "VII",
+                                "VIII",
+                                "IX",
+                                "X",
+                                "XI",
+                                "XII",
+                              ].map((c) => (
+                                <option key={c}>{c}</option>
+                              ))}
+                            </select>
+                          </Field>
+                          <Field label="Section" required>
+                            <select
+                              className={tInput()}
+                              value={data.section}
+                              onChange={set("section")}
+                            >
+                              {["A", "B", "C", "D"].map((s) => (
+                                <option key={s}>{s}</option>
+                              ))}
+                            </select>
+                          </Field>
+                          <Field
+                            label="Admission / Student ID"
+                            required
+                            error={errors.admissionNo}
+                          >
+                            <input
+                              className={tInput(errors.admissionNo)}
+                              value={data.admissionNo}
+                              onChange={set("admissionNo")}
+                              placeholder="ADM-2026-001"
+                            />
+                          </Field>
+                          <Field
+                            label="Roll Number"
+                            required
+                            error={errors.roll}
+                          >
+                            <input
+                              className={tInput(errors.roll)}
+                              value={data.roll}
+                              onChange={set("roll")}
+                              placeholder="14"
+                            />
+                          </Field>
+                          <Field label="Academic Year" required>
+                            <select
+                              className={tInput()}
+                              value={data.academicYear}
+                              onChange={set("academicYear")}
+                            >
+                              <option>2026-2027</option>
+                              <option>2025-2026</option>
+                            </select>
+                          </Field>
+                          <Field label="Previous School Name">
+                            <input
+                              className={tInput()}
+                              placeholder="Greenwood Public School"
+                              value={data.previousSchool}
+                              onChange={set("previousSchool")}
+                            />
+                          </Field>
+                          <Field
+                            label="Joining Date"
+                            required
+                            error={errors.joiningDate}
+                          >
+                            <input
+                              type="date"
+                              className={tInput(errors.joiningDate)}
+                              value={data.joiningDate}
+                              onChange={set("joiningDate")}
+                            />
+                          </Field>
+                          <Field label="House / Team Name">
+                            <select
+                              className={tInput()}
+                              value={data.houseTeam}
+                              onChange={set("houseTeam")}
+                            >
+                              <option>Red</option>
+                              <option>Blue</option>
+                              <option>Green</option>
+                              <option>Yellow</option>
+                            </select>
+                          </Field>
+                          <Field label="Subjects / Group Category">
+                            <input
+                              className={tInput()}
+                              placeholder="Science / Commerce / General"
+                              value={data.subjectsGroup}
+                              onChange={set("subjectsGroup")}
+                            />
+                          </Field>
+                          <Field label="Transport Required?">
+                            <select
+                              className={tInput()}
+                              value={data.transportRequired}
+                              onChange={set("transportRequired")}
+                            >
+                              <option>No</option>
+                              <option>Yes</option>
+                            </select>
+                          </Field>
+                          <Field label="Hostel Required?">
+                            <select
+                              className={tInput()}
+                              value={data.hostelRequired}
+                              onChange={set("hostelRequired")}
+                            >
+                              <option>No</option>
+                              <option>Yes</option>
+                            </select>
+                          </Field>
+                        </div>
+                      )}
+
+                      {step === 3 && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
                           <Field
                             label="Father's Full Name"
                             required
-                            error={errors.father_name}
+                            error={errors.fatherName}
                           >
                             <input
-                              className={tInput(errors.father_name)}
+                              className={tInput(errors.fatherName)}
                               placeholder="Ramesh Kapoor"
-                              value={data.father_name}
-                              onChange={set("father_name")}
+                              value={data.fatherName}
+                              onChange={set("fatherName")}
                             />
                           </Field>
                           <Field label="Mother's Full Name">
                             <input
                               className={tInput()}
                               placeholder="Kiran Kapoor"
-                              value={data.mother_name}
-                              onChange={set("mother_name")}
+                              value={data.motherName}
+                              onChange={set("motherName")}
                             />
                           </Field>
-                          <Field label="Father's Occupation">
+                          <Field label="Parent Occupation">
                             <input
                               className={tInput()}
-                              placeholder="Engineer / Business"
-                              value={data.father_occupation}
-                              onChange={set("father_occupation")}
-                            />
-                          </Field>
-                          <Field label="Mother's Occupation">
-                            <input
-                              className={tInput()}
-                              placeholder="Teacher / Homemaker"
-                              value={data.mother_occupation}
-                              onChange={set("mother_occupation")}
+                              placeholder="Software Engineer / Business"
+                              value={data.parentOccupation}
+                              onChange={set("parentOccupation")}
                             />
                           </Field>
                           <Field
                             label="Parent Mobile Number"
                             required
-                            error={errors.parent_mobile}
+                            error={errors.parentMobile}
                           >
                             <input
                               maxLength={10}
-                              className={tInput(errors.parent_mobile)}
+                              className={tInput(errors.parentMobile)}
                               placeholder="10-digit number"
-                              value={data.parent_mobile}
-                              onChange={set("parent_mobile")}
+                              value={data.parentMobile}
+                              onChange={set("parentMobile")}
                             />
                           </Field>
                           <Field label="Alternate Mobile Number">
                             <input
                               className={tInput()}
                               placeholder="Alternate mobile"
-                              value={data.alternate_mobile}
-                              onChange={set("alternate_mobile")}
+                              value={data.alternateMobile}
+                              onChange={set("alternateMobile")}
                             />
                           </Field>
                           <Field
                             label="Parent Email Address"
-                            error={errors.parent_email}
+                            error={errors.parentEmail}
                           >
                             <input
-                              className={tInput(errors.parent_email)}
+                              className={tInput(errors.parentEmail)}
                               placeholder="parent@domain.com"
-                              value={data.parent_email}
-                              onChange={set("parent_email")}
+                              value={data.parentEmail}
+                              onChange={set("parentEmail")}
                             />
                           </Field>
                           <Field
                             label="Emergency Contact Number"
                             required
-                            error={errors.emergency_contact}
+                            error={errors.emergencyContact}
                           >
                             <input
-                              className={tInput(errors.emergency_contact)}
+                              className={tInput(errors.emergencyContact)}
                               placeholder="Emergency number"
-                              value={data.emergency_contact}
-                              onChange={set("emergency_contact")}
+                              value={data.emergencyContact}
+                              onChange={set("emergencyContact")}
                             />
                           </Field>
                           <Field label="Relationship with Emergency Contact">
                             <select
                               className={tInput()}
-                              value={data.emergency_relationship}
-                              onChange={set("emergency_relationship")}
+                              value={data.relationship}
+                              onChange={set("relationship")}
                             >
                               <option>Father</option>
                               <option>Mother</option>
@@ -1087,246 +1055,275 @@ export default function AddStudentModal({ isOpen, onClose }) {
                         </div>
                       )}
 
-                      {/* ═══ STEP 3 — Address ═══ */}
-                      {step === 3 && (
-                        <div className="space-y-7">
-                          {/* Permanent */}
-                          <div>
-                            <h3 className="text-sm font-bold text-amber-600 border-b border-stone-100 pb-2 mb-4">
-                              Permanent Address
-                            </h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
-                              <Field
-                                label="Area"
-                                required
-                                error={errors.permanent_area}
-                              >
-                                <input
-                                  className={tInput(errors.permanent_area)}
-                                  placeholder="Area / Locality"
-                                  value={data.permanent_area}
-                                  onChange={set("permanent_area")}
-                                />
-                              </Field>
-                              <Field
-                                label="City"
-                                required
-                                error={errors.permanent_city}
-                              >
-                                <input
-                                  className={tInput(errors.permanent_city)}
-                                  placeholder="City"
-                                  value={data.permanent_city}
-                                  onChange={set("permanent_city")}
-                                />
-                              </Field>
-                              <Field
-                                label="District"
-                                required
-                                error={errors.permanent_district}
-                              >
-                                <input
-                                  className={tInput(errors.permanent_district)}
-                                  placeholder="District"
-                                  value={data.permanent_district}
-                                  onChange={set("permanent_district")}
-                                />
-                              </Field>
-                              <Field
-                                label="State"
-                                required
-                                error={errors.permanent_state}
-                              >
-                                <input
-                                  className={tInput(errors.permanent_state)}
-                                  placeholder="State"
-                                  value={data.permanent_state}
-                                  onChange={set("permanent_state")}
-                                />
-                              </Field>
-                              <Field
-                                label="Postal Code"
-                                required
-                                error={errors.permanent_postal_code}
-                              >
-                                <input
-                                  className={tInput(
-                                    errors.permanent_postal_code,
-                                  )}
-                                  placeholder="600001"
-                                  value={data.permanent_postal_code}
-                                  onChange={set("permanent_postal_code")}
-                                />
-                              </Field>
-                              <div className="sm:col-span-2">
-                                <Field
-                                  label="Full Address"
-                                  required
-                                  error={errors.permanent_address}
-                                >
-                                  <textarea
-                                    rows={2}
-                                    className={tInput(errors.permanent_address)}
-                                    placeholder="House No, Street, Landmark…"
-                                    value={data.permanent_address}
-                                    onChange={set("permanent_address")}
-                                  />
-                                </Field>
-                              </div>
-                            </div>
+                      {step === 4 && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
+                          <div className="sm:col-span-2">
+                            <Field
+                              label="Permanent Address"
+                              required
+                              error={errors.permanentAddress}
+                            >
+                              <input
+                                className={tInput(errors.permanentAddress)}
+                                placeholder="Street name, house no, locality"
+                                value={data.permanentAddress}
+                                onChange={set("permanentAddress")}
+                              />
+                            </Field>
                           </div>
 
-                          {/* Same-address checkbox */}
-                          <label className="flex items-center gap-3 cursor-pointer select-none">
+                          <div className="sm:col-span-2 flex items-center gap-2 -mt-1">
                             <input
+                              id="same"
                               type="checkbox"
-                              checked={data.current_address_same_as_permanent}
+                              checked={data.sameAddress}
                               onChange={(e) =>
-                                setData((prev) => ({
-                                  ...prev,
-                                  current_address_same_as_permanent:
-                                    e.target.checked,
-                                  current_area: e.target.checked
-                                    ? prev.permanent_area
-                                    : "",
-                                  current_city: e.target.checked
-                                    ? prev.permanent_city
-                                    : "",
-                                  current_district: e.target.checked
-                                    ? prev.permanent_district
-                                    : "",
-                                  current_state: e.target.checked
-                                    ? prev.permanent_state
-                                    : "",
-                                  current_postal_code: e.target.checked
-                                    ? prev.permanent_postal_code
-                                    : "",
-                                  current_address: e.target.checked
-                                    ? prev.permanent_address
-                                    : "",
+                                setData((d) => ({
+                                  ...d,
+                                  sameAddress: e.target.checked,
+                                  currentAddress: e.target.checked
+                                    ? d.permanentAddress
+                                    : d.currentAddress,
                                 }))
                               }
                               className="w-4 h-4 rounded accent-amber-500"
                             />
-                            <span className="text-[13px] font-medium text-stone-600">
-                              Current address same as permanent address
-                            </span>
-                          </label>
-
-                          {/* Current */}
-                          <div>
-                            <h3 className="text-sm font-bold text-amber-600 border-b border-stone-100 pb-2 mb-4">
-                              Current Address
-                            </h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
-                              {[
-                                {
-                                  key: "current_area",
-                                  label: "Area",
-                                  err: errors.current_area,
-                                },
-                                {
-                                  key: "current_city",
-                                  label: "City",
-                                  err: errors.current_city,
-                                },
-                                {
-                                  key: "current_district",
-                                  label: "District",
-                                  err: errors.current_district,
-                                },
-                                {
-                                  key: "current_state",
-                                  label: "State",
-                                  err: errors.current_state,
-                                },
-                                {
-                                  key: "current_postal_code",
-                                  label: "Postal Code",
-                                  err: errors.current_postal_code,
-                                },
-                              ].map(({ key, label, err }) => (
-                                <Field
-                                  key={key}
-                                  label={label}
-                                  required={
-                                    !data.current_address_same_as_permanent
-                                  }
-                                  error={err}
-                                >
-                                  <input
-                                    disabled={
-                                      data.current_address_same_as_permanent
-                                    }
-                                    className={`${tInput(err)} ${data.current_address_same_as_permanent ? "bg-stone-50 text-stone-400" : ""}`}
-                                    value={data[key]}
-                                    onChange={set(key)}
-                                  />
-                                </Field>
-                              ))}
-                              <div className="sm:col-span-2">
-                                <Field
-                                  label="Full Address"
-                                  required={
-                                    !data.current_address_same_as_permanent
-                                  }
-                                  error={errors.current_address}
-                                >
-                                  <textarea
-                                    rows={2}
-                                    disabled={
-                                      data.current_address_same_as_permanent
-                                    }
-                                    className={`${tInput(errors.current_address)} ${data.current_address_same_as_permanent ? "bg-stone-50 text-stone-400" : ""}`}
-                                    placeholder="House No, Street, Landmark…"
-                                    value={data.current_address}
-                                    onChange={set("current_address")}
-                                  />
-                                </Field>
-                              </div>
-                            </div>
+                            <label
+                              htmlFor="same"
+                              className="text-[13px] font-medium text-stone-600 cursor-pointer"
+                            >
+                              Current address is same as permanent address
+                            </label>
                           </div>
+
+                          <div className="sm:col-span-2">
+                            <Field
+                              label="Current Address"
+                              required
+                              error={errors.currentAddress}
+                            >
+                              <input
+                                disabled={data.sameAddress}
+                                className={`${tInput(errors.currentAddress)} ${data.sameAddress ? "bg-stone-50 text-stone-400" : ""}`}
+                                placeholder="Street name, house no"
+                                value={
+                                  data.sameAddress
+                                    ? data.permanentAddress
+                                    : data.currentAddress
+                                }
+                                onChange={set("currentAddress")}
+                              />
+                            </Field>
+                          </div>
+
+                          <Field label="City" required error={errors.city}>
+                            <input
+                              className={tInput(errors.city)}
+                              placeholder="Chennai / Mumbai"
+                              value={data.city}
+                              onChange={set("city")}
+                            />
+                          </Field>
+                          <Field label="State" required error={errors.state}>
+                            <input
+                              className={tInput(errors.state)}
+                              placeholder="Tamil Nadu / Maharashtra"
+                              value={data.state}
+                              onChange={set("state")}
+                            />
+                          </Field>
+                          <Field
+                            label="Pincode"
+                            required
+                            error={errors.pincode}
+                          >
+                            <input
+                              className={tInput(errors.pincode)}
+                              placeholder="600001"
+                              value={data.pincode}
+                              onChange={set("pincode")}
+                            />
+                          </Field>
+
+                          <div className="sm:col-span-2 pt-3 mt-1 border-t border-stone-100">
+                            <p className="text-[13px] font-bold text-amber-600 mb-1">
+                              Medical & Health Information
+                            </p>
+                          </div>
+
+                          <Field label="Allergies (if any)">
+                            <input
+                              className={tInput()}
+                              placeholder="Peanuts / Dust / Penicillin"
+                              value={data.allergies}
+                              onChange={set("allergies")}
+                            />
+                          </Field>
+                          <Field label="Chronic Medical Conditions">
+                            <input
+                              className={tInput()}
+                              placeholder="Asthma / Diabetes / Epilepsy"
+                              value={data.medicalConditions}
+                              onChange={set("medicalConditions")}
+                            />
+                          </Field>
+                          <Field label="Family Doctor Name">
+                            <input
+                              className={tInput()}
+                              placeholder="Dr. Sharma"
+                              value={data.doctorName}
+                              onChange={set("doctorName")}
+                            />
+                          </Field>
+                          <Field label="Emergency Medical Notes">
+                            <input
+                              className={tInput()}
+                              placeholder="Specific emergency protocols"
+                              value={data.emergencyMedicalNotes}
+                              onChange={set("emergencyMedicalNotes")}
+                            />
+                          </Field>
                         </div>
                       )}
 
-                      {/* ═══ STEP 4 — Documents ═══ */}
-                      {step === 4 && (
-                        <div className="flex flex-col gap-6">
+                      {step === 5 && (
+                        <div className="flex flex-col gap-5">
                           <div>
                             <p className="text-[13px] font-bold text-amber-600 mb-3">
                               Required Document Uploads
                             </p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                              <DocCard
-                                docKey="birth_certificate"
-                                label="Birth Certificate"
-                              />
-                              <DocCard
-                                docKey="transfer_certificate"
-                                label="Transfer Certificate"
-                              />
-                              <DocCard
-                                docKey="aadhaar_front"
-                                label="Aadhaar Front"
-                              />
-                              <DocCard
-                                docKey="aadhaar_back"
-                                label="Aadhaar Back"
-                              />
-                              <DocCard
-                                docKey="previous_marksheets"
-                                label="Previous Marksheet"
-                              />
+                              {[
+                                {
+                                  key: "birthCert",
+                                  label: "Birth Certificate",
+                                },
+                                {
+                                  key: "transCert",
+                                  label: "Transfer Certificate",
+                                },
+                                { key: "aadhaarCopy", label: "Aadhaar Copy" },
+                                {
+                                  key: "marksheet",
+                                  label: "Previous Marksheet",
+                                },
+                                {
+                                  key: "passportPhoto",
+                                  label: "Passport Size Photo",
+                                },
+                              ].map((doc) => {
+                                const f = data.docs[doc.key];
+                                return (
+                                  <div
+                                    key={doc.key}
+                                    className={`flex items-center justify-between gap-3 rounded-xl border px-3.5 py-3 transition-all duration-300 ${
+                                      f
+                                        ? "border-emerald-200 bg-emerald-50/60"
+                                        : "border-stone-200 bg-stone-50/60"
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-3 min-w-0">
+                                      {f ? (
+                                        <FileCheck
+                                          size={20}
+                                          className="text-emerald-600 shrink-0"
+                                        />
+                                      ) : (
+                                        <Upload
+                                          size={20}
+                                          className="text-amber-500 shrink-0"
+                                        />
+                                      )}
+                                      <div className="min-w-0">
+                                        <p className="text-[13px] font-semibold text-stone-700 truncate">
+                                          {doc.label} *
+                                        </p>
+                                        <p className="text-[11px] text-stone-400 truncate">
+                                          {f
+                                            ? `${f.name} • ${f.size}KB`
+                                            : "Not uploaded yet"}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    {f ? (
+                                      <button
+                                        type="button"
+                                        onClick={removeDoc(doc.key)}
+                                        className="shrink-0 w-8 h-8 rounded-lg hover:bg-rose-100 text-rose-500 flex items-center justify-center transition-colors"
+                                      >
+                                        <Trash2 size={15} />
+                                      </button>
+                                    ) : (
+                                      <label className="shrink-0 cursor-pointer text-[12px] font-semibold text-amber-700 bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-lg transition-colors">
+                                        Upload
+                                        <input
+                                          type="file"
+                                          accept=".pdf,.jpg,.jpeg,.png"
+                                          className="hidden"
+                                          onChange={setDoc(doc.key)}
+                                        />
+                                      </label>
+                                    )}
+                                  </div>
+                                );
+                              })}
                             </div>
                           </div>
 
-                          {/* Signature */}
                           <div className="pt-4 border-t border-stone-100">
-                            <p className="text-[13px] font-medium text-stone-600 mb-2">
-                              Parent / Guardian Signature{" "}
-                              <span className="text-rose-500">*</span>
+                            <p className="text-[13px] font-bold text-amber-600 mb-3">
+                              Fee & Transport Setup
                             </p>
-                            <div className="flex items-center gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
+                              <Field label="Fee Category" required>
+                                <select
+                                  className={tInput()}
+                                  value={data.feeCategory}
+                                  onChange={set("feeCategory")}
+                                >
+                                  <option>Regular</option>
+                                  <option>Scholarship</option>
+                                  <option>Staff Ward</option>
+                                </select>
+                              </Field>
+                              <Field label="Scholarship Details">
+                                <input
+                                  disabled={data.feeCategory !== "Scholarship"}
+                                  className={`${tInput()} ${data.feeCategory !== "Scholarship" ? "bg-stone-50 text-stone-400" : ""}`}
+                                  placeholder="25% Academic Waiver"
+                                  value={data.scholarshipDetails}
+                                  onChange={set("scholarshipDetails")}
+                                />
+                              </Field>
+                              {data.transportRequired === "Yes" && (
+                                <>
+                                  <Field label="Bus Route / ID">
+                                    <input
+                                      className={tInput()}
+                                      placeholder="Route 12 - Adyar"
+                                      value={data.busRoute}
+                                      onChange={set("busRoute")}
+                                    />
+                                  </Field>
+                                  <Field label="Pickup / Drop Point">
+                                    <input
+                                      className={tInput()}
+                                      placeholder="Adyar Bus Stop"
+                                      value={data.pickupPoint}
+                                      onChange={set("pickupPoint")}
+                                    />
+                                  </Field>
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="pt-4 border-t border-stone-100">
+                            <label className="text-[13px] font-medium text-stone-600">
+                              Parent / Guardian Signature Upload{" "}
+                              <span className="text-rose-500">*</span>
+                            </label>
+                            <div className="flex items-center gap-3 mt-2">
                               <label
                                 htmlFor="sig"
                                 className="cursor-pointer inline-flex items-center gap-1.5 text-[12.5px] font-semibold border border-stone-200 hover:border-amber-300 hover:bg-amber-50 text-stone-600 px-3.5 py-2 rounded-lg transition-colors"
@@ -1345,7 +1342,7 @@ export default function AddStudentModal({ isOpen, onClose }) {
                                 <div className="border border-stone-200 rounded-lg bg-white px-3 py-1.5 h-10 flex items-center">
                                   <img
                                     src={data.signature}
-                                    alt="sig"
+                                    alt=""
                                     className="max-h-7 max-w-[120px]"
                                   />
                                 </div>
@@ -1364,7 +1361,7 @@ export default function AddStudentModal({ isOpen, onClose }) {
                     </motion.div>
                   </AnimatePresence>
 
-                  {/* ── Footer ── */}
+                  {/* Footer */}
                   <div className="flex items-center gap-3 mt-7 pt-5 border-t border-stone-100">
                     {step === 1 && (
                       <button
@@ -1390,18 +1387,18 @@ export default function AddStudentModal({ isOpen, onClose }) {
                     >
                       Cancel
                     </button>
-                    {step < TOTAL_STEPS ? (
+                    {step < 5 ? (
                       <button
                         type="button"
                         onClick={goNext}
-                        className="inline-flex items-center gap-1 text-[13.5px] font-semibold text-white bg-amber-600 hover:bg-amber-700 active:scale-[0.97] px-5 py-2.5 rounded-lg transition-all shadow-sm"
+                        className="inline-flex items-center gap-1 text-[13.5px] font-semibold text-white bg-amber-600 hover:bg-amber-700 active:scale-[0.97] px-5 py-2.5 rounded-lg transition-all duration-150 shadow-sm"
                       >
                         Next <ChevronRight size={16} />
                       </button>
                     ) : (
                       <button
                         type="submit"
-                        className="inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:scale-[0.97] px-5 py-2.5 rounded-lg transition-all shadow-sm"
+                        className="inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:scale-[0.97] px-5 py-2.5 rounded-lg transition-all duration-150 shadow-sm"
                       >
                         <CircleCheck size={16} /> Save Student
                       </button>

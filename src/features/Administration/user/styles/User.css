@@ -1,0 +1,247 @@
+/* User.css
+   All COLOR styling for the User Management feature (page, table, modal,
+   form) lives here as plain CSS classes driven by the theme variables in
+   app.css. Tailwind utility classes in the JSX only handle layout, spacing,
+   and sizing.
+*/
+
+/* ── Page ── */
+.up-page {
+  background: var(--bg);
+}
+.up-title {
+  color: var(--text-primary);
+}
+.up-subtitle {
+  color: var(--text-muted);
+}
+
+.up-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.up-btn-primary:hover {
+  background: var(--btn-hover);
+}
+.up-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.up-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.up-btn-outline:hover {
+  background: var(--input-bg);
+}
+
+/* ── Toolbar ── */
+.up-toolbar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.up-search-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.up-search-input::placeholder {
+  color: var(--text-muted);
+}
+.up-search-input:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.up-count-text {
+  color: var(--text-muted);
+}
+
+/* ── Table card ── */
+.up-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.up-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.up-row {
+  border-top: 1px solid var(--divider);
+}
+.up-row:hover {
+  background: var(--input-bg);
+}
+
+.up-avatar {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+}
+.up-online-dot {
+  background: var(--success);
+  border: 2px solid var(--panel-bg);
+}
+.up-offline-dot {
+  background: var(--text-muted);
+  border: 2px solid var(--panel-bg);
+}
+
+.up-username {
+  color: var(--text-primary);
+}
+.up-email {
+  color: var(--text-muted);
+}
+.up-cell {
+  color: var(--text-secondary);
+}
+.up-cell-muted {
+  color: var(--text-muted);
+}
+
+.up-role-chip {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+}
+.up-role-chip-more {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+
+/* ── Status badges (matches the users.status ENUM) ── */
+.up-status {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.up-status-active {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.up-status-inactive {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.up-action-btn {
+  color: var(--text-muted);
+}
+.up-action-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+.up-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.up-empty-state,
+.up-loading {
+  color: var(--text-muted);
+}
+.up-error {
+  color: var(--danger);
+}
+
+/* ── Modal ── */
+.up-modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.up-modal-panel {
+  background: var(--panel-bg);
+  box-shadow: var(--shadow);
+}
+.up-modal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.up-modal-title {
+  color: var(--text-primary);
+}
+.up-modal-close {
+  color: var(--text-muted);
+}
+.up-modal-close:hover {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+}
+
+/* ── Form ── */
+.up-field-label {
+  color: var(--text-secondary);
+}
+.up-field-required {
+  color: var(--danger);
+}
+.up-field-error {
+  color: var(--danger);
+}
+.up-field-hint {
+  color: var(--text-muted);
+}
+
+.up-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.up-input::placeholder {
+  color: var(--text-muted);
+}
+.up-input:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.up-input-error {
+  border-color: var(--danger) !important;
+}
+.up-input-error:focus {
+  box-shadow: 0 0 0 4px var(--danger-ring);
+}
+
+.up-status-toggle {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.up-status-toggle-active {
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
+}
+.up-status-toggle-inactive {
+  background: var(--danger-bg);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.up-role-option {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.up-role-option:hover {
+  background: var(--input-bg);
+}
+.up-role-option-checked {
+  background: var(--badge-bg);
+  border-color: var(--btn-bg);
+  color: var(--btn-bg);
+}
+.up-role-checkbox {
+  accent-color: var(--btn-bg);
+}
+
+.up-form-footer {
+  border-top: 1px solid var(--divider);
+}
+.up-btn-cancel {
+  color: var(--text-secondary);
+}
+.up-btn-cancel:hover {
+  color: var(--text-primary);
+}

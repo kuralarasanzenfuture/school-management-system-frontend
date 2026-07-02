@@ -1,0 +1,202 @@
+/* Role.css
+   All COLOR styling for the Role Management feature (page, table, modal,
+   form) lives here as plain CSS classes driven by the theme variables in
+   app.css. Tailwind utility classes in the JSX only handle layout, spacing,
+   and sizing.
+*/
+
+/* ── Page ── */
+.rp-page {
+  background: var(--bg);
+}
+.rp-title {
+  color: var(--text-primary);
+}
+.rp-subtitle {
+  color: var(--text-muted);
+}
+
+.rp-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.rp-btn-primary:hover {
+  background: var(--btn-hover);
+}
+.rp-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.rp-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.rp-btn-outline:hover {
+  background: var(--input-bg);
+}
+
+/* ── Search / toolbar ── */
+.rp-toolbar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.rp-search-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.rp-search-input::placeholder {
+  color: var(--text-muted);
+}
+.rp-search-input:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.rp-count-text {
+  color: var(--text-muted);
+}
+
+/* ── Table card ── */
+.rp-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.rp-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.rp-row {
+  border-top: 1px solid var(--divider);
+}
+.rp-row:hover {
+  background: var(--input-bg);
+}
+.rp-name {
+  color: var(--text-primary);
+}
+.rp-desc {
+  color: var(--text-secondary);
+}
+.rp-cell-muted {
+  color: var(--text-muted);
+}
+
+/* ── Status badges (matches the roles.status ENUM) ── */
+.rp-status {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.rp-status-active {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.rp-status-inactive {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.rp-action-btn {
+  color: var(--text-muted);
+}
+.rp-action-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+.rp-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.rp-empty-state,
+.rp-loading {
+  color: var(--text-muted);
+}
+.rp-error {
+  color: var(--danger);
+}
+
+/* ── Modal ── */
+.rp-modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.rp-modal-panel {
+  background: var(--panel-bg);
+  box-shadow: var(--shadow);
+}
+.rp-modal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.rp-modal-title {
+  color: var(--text-primary);
+}
+.rp-modal-close {
+  color: var(--text-muted);
+}
+.rp-modal-close:hover {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+}
+
+/* ── Form ── */
+.rp-field-label {
+  color: var(--text-secondary);
+}
+.rp-field-required {
+  color: var(--danger);
+}
+.rp-field-error {
+  color: var(--danger);
+}
+
+.rp-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.rp-input::placeholder {
+  color: var(--text-muted);
+}
+.rp-input:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.rp-input-error {
+  border-color: var(--danger) !important;
+}
+.rp-input-error:focus {
+  box-shadow: 0 0 0 4px var(--danger-ring);
+}
+
+.rp-status-toggle {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.rp-status-toggle-active {
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
+}
+.rp-status-toggle-inactive {
+  background: var(--danger-bg);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.rp-form-footer {
+  border-top: 1px solid var(--divider);
+}
+.rp-btn-cancel {
+  color: var(--text-secondary);
+}
+.rp-btn-cancel:hover {
+  color: var(--text-primary);
+}

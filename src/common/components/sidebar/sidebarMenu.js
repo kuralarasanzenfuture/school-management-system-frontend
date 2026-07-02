@@ -180,7 +180,7 @@ const sidebarMenu = [
   {
     label: "School Setup",
     items: [
-      { name: "School Profile", icon: FaSchool, path: "/school" },
+      { name: "School Profile", icon: FaSchool, path: "/school-profile" },
       { name: "Academic Years", icon: FaCalendarAlt, path: "/academic-years" },
       { name: "Departments", icon: FaBuilding, path: "/departments" },
       { name: "Classes", icon: FaSchool, path: "/classes" },

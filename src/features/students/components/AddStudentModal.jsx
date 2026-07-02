@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -23,6 +22,12 @@ import {
   updateStudent,
 } from "../../../redux/student/studentSlice";
 import "../styles/AddStudentModal.css";
+import {
+  aadharNumber,
+  handleRestrictedInput,
+  mobileNumber,
+  pincode,
+} from "../../../common/utils/inputHandlers";
 
 // Sequential IDs 1-4 matching the actual step counter
 const STEPS = [
@@ -70,8 +75,8 @@ const INIT = {
   email: "",
   mobile_no: "",
   date_of_birth: "",
-  gender: "male",
-  blood_group: "A+",
+  gender: "",
+  blood_group: "",
   aadhaar_no: "",
   religion: "",
   nationality: "INDIAN",
@@ -86,7 +91,7 @@ const INIT = {
   alternate_mobile: "",
   parent_email: "",
   emergency_contact: "",
-  emergency_relationship: "Father",
+  emergency_relationship: "",
 
   // Permanent address
   permanent_area: "",
@@ -334,22 +339,25 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
     if (s === 1) {
       if (!data.first_name.trim()) e.first_name = "First name is required";
       if (!data.last_name.trim()) e.last_name = "Last name is required";
-      if (!data.email.trim()) e.email = "Email is required";
-      else if (!/^\S+@\S+\.\S+$/.test(data.email))
+      // if (!data.email.trim()) e.email = "Email is required";
+      if (data.email && !/^\S+@\S+\.\S+$/.test(data.email))
         e.email = "Enter a valid email";
       if (!data.date_of_birth) e.date_of_birth = "Date of birth is required";
       if (data.mobile_no && !/^\d{10}$/.test(data.mobile_no))
         e.mobile_no = "Enter a 10-digit number";
       if (data.aadhaar_no && !/^\d{12}$/.test(data.aadhaar_no))
         e.aadhaar_no = "Aadhaar must be 12 digits";
+      if (!data.gender) e.gender = "Gender  is required";
     }
 
     if (s === 2) {
       if (!data.father_name.trim()) e.father_name = "Father's name is required";
-      if (!/^\d{10}$/.test(data.parent_mobile))
+      if (data.parent_mobile && !/^\d{10}$/.test(data.parent_mobile))
         e.parent_mobile = "Enter a 10-digit number";
-      if (!data.emergency_contact.trim())
-        e.emergency_contact = "Emergency contact is required";
+      // if (!data.emergency_contact.trim())
+      //   e.emergency_contact = "Emergency contact is required";
+      if (data.emergency_relationship && !data.emergency_relationship.trim())
+        e.emergency_relationship = "Emergency relationship is required";
       if (data.parent_email && !/^\S+@\S+\.\S+$/.test(data.parent_email))
         e.parent_email = "Enter a valid email";
     }
@@ -360,7 +368,10 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
       if (!data.permanent_city.trim()) e.permanent_city = "Required";
       if (!data.permanent_district.trim()) e.permanent_district = "Required";
       if (!data.permanent_state.trim()) e.permanent_state = "Required";
-      if (!/^\d{6}$/.test(data.permanent_postal_code))
+      if (
+        data.permanent_postal_code &&
+        !/^\d{6}$/.test(data.permanent_postal_code)
+      )
         e.permanent_postal_code = "Enter a valid 6-digit code";
 
       if (!data.current_address_same_as_permanent) {
@@ -369,7 +380,10 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
         if (!data.current_city.trim()) e.current_city = "Required";
         if (!data.current_district.trim()) e.current_district = "Required";
         if (!data.current_state.trim()) e.current_state = "Required";
-        if (!/^\d{6}$/.test(data.current_postal_code))
+        if (
+          data.current_postal_code &&
+          !/^\d{6}$/.test(data.current_postal_code)
+        )
           e.current_postal_code = "Enter a valid 6-digit code";
       }
     }
@@ -505,12 +519,14 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
       if (isEdit) {
         await dispatch(updateStudent({ id: student.id, formData })).unwrap();
         alert("Student Updated Successfully");
+        onClose();
       } else {
         for (const pair of formData.entries()) {
           console.log(pair[0], pair[1]);
         }
         await dispatch(createStudent(formData)).unwrap();
         alert("Student Created Successfully");
+        onClose();
       }
       setSubmitted(true);
     } catch (err) {
@@ -843,12 +859,13 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                               placeholder="Enter DOB to calculate"
                             />
                           </Field>
-                          <Field label="Gender" required>
+                          <Field label="Gender" required error={errors.gender}>
                             <select
                               className={tInput()}
                               value={data.gender}
                               onChange={set("gender")}
                             >
+                              <option value="">Select Gender</option>
                               <option value="male">Male</option>
                               <option value="female">Female</option>
                               <option value="other">Other</option>
@@ -860,6 +877,7 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                               value={data.blood_group}
                               onChange={set("blood_group")}
                             >
+                              <option value="">Select Blood Group</option>
                               {[
                                 "A+",
                                 "A-",
@@ -876,10 +894,17 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                           </Field>
                           <Field label="Mobile Number" error={errors.mobile_no}>
                             <input
+                              type="tel"
+                              inputMode="numeric"
                               className={tInput(errors.mobile_no)}
                               placeholder="9876543210"
                               value={data.mobile_no}
-                              onChange={set("mobile_no")}
+                              maxLength={10}
+                              onChange={handleRestrictedInput(
+                                setData,
+                                "mobile_no",
+                                mobileNumber,
+                              )}
                             />
                           </Field>
                           <Field
@@ -890,7 +915,11 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                               className={tInput(errors.aadhaar_no)}
                               placeholder="12-digit number"
                               value={data.aadhaar_no}
-                              onChange={set("aadhaar_no")}
+                              onChange={handleRestrictedInput(
+                                setData,
+                                "aadhaar_no",
+                                aadharNumber,
+                              )}
                             />
                           </Field>
                           <Field label="Religion">
@@ -961,7 +990,11 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                               className={tInput(errors.parent_mobile)}
                               placeholder="10-digit number"
                               value={data.parent_mobile}
-                              onChange={set("parent_mobile")}
+                              onChange={handleRestrictedInput(
+                                setData,
+                                "parent_mobile",
+                                mobileNumber,
+                              )}
                             />
                           </Field>
                           <Field label="Alternate Mobile Number">
@@ -969,7 +1002,11 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                               className={tInput()}
                               placeholder="Alternate mobile"
                               value={data.alternate_mobile}
-                              onChange={set("alternate_mobile")}
+                              onChange={handleRestrictedInput(
+                                setData,
+                                "alternate_mobile",
+                                mobileNumber,
+                              )}
                             />
                           </Field>
                           <Field
@@ -992,7 +1029,11 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                               className={tInput(errors.emergency_contact)}
                               placeholder="Emergency number"
                               value={data.emergency_contact}
-                              onChange={set("emergency_contact")}
+                              onChange={handleRestrictedInput(
+                                setData,
+                                "emergency_contact",
+                                mobileNumber,
+                              )}
                             />
                           </Field>
                           <Field label="Relationship with Emergency Contact">
@@ -1001,10 +1042,11 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                               value={data.emergency_relationship}
                               onChange={set("emergency_relationship")}
                             >
-                              <option>Father</option>
-                              <option>Mother</option>
-                              <option>Uncle</option>
-                              <option>Guardian</option>
+                              <option value="">select</option>
+                              <option value="FATHER">Father</option>
+                              <option value="MOTHER">Mother</option>
+                              <option value="UNCLE">Uncle</option>
+                              <option value="GUARDIAN">Guardian</option>
                             </select>
                           </Field>
                         </div>
@@ -1078,7 +1120,11 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                                   )}
                                   placeholder="600001"
                                   value={data.permanent_postal_code}
-                                  onChange={set("permanent_postal_code")}
+                                  onChange={handleRestrictedInput(
+                                    setData,
+                                    "permanent_postal_code",
+                                    pincode,
+                                  )}
                                 />
                               </Field>
                               <div className="sm:col-span-2">
@@ -1184,7 +1230,16 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                                     }
                                     className={`${tInput(err)} ${data.current_address_same_as_permanent ? "sm-input-disabled" : ""}`}
                                     value={data[key]}
-                                    onChange={set(key)}
+                                    // onChange={set(key)}
+                                    onChange={
+                                      key === "current_postal_code"
+                                        ? handleRestrictedInput(
+                                            setData,
+                                            key,
+                                            pincode,
+                                          )
+                                        : set(key)
+                                    }
                                   />
                                 </Field>
                               ))}

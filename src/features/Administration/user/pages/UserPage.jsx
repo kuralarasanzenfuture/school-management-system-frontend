@@ -9,6 +9,7 @@ import {
   addUser,
   editUser,
   removeUser,
+  fetchUserById,
 } from "../../../../redux/Administration/users/userSlice.js";
 import { fetchRoles } from "../../../../redux/Administration/roles/roleSlice.js";
 
@@ -18,7 +19,7 @@ const UserPage = () => {
   const dispatch = useDispatch();
   const { users, loading, error } = useSelector((state) => state.users);
   const { roles } = useSelector((state) => state.roles);
-console.log("UserPage roles:", roles);
+  //   console.log("UserPage roles:", roles);
   const [search, setSearch] = useState("");
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -30,7 +31,6 @@ console.log("UserPage roles:", roles);
     dispatch(fetchUsers());
     dispatch(fetchRoles());
   }, [dispatch]);
-
 
   const filteredUsers = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -48,9 +48,20 @@ console.log("UserPage roles:", roles);
     setModalOpen(true);
   };
 
-  const openEditModal = (user) => {
-    setEditingUser(user);
-    setModalOpen(true);
+    // const openEditModal = (user) => {
+    //   setEditingUser(user);
+    //   setModalOpen(true);
+    // };
+
+  const openEditModal = async (user) => {
+    try {
+      const result = await dispatch(fetchUserById(user.id)).unwrap();
+
+      setEditingUser(result.user || result);
+      setModalOpen(true);
+    } catch (err) {
+      alert(err.message || "Failed to load user details");
+    }
   };
 
   const closeModal = () => {

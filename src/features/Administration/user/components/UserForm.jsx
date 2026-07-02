@@ -44,6 +44,8 @@ export default function UserForm({
   submitting,
 }) {
   const isEdit = Boolean(initialData?.id);
+  console.log("UserForm initialData:", initialData);
+  //   console.log("UserForm availableRoles:", availableRoles);
   const [data, setData] = useState(EMPTY);
   const [selectedRoles, setSelectedRoles] = useState([]);
   const [errors, setErrors] = useState({});
@@ -58,47 +60,93 @@ export default function UserForm({
   // values we just populated from initialData.
   const skipNextCheck = useRef({ username: true, email: true, phone: true });
 
+  //   useEffect(() => {
+  //     if (initialData) {
+  //       setData({
+  //         username: initialData.username || "",
+  //         email: initialData.email || "",
+  //         phone: initialData.phone || "",
+  //         password: "", // never pre-fill password
+  //         status: initialData.status || "active",
+  //       });
+  //       // console.log("initialData.roles:", initialData.roles);
+  //       //   console.log("availableRoles:", availableRoles);
+  //       //   const normalizedRoles = (initialData.roles || []).map((r) =>
+  //       //     typeof r === "object" ? r.id : r,
+  //       //   );
+  //       //   setSelectedRoles(normalizedRoles);
+
+  //       // Normalize the roles from initialData to an array of role IDs, regardless of whether they were provided as objects or strings.
+  //       let normalizedRoles = [];
+
+  //       if (Array.isArray(initialData.roles)) {
+  //         normalizedRoles = initialData.roles.map((r) =>
+  //           typeof r === "object" ? Number(r.id) : Number(r),
+  //         );
+  //       } else if (typeof initialData.roles === "string") {
+  //         const roleNames = initialData.roles
+  //           .split(",")
+  //           .map((r) => r.trim().toUpperCase());
+
+  //         normalizedRoles = availableRoles
+  //           .filter((role) => roleNames.includes(role.name.toUpperCase()))
+  //           .map((role) => role.id);
+  //       }
+
+  //     //   console.log("roleNames", roleNames);
+  //       console.log("availableRoles", availableRoles);
+  //       console.log("normalizedRoles", normalizedRoles);
+
+  //       setSelectedRoles(normalizedRoles);
+  //     } else {
+  //       setData(EMPTY);
+  //       setSelectedRoles([]);
+  //     }
+  //     setErrors({});
+  //     skipNextCheck.current = { username: true, email: true, phone: true };
+  //   }, [initialData]);
+
   useEffect(() => {
-    if (initialData) {
-      setData({
-        username: initialData.username || "",
-        email: initialData.email || "",
-        phone: initialData.phone || "",
-        password: "", // never pre-fill password
-        status: initialData.status || "active",
-      });
-      // console.log("initialData.roles:", initialData.roles);
-      //   console.log("availableRoles:", availableRoles);
-      //   const normalizedRoles = (initialData.roles || []).map((r) =>
-      //     typeof r === "object" ? r.id : r,
-      //   );
-      //   setSelectedRoles(normalizedRoles);
-
-      // Normalize the roles from initialData to an array of role IDs, regardless of whether they were provided as objects or strings.
-      let normalizedRoles = [];
-
-      if (Array.isArray(initialData.roles)) {
-        normalizedRoles = initialData.roles.map((r) =>
-          typeof r === "object" ? Number(r.id) : Number(r),
-        );
-      } else if (typeof initialData.roles === "string") {
-        const roleNames = initialData.roles
-          .split(",")
-          .map((r) => r.trim().toUpperCase());
-
-        normalizedRoles = availableRoles
-          .filter((role) => roleNames.includes(role.name.toUpperCase()))
-          .map((role) => role.id);
-      }
-
-      setSelectedRoles(normalizedRoles);
-    } else {
+    if (!initialData) {
       setData(EMPTY);
       setSelectedRoles([]);
+      setErrors({});
+      return;
     }
+
+    setData({
+      username: initialData.username || "",
+      email: initialData.email || "",
+      phone: initialData.phone || "",
+      password: "",
+      status: initialData.status || "active",
+    });
+
+    let normalizedRoles = [];
+
+    if (Array.isArray(initialData.roles)) {
+      normalizedRoles = initialData.roles.map((role) => role.id);
+    } else if (typeof initialData.roles === "string") {
+      const roleNames = initialData.roles
+        .split(",")
+        .map((r) => r.trim().toUpperCase());
+
+      normalizedRoles = availableRoles
+        .filter((role) => roleNames.includes(role.name.toUpperCase()))
+        .map((role) => role.id);
+    }
+
+    // console.log("normalizedRoles", normalizedRoles);
+
+    setSelectedRoles(normalizedRoles);
+
     setErrors({});
-    skipNextCheck.current = { username: true, email: true, phone: true };
-  }, [initialData]);
+    skipNextCheck.current = {
+      username: true,
+      email: true,
+      phone: true,
+    };
+  }, [initialData, availableRoles]);
 
   const set = (key) => (e) => {
     setData((d) => ({ ...d, [key]: e.target.value }));
@@ -118,42 +166,42 @@ export default function UserForm({
     (r) => r.name?.toUpperCase() === ADMIN_ROLE_NAME,
   );
 
-  //   const adminTakenByOther =
-  //     adminRole &&
-  //     users.some((u) => {
-  //       if (isEdit && u.id === initialData.id) return false; // editing the admin themself is fine
-  //       const userRoles = u.roles || [];
-  //       return userRoles.some((r) => {
-  //         const roleId = typeof r === "object" ? r.id : r;
-  //         const roleName = typeof r === "object" ? r.name : null;
-  //         return (
-  //           roleId === adminRole.id || roleName?.toUpperCase() === ADMIN_ROLE_NAME
-  //         );
-  //       });
-  //     });
-
   const adminTakenByOther =
     adminRole &&
     users.some((u) => {
-      // Ignore the current user while editing
-      if (isEdit && Number(u.id) === Number(initialData?.id)) {
-        return false;
-      }
-
-      let userRoles = [];
-
-      if (Array.isArray(u.roles)) {
-        userRoles = u.roles.map((r) =>
-          typeof r === "object"
-            ? (r.name || "").toUpperCase()
-            : String(r).toUpperCase(),
+      if (isEdit && u.id === initialData.id) return false; // editing the admin themself is fine
+      const userRoles = u.roles || [];
+      return userRoles.some((r) => {
+        const roleId = typeof r === "object" ? r.id : r;
+        const roleName = typeof r === "object" ? r.name : null;
+        return (
+          roleId === adminRole.id || roleName?.toUpperCase() === ADMIN_ROLE_NAME
         );
-      } else if (typeof u.roles === "string") {
-        userRoles = u.roles.split(",").map((r) => r.trim().toUpperCase());
-      }
-
-      return userRoles.includes(ADMIN_ROLE_NAME);
+      });
     });
+
+  //   const adminTakenByOther =
+  //     adminRole &&
+  //     users.some((u) => {
+  //       // Ignore the current user while editing
+  //       if (isEdit && Number(u.id) === Number(initialData?.id)) {
+  //         return false;
+  //       }
+
+  //       let userRoles = [];
+
+  //       if (Array.isArray(u.roles)) {
+  //         userRoles = u.roles.map((r) =>
+  //           typeof r === "object"
+  //             ? (r.name || "").toUpperCase()
+  //             : String(r).toUpperCase(),
+  //         );
+  //       } else if (typeof u.roles === "string") {
+  //         userRoles = u.roles.split(",").map((r) => r.trim().toUpperCase());
+  //       }
+
+  //       return userRoles.includes(ADMIN_ROLE_NAME);
+  //     });
 
   // ── Live uniqueness checks (debounced) ────────────────────────────
   const checkUsername = async (value) => {
@@ -413,11 +461,11 @@ export default function UserForm({
               const isAdminRole = role.name?.toUpperCase() === ADMIN_ROLE_NAME;
               const disabled = isAdminRole && adminTakenByOther;
 
-            //   console.log({
-            //     adminTakenByOther,
-            //     selectedRoles,
-            //     availableRoles,
-            //   });
+              console.log({
+                adminTakenByOther,
+                selectedRoles,
+                availableRoles,
+              });
 
               return (
                 <label

@@ -62,8 +62,9 @@ export default function UserTable({ users, onEdit, onDelete, deletingId }) {
                     : [];
               const visibleRoles = roles.slice(0, MAX_VISIBLE_ROLES);
               const extraCount = roles.length - visibleRoles.length;
-            //   console.log(user);
-            //   console.log(user.roles);
+              //   console.log(user);
+              console.log(user.roles);
+              const isAdmin = user.roles?.some((role) => role.name === "ADMIN");
               return (
                 <tr key={user.id} className="up-row transition-colors">
                   <td className="px-5 py-3.5">
@@ -131,26 +132,27 @@ export default function UserTable({ users, onEdit, onDelete, deletingId }) {
                   <td className="up-cell-muted px-3 py-3.5 text-[13px]">
                     {formatDate(user.created_at)}
                   </td>
-
-                  <td className="px-3 py-3.5">
-                    <div className="flex items-center justify-end gap-1 pr-2">
-                      <button
-                        onClick={() => onEdit(user)}
-                        className="up-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                        title="Edit"
-                      >
-                        <Pencil size={15} />
-                      </button>
-                      <button
-                        onClick={() => onDelete(user.id)}
-                        disabled={deletingId === user.id}
-                        className="up-action-btn up-action-btn-danger w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50"
-                        title="Delete"
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                    </div>
-                  </td>
+                  {!isAdmin && (
+                    <td className="px-3 py-3.5">
+                      <div className="flex items-center justify-end gap-1 pr-2">
+                        <button
+                          onClick={() => onEdit(user)}
+                          className="up-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+                          title="Edit"
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          onClick={() => onDelete(user.id)}
+                          disabled={deletingId === user.id}
+                          className="up-action-btn up-action-btn-danger w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50"
+                          title="Delete"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               );
             })}

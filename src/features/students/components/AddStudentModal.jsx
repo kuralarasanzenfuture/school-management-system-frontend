@@ -29,14 +29,12 @@ import {
   pincode,
 } from "../../../common/utils/inputHandlers";
 
-// Sequential IDs 1-4 matching the actual step counter
 const STEPS = [
   { id: 1, label: "Personal", icon: User },
   { id: 2, label: "Guardian", icon: Users },
   { id: 3, label: "Address", icon: MapPin },
   { id: 4, label: "Documents", icon: FileText },
 ];
-
 const TOTAL_STEPS = STEPS.length;
 
 /* ── Field wrapper ── */
@@ -57,17 +55,15 @@ function Field({ label, required, error, children }) {
 const inputBase =
   "sm-input w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200";
 
-const tInput = (err) => `${inputBase} ${err ? "sm-input-error" : ""}`;
+const tInput = (hasError) => `${inputBase} ${hasError ? "sm-input-error" : ""}`;
 
 const stepVariants = {
-  enter: (dir) => ({ opacity: 0, x: dir > 0 ? 24 : -24 }),
+  enter: (direction) => ({ opacity: 0, x: direction > 0 ? 24 : -24 }),
   center: { opacity: 1, x: 0 },
-  exit: (dir) => ({ opacity: 0, x: dir > 0 ? -24 : 24 }),
+  exit: (direction) => ({ opacity: 0, x: direction > 0 ? -24 : 24 }),
 };
 
-/* ── Initial form state (snake_case matches DB schema) ── */
 const INIT = {
-  // Student
   school_id: 1,
   first_name: "",
   middle_name: "",
@@ -82,7 +78,6 @@ const INIT = {
   nationality: "INDIAN",
   mother_tongue: "",
 
-  // Parents
   father_name: "",
   mother_name: "",
   father_occupation: "",
@@ -93,7 +88,6 @@ const INIT = {
   emergency_contact: "",
   emergency_relationship: "",
 
-  // Permanent address
   permanent_area: "",
   permanent_city: "",
   permanent_district: "",
@@ -101,7 +95,6 @@ const INIT = {
   permanent_postal_code: "",
   permanent_address: "",
 
-  // Current address
   current_address_same_as_permanent: false,
   current_area: "",
   current_city: "",
@@ -111,7 +104,6 @@ const INIT = {
   current_address: "",
 };
 
-// Document keys that use the DocCard uploader
 const DOC_KEYS = [
   { key: "birth_certificate", label: "Birth Certificate" },
   { key: "transfer_certificate", label: "Transfer Certificate" },
@@ -120,18 +112,11 @@ const DOC_KEYS = [
   { key: "previous_marksheets", label: "Previous Marksheet" },
 ];
 
-/**
- * @param {boolean} isOpen
- * @param {() => void} onClose
- * @param {object|null} student - pass an existing student record to switch the
- *   modal into edit mode. Must include `id` plus the same snake_case fields
- *   used in INIT. File fields may include a `url` so existing uploads render
- *   instead of showing "not uploaded".
- */
+const IMAGE_BASE_URL = "http://localhost:5000";
+
 export default function AddStudentModal({ isOpen, onClose, student = null }) {
   const dispatch = useDispatch();
   const isEdit = Boolean(student?.id);
-  // console.log("isEdit", isEdit, student);
 
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
@@ -140,20 +125,17 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
   const [errors, setErrors] = useState({});
   const [data, setData] = useState(INIT);
 
-  // Files are tracked separately from `data` so we never accidentally send a
-  // blob: preview URL to the server — only real File objects get uploaded.
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [signatureFile, setSignatureFile] = useState(null);
   const [signaturePreview, setSignaturePreview] = useState(null);
-  const [docFiles, setDocFiles] = useState({}); // { [docKey]: File }
-  const [docMeta, setDocMeta] = useState({}); // { [docKey]: { name, size, url?, existing? } }
+  const [docFiles, setDocFiles] = useState({});
+  const [docMeta, setDocMeta] = useState({});
 
   const fileRef = useRef(null);
   const sigRef = useRef(null);
 
-  const IMAGE_BASE_URL = "http://localhost:5000";
-  /* ── Hydrate form when opening in edit mode ── */
+  /* ── Hydrate form in edit mode ── */
   useEffect(() => {
     if (!isOpen) return;
 
@@ -165,24 +147,17 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
           Number(student.current_address_same_as_permanent),
         ),
       });
-      // console.log("Hydrating form with student data:", student);
-      // console.log(student.current_address_same_as_permanent);
-      // console.log(typeof student.current_address_same_as_permanent);
 
-      // Photo
       setPhotoPreview(
         student.photo_url ? `${IMAGE_BASE_URL}${student.photo_url}` : null,
       );
-
-      // Signature
       setSignaturePreview(
         student.signature_url
           ? `${IMAGE_BASE_URL}${student.signature_url}`
           : null,
       );
 
-      // Existing Documents
-      const meta = {
+      setDocMeta({
         birth_certificate: student.birth_certificate_url
           ? {
               name: "Birth Certificate",
@@ -190,7 +165,6 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
               existing: true,
             }
           : null,
-
         aadhaar_front: student.aadhaar_front_url
           ? {
               name: "Aadhaar Front",
@@ -198,7 +172,6 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
               existing: true,
             }
           : null,
-
         aadhaar_back: student.aadhaar_back_url
           ? {
               name: "Aadhaar Back",
@@ -206,7 +179,6 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
               existing: true,
             }
           : null,
-
         transfer_certificate: student.transfer_certificate_url
           ? {
               name: "Transfer Certificate",
@@ -214,7 +186,6 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
               existing: true,
             }
           : null,
-
         previous_marksheets: student.previous_marksheets_url
           ? {
               name: "Previous Marksheet",
@@ -222,9 +193,7 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
               existing: true,
             }
           : null,
-      };
-
-      setDocMeta(meta);
+      });
     } else {
       setData(INIT);
       setPhotoPreview(null);
@@ -240,35 +209,34 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
     setSubmitted(false);
   }, [isOpen, isEdit, student]);
 
-  // useEffect(() => {
-  //   console.log(data.current_address_same_as_permanent);
-  // }, [data]);
-
   /* ── Age auto-calc ── */
   const age = useMemo(() => {
     if (!data.date_of_birth) return "";
-    const b = new Date(data.date_of_birth);
-    if (isNaN(b)) return "";
-    const now = new Date();
-    let a = now.getFullYear() - b.getFullYear();
-    const m = now.getMonth() - b.getMonth();
-    if (m < 0 || (m === 0 && now.getDate() < b.getDate())) a--;
-    return a >= 0 ? `${a} years` : "";
+    const birthDate = new Date(data.date_of_birth);
+    if (isNaN(birthDate)) return "";
+    const today = new Date();
+    let years = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    )
+      years--;
+    return years >= 0 ? `${years} years` : "";
   }, [data.date_of_birth]);
 
-  /* ── Helpers ── */
-  const set = (key) => (e) => {
-    const value = e?.target ? e.target.value : e;
+  /* ── Field setters ── */
 
-    setData((prev) => {
-      const updated = {
-        ...prev,
-        [key]: value,
-      };
+  // Standard setter: updates data AND clears that field's error
+  const set = (fieldKey) => (event) => {
+    const value = event?.target ? event.target.value : event;
 
-      // Sync current address with permanent address
-      if (prev.current_address_same_as_permanent) {
-        const fieldMap = {
+    setData((prevData) => {
+      const updatedData = { ...prevData, [fieldKey]: value };
+
+      // Live-sync current address fields when "same as permanent" is active
+      if (prevData.current_address_same_as_permanent) {
+        const mirrorMap = {
           permanent_area: "current_area",
           permanent_city: "current_city",
           permanent_district: "current_district",
@@ -276,141 +244,178 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
           permanent_postal_code: "current_postal_code",
           permanent_address: "current_address",
         };
-
-        if (fieldMap[key]) {
-          updated[fieldMap[key]] = value;
-        }
+        if (mirrorMap[fieldKey]) updatedData[mirrorMap[fieldKey]] = value;
       }
 
-      return updated;
+      return updatedData;
     });
 
-    if (errors[key]) {
-      setErrors((prev) => ({
-        ...prev,
-        [key]: null,
-      }));
-    }
+    setErrors((prevErrors) =>
+      prevErrors[fieldKey] ? { ...prevErrors, [fieldKey]: null } : prevErrors,
+    );
   };
 
-  const handlePhoto = (e) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    setPhotoFile(f);
-    setPhotoPreview(URL.createObjectURL(f));
-    if (errors.photo) setErrors((er) => ({ ...er, photo: null }));
+  // Restricted setter for digits-only inputs (phone, aadhaar, pincode).
+  // Wraps handleRestrictedInput so validation errors clear on keypress,
+  // exactly like the standard set() helper.
+  const setRestricted = (fieldKey, filterFn) => {
+    const restrictedHandler = handleRestrictedInput(
+      setData,
+      fieldKey,
+      filterFn,
+    );
+    return (event) => {
+      restrictedHandler(event);
+      setErrors((prevErrors) =>
+        prevErrors[fieldKey] ? { ...prevErrors, [fieldKey]: null } : prevErrors,
+      );
+    };
   };
 
-  const handleSig = (e) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    setSignatureFile(f);
-    setSignaturePreview(URL.createObjectURL(f));
-    if (errors.signature) setErrors((er) => ({ ...er, signature: null }));
+  const handlePhoto = (event) => {
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) return;
+    setPhotoFile(selectedFile);
+    setPhotoPreview(URL.createObjectURL(selectedFile));
+    setErrors((prevErrors) => ({ ...prevErrors, photo: null }));
   };
 
-  const setDoc = (key) => (e) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    setDocFiles((d) => ({ ...d, [key]: f }));
-    setDocMeta((d) => ({
-      ...d,
-      [key]: { name: f.name, size: Math.round(f.size / 1024), existing: false },
+  const handleSig = (event) => {
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) return;
+    setSignatureFile(selectedFile);
+    setSignaturePreview(URL.createObjectURL(selectedFile));
+    setErrors((prevErrors) => ({ ...prevErrors, signature: null }));
+  };
+
+  const setDoc = (docKey) => (event) => {
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) return;
+    setDocFiles((prevDocFiles) => ({
+      ...prevDocFiles,
+      [docKey]: selectedFile,
+    }));
+    setDocMeta((prevDocMeta) => ({
+      ...prevDocMeta,
+      [docKey]: {
+        name: selectedFile.name,
+        size: Math.round(selectedFile.size / 1024),
+        existing: false,
+      },
     }));
   };
 
-  const removeDoc = (key) => () => {
-    setDocFiles((d) => {
-      const next = { ...d };
-      delete next[key];
-      return next;
+  const removeDoc = (docKey) => () => {
+    setDocFiles((prevDocFiles) => {
+      const updatedDocFiles = { ...prevDocFiles };
+      delete updatedDocFiles[docKey];
+      return updatedDocFiles;
     });
-    setDocMeta((d) => {
-      const next = { ...d };
-      delete next[key];
-      return next;
+    setDocMeta((prevDocMeta) => {
+      const updatedDocMeta = { ...prevDocMeta };
+      delete updatedDocMeta[docKey];
+      return updatedDocMeta;
     });
   };
 
-  /* ── Validation per step ── */
-  const validate = (s) => {
-    const e = {};
+  /* ── Validation ── */
+  const validate = (stepNumber) => {
+    const validationErrors = {};
 
-    if (s === 1) {
-      if (!data.first_name.trim()) e.first_name = "First name is required";
-      if (!data.last_name.trim()) e.last_name = "Last name is required";
-      // if (!data.email.trim()) e.email = "Email is required";
+    if (stepNumber === 1) {
+      if (!data.first_name.trim())
+        validationErrors.first_name = "First name is required";
+      if (!data.last_name.trim())
+        validationErrors.last_name = "Last name is required";
+      if (!data.gender) validationErrors.gender = "Gender is required";
+      if (!data.date_of_birth)
+        validationErrors.date_of_birth = "Date of birth is required";
+      if (!data.mobile_no)
+        validationErrors.mobile_no = "Mobile number is required";
       if (data.email && !/^\S+@\S+\.\S+$/.test(data.email))
-        e.email = "Enter a valid email";
-      if (!data.date_of_birth) e.date_of_birth = "Date of birth is required";
+        validationErrors.email = "Enter a valid email";
       if (data.mobile_no && !/^\d{10}$/.test(data.mobile_no))
-        e.mobile_no = "Enter a 10-digit number";
+        validationErrors.mobile_no = "Enter a 10-digit number";
       if (data.aadhaar_no && !/^\d{12}$/.test(data.aadhaar_no))
-        e.aadhaar_no = "Aadhaar must be 12 digits";
-      if (!data.gender) e.gender = "Gender  is required";
+        validationErrors.aadhaar_no = "Aadhaar must be 12 digits";
     }
 
-    if (s === 2) {
-      if (!data.father_name.trim()) e.father_name = "Father's name is required";
+    if (stepNumber === 2) {
+      if (!data.father_name.trim())
+        validationErrors.father_name = "Father's name is required";
+      if (!data.parent_mobile)
+        validationErrors.parent_mobile = "Parent's mobile number is required";
       if (data.parent_mobile && !/^\d{10}$/.test(data.parent_mobile))
-        e.parent_mobile = "Enter a 10-digit number";
-      // if (!data.emergency_contact.trim())
-      //   e.emergency_contact = "Emergency contact is required";
-      if (data.emergency_relationship && !data.emergency_relationship.trim())
-        e.emergency_relationship = "Emergency relationship is required";
+        validationErrors.parent_mobile = "Enter a 10-digit number";
+      if (data.alternate_mobile && !/^\d{10}$/.test(data.alternate_mobile))
+        validationErrors.alternate_mobile = "Enter a 10-digit number";
+      if (data.emergency_contact && !/^\d{10}$/.test(data.emergency_contact))
+        validationErrors.emergency_contact = "Enter a 10-digit number";
       if (data.parent_email && !/^\S+@\S+\.\S+$/.test(data.parent_email))
-        e.parent_email = "Enter a valid email";
+        validationErrors.parent_email = "Enter a valid email";
     }
 
-    if (s === 3) {
-      if (!data.permanent_address.trim()) e.permanent_address = "Required";
-      if (!data.permanent_area.trim()) e.permanent_area = "Required";
-      if (!data.permanent_city.trim()) e.permanent_city = "Required";
-      if (!data.permanent_district.trim()) e.permanent_district = "Required";
-      if (!data.permanent_state.trim()) e.permanent_state = "Required";
+    if (stepNumber === 3) {
+      if (!data.permanent_area.trim())
+        validationErrors.permanent_area = "Required";
+      if (!data.permanent_city.trim())
+        validationErrors.permanent_city = "Required";
+      if (!data.permanent_district.trim())
+        validationErrors.permanent_district = "Required";
+      if (!data.permanent_state.trim())
+        validationErrors.permanent_state = "Required";
+      if (!data.permanent_address.trim())
+        validationErrors.permanent_address = "Required";
       if (
         data.permanent_postal_code &&
         !/^\d{6}$/.test(data.permanent_postal_code)
       )
-        e.permanent_postal_code = "Enter a valid 6-digit code";
+        validationErrors.permanent_postal_code = "Enter a valid 6-digit code";
 
       if (!data.current_address_same_as_permanent) {
-        if (!data.current_address.trim()) e.current_address = "Required";
-        if (!data.current_area.trim()) e.current_area = "Required";
-        if (!data.current_city.trim()) e.current_city = "Required";
-        if (!data.current_district.trim()) e.current_district = "Required";
-        if (!data.current_state.trim()) e.current_state = "Required";
+        if (!data.current_area.trim())
+          validationErrors.current_area = "Required";
+        if (!data.current_city.trim())
+          validationErrors.current_city = "Required";
+        if (!data.current_district.trim())
+          validationErrors.current_district = "Required";
+        if (!data.current_state.trim())
+          validationErrors.current_state = "Required";
+        if (!data.current_address.trim())
+          validationErrors.current_address = "Required";
         if (
           data.current_postal_code &&
           !/^\d{6}$/.test(data.current_postal_code)
         )
-          e.current_postal_code = "Enter a valid 6-digit code";
+          validationErrors.current_postal_code = "Enter a valid 6-digit code";
       }
     }
 
-    if (s === 4) {
-      if (!signatureFile && !signaturePreview)
-        e.signature = "Signature upload is required";
-    }
+    // if (stepNumber === 4) {
+    //   if (!signatureFile && !signaturePreview)
+    //     validationErrors.signature = "Signature upload is required";
+    // }
 
-    setErrors(e);
-    return Object.keys(e).length === 0;
+    setErrors(validationErrors);
+    return Object.keys(validationErrors).length === 0;
   };
 
   /* ── Navigation ── */
   const goNext = () => {
     if (!validate(step)) return;
     setDirection(1);
-    setStep((s) => Math.min(TOTAL_STEPS, s + 1));
+    setStep((prevStep) => Math.min(TOTAL_STEPS, prevStep + 1));
   };
+
   const goPrev = () => {
     setDirection(-1);
-    setStep((s) => Math.max(1, s - 1));
+    setStep((prevStep) => Math.max(1, prevStep - 1));
   };
-  const onStepClick = (id) => {
-    if (id < step) {
+
+  const onStepClick = (clickedStepId) => {
+    if (clickedStepId < step) {
       setDirection(-1);
-      setStep(id);
+      setStep(clickedStepId);
     }
   };
 
@@ -430,108 +435,81 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
     }, 250);
   };
 
-  /* ── Build FormData shared by create + update ── */
+  /* ── Build FormData ── */
   const buildFormData = () => {
     const formData = new FormData();
 
-    // Basic Details
-    formData.append("school_id", data.school_id);
-    formData.append("first_name", data.first_name);
-    formData.append("middle_name", data.middle_name);
-    formData.append("last_name", data.last_name);
-    formData.append("email", data.email);
-    formData.append("mobile_no", data.mobile_no);
-
-    formData.append("date_of_birth", data.date_of_birth);
-    formData.append("gender", data.gender);
-    formData.append("blood_group", data.blood_group);
-    formData.append("aadhaar_no", data.aadhaar_no);
-    formData.append("religion", data.religion);
-    formData.append("nationality", data.nationality);
-    formData.append("mother_tongue", data.mother_tongue);
-
-    // Parent Details
-    formData.append("father_name", data.father_name);
-    formData.append("mother_name", data.mother_name);
-    formData.append("father_occupation", data.father_occupation);
-    formData.append("mother_occupation", data.mother_occupation);
-
-    formData.append("parent_mobile", data.parent_mobile);
-    formData.append("alternate_mobile", data.alternate_mobile);
-    formData.append("parent_email", data.parent_email);
-
-    formData.append("emergency_contact", data.emergency_contact);
-    formData.append("emergency_relationship", data.emergency_relationship);
-
-    // Permanent Address
-    formData.append("permanent_area", data.permanent_area);
-    formData.append("permanent_city", data.permanent_city);
-    formData.append("permanent_district", data.permanent_district);
-    formData.append("permanent_state", data.permanent_state);
-    formData.append("permanent_postal_code", data.permanent_postal_code);
-    formData.append("permanent_address", data.permanent_address);
-
-    // Current Address
-    formData.append(
+    const textFields = [
+      "school_id",
+      "first_name",
+      "middle_name",
+      "last_name",
+      "email",
+      "mobile_no",
+      "date_of_birth",
+      "gender",
+      "blood_group",
+      "aadhaar_no",
+      "religion",
+      "nationality",
+      "mother_tongue",
+      "father_name",
+      "mother_name",
+      "father_occupation",
+      "mother_occupation",
+      "parent_mobile",
+      "alternate_mobile",
+      "parent_email",
+      "emergency_contact",
+      "emergency_relationship",
+      "permanent_area",
+      "permanent_city",
+      "permanent_district",
+      "permanent_state",
+      "permanent_postal_code",
+      "permanent_address",
       "current_address_same_as_permanent",
-      data.current_address_same_as_permanent,
+      "current_area",
+      "current_city",
+      "current_district",
+      "current_state",
+      "current_postal_code",
+      "current_address",
+    ];
+
+    textFields.forEach((fieldKey) =>
+      formData.append(fieldKey, data[fieldKey] ?? ""),
     );
-    formData.append("current_area", data.current_area);
-    formData.append("current_city", data.current_city);
-    formData.append("current_district", data.current_district);
-    formData.append("current_state", data.current_state);
-    formData.append("current_postal_code", data.current_postal_code);
-    formData.append("current_address", data.current_address);
 
-    // Files — only append when the user actually picked a new one.
-    // In edit mode, omitting the field means "keep the existing file" on
-    // the backend (adjust if your API instead expects an explicit
-    // "keep_photo" / "keep_signature" flag).
     if (photoFile) formData.append("photo", photoFile);
-    // if (signatureFile) formData.append("signature", signatureFile);
 
-    DOC_KEYS.forEach(({ key }) => {
-      if (docFiles[key]) formData.append(key, docFiles[key]);
+    DOC_KEYS.forEach(({ key: docKey }) => {
+      if (docFiles[docKey]) formData.append(docKey, docFiles[docKey]);
     });
 
     return formData;
   };
 
-  const logFormData = (formData) => {
-    console.log("========== FormData ==========");
-
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}:`, value instanceof File ? value.name : value);
-    }
-
-    console.log("==============================");
-  };
-
-  const handlesubmit = async (e) => {
-    e.preventDefault();
+  /* ── Submit handler ──
+     All buttons are type="button", so pressing Enter anywhere in the
+     form never triggers an accidental submission.                      ── */
+  const handleSubmit = async () => {
     if (!validate(TOTAL_STEPS)) return;
 
     const formData = buildFormData();
-    // logFormData(formData);
     setSubmitting(true);
 
     try {
       if (isEdit) {
         await dispatch(updateStudent({ id: student.id, formData })).unwrap();
-        alert("Student Updated Successfully");
-        onClose();
+        resetAndClose();
       } else {
-        for (const pair of formData.entries()) {
-          console.log(pair[0], pair[1]);
-        }
         await dispatch(createStudent(formData)).unwrap();
-        alert("Student Created Successfully");
-        onClose();
+        resetAndClose();
       }
       setSubmitted(true);
-    } catch (err) {
-      console.log(err);
-      alert(err?.message || err);
+    } catch (submissionError) {
+      alert(submissionError?.message ?? String(submissionError));
     } finally {
       setSubmitting(false);
     }
@@ -539,15 +517,15 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
 
   /* ── Doc upload card ── */
   const DocCard = ({ docKey, label }) => {
-    const f = docMeta[docKey];
+    const docInfo = docMeta[docKey];
     return (
       <div
         className={`flex items-center justify-between gap-3 rounded-xl px-3.5 py-3 transition-all duration-300 ${
-          f ? "sm-doc-card-filled" : "sm-doc-card"
+          docInfo ? "sm-doc-card-filled" : "sm-doc-card"
         }`}
       >
         <div className="flex items-center gap-3 min-w-0">
-          {f ? (
+          {docInfo ? (
             <FileCheck size={20} className="sm-doc-icon-filled shrink-0" />
           ) : (
             <Upload size={20} className="sm-doc-icon-empty shrink-0" />
@@ -557,15 +535,15 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
               {label}
             </p>
             <p className="sm-doc-meta text-[11px] truncate">
-              {f
-                ? f.existing
-                  ? f.name
-                  : `${f.name} · ${f.size} KB`
+              {docInfo
+                ? docInfo.existing
+                  ? docInfo.name
+                  : `${docInfo.name} · ${docInfo.size} KB`
                 : "Not uploaded yet"}
             </p>
           </div>
         </div>
-        {f ? (
+        {docInfo ? (
           <button
             type="button"
             onClick={removeDoc(docKey)}
@@ -599,7 +577,7 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
           onClick={resetAndClose}
         >
           <motion.div
-            onClick={(e) => e.stopPropagation()}
+            onClick={(clickEvent) => clickEvent.stopPropagation()}
             initial={{ opacity: 0, scale: 0.9, y: 40 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 40 }}
@@ -679,7 +657,7 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                     </button>
                   </div>
 
-                  {/* Progress bar + dots */}
+                  {/* Progress track + animated fill */}
                   <div className="relative">
                     <div className="sm-step-track absolute top-4 left-4 right-4 h-[2px] rounded-full" />
                     <motion.div
@@ -691,48 +669,48 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                       transition={{ duration: 0.4, ease: "easeOut" }}
                     />
                     <div className="relative flex justify-between">
-                      {STEPS.map((s) => {
-                        const Icon = s.icon;
-                        const active = s.id === step;
-                        const done = s.id < step;
+                      {STEPS.map((stepItem) => {
+                        const StepIcon = stepItem.icon;
+                        const isActive = stepItem.id === step;
+                        const isDone = stepItem.id < step;
                         return (
                           <button
-                            key={s.id}
+                            key={stepItem.id}
                             type="button"
-                            onClick={() => onStepClick(s.id)}
+                            onClick={() => onStepClick(stepItem.id)}
                             className="flex flex-col items-center gap-1.5"
                           >
                             <motion.div
-                              animate={{ scale: active ? 1.12 : 1 }}
+                              animate={{ scale: isActive ? 1.12 : 1 }}
                               transition={{
                                 type: "spring",
                                 stiffness: 400,
                                 damping: 20,
                               }}
                               className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors duration-300 ${
-                                done
+                                isDone
                                   ? "sm-step-circle-done"
-                                  : active
+                                  : isActive
                                     ? "sm-step-circle-active"
                                     : "sm-step-circle"
                               }`}
                             >
-                              {done ? (
+                              {isDone ? (
                                 <Check size={14} strokeWidth={3} />
                               ) : (
-                                <Icon size={14} />
+                                <StepIcon size={14} />
                               )}
                             </motion.div>
                             <span
                               className={`text-[10.5px] font-medium transition-colors hidden sm:block ${
-                                active
+                                isActive
                                   ? "sm-step-label-active"
-                                  : done
+                                  : isDone
                                     ? "sm-step-label-done"
                                     : "sm-step-label"
                               }`}
                             >
-                              {s.label}
+                              {stepItem.label}
                             </span>
                           </button>
                         );
@@ -741,11 +719,8 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                   </div>
                 </div>
 
-                {/* ── Form body ── */}
-                <form
-                  onSubmit={handlesubmit}
-                  className="px-6 sm:px-8 py-6 overflow-y-auto grow"
-                >
+                {/* ── Step content ── */}
+                <div className="px-6 sm:px-8 py-6 overflow-y-auto grow">
                   <AnimatePresence mode="wait" custom={direction}>
                     <motion.div
                       key={step}
@@ -766,7 +741,11 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                               className="cursor-pointer group"
                             >
                               <div
-                                className={`w-24 h-24 rounded-full overflow-hidden border-[3px] flex items-center justify-center shadow-sm transition-all duration-300 group-hover:shadow-md group-hover:scale-[1.03] ${errors.photo ? "sm-photo-circle-error" : "sm-photo-circle"}`}
+                                className={`w-24 h-24 rounded-full overflow-hidden border-[3px] flex items-center justify-center shadow-sm transition-all duration-300 group-hover:shadow-md group-hover:scale-[1.03] ${
+                                  errors.photo
+                                    ? "sm-photo-circle-error"
+                                    : "sm-photo-circle"
+                                }`}
                               >
                                 {photoPreview ? (
                                   <img
@@ -827,11 +806,7 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                               onChange={set("middle_name")}
                             />
                           </Field>
-                          <Field
-                            label="Email Address"
-                            required
-                            error={errors.email}
-                          >
+                          <Field label="Email Address" error={errors.email}>
                             <input
                               className={tInput(errors.email)}
                               placeholder="student@school.in"
@@ -861,7 +836,7 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                           </Field>
                           <Field label="Gender" required error={errors.gender}>
                             <select
-                              className={tInput()}
+                              className={tInput(errors.gender)}
                               value={data.gender}
                               onChange={set("gender")}
                             >
@@ -887,21 +862,24 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                                 "AB-",
                                 "O+",
                                 "O-",
-                              ].map((b) => (
-                                <option key={b}>{b}</option>
+                              ].map((bloodType) => (
+                                <option key={bloodType}>{bloodType}</option>
                               ))}
                             </select>
                           </Field>
-                          <Field label="Mobile Number" error={errors.mobile_no}>
+                          <Field
+                            label="Mobile Number"
+                            required
+                            error={errors.mobile_no}
+                          >
                             <input
                               type="tel"
                               inputMode="numeric"
+                              maxLength={10}
                               className={tInput(errors.mobile_no)}
                               placeholder="9876543210"
                               value={data.mobile_no}
-                              maxLength={10}
-                              onChange={handleRestrictedInput(
-                                setData,
+                              onChange={setRestricted(
                                 "mobile_no",
                                 mobileNumber,
                               )}
@@ -912,11 +890,11 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                             error={errors.aadhaar_no}
                           >
                             <input
+                              maxLength={12}
                               className={tInput(errors.aadhaar_no)}
                               placeholder="12-digit number"
                               value={data.aadhaar_no}
-                              onChange={handleRestrictedInput(
-                                setData,
+                              onChange={setRestricted(
                                 "aadhaar_no",
                                 aadharNumber,
                               )}
@@ -990,20 +968,22 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                               className={tInput(errors.parent_mobile)}
                               placeholder="10-digit number"
                               value={data.parent_mobile}
-                              onChange={handleRestrictedInput(
-                                setData,
+                              onChange={setRestricted(
                                 "parent_mobile",
                                 mobileNumber,
                               )}
                             />
                           </Field>
-                          <Field label="Alternate Mobile Number">
+                          <Field
+                            label="Alternate Mobile Number"
+                            error={errors.alternate_mobile}
+                          >
                             <input
-                              className={tInput()}
+                              maxLength={10}
+                              className={tInput(errors.alternate_mobile)}
                               placeholder="Alternate mobile"
                               value={data.alternate_mobile}
-                              onChange={handleRestrictedInput(
-                                setData,
+                              onChange={setRestricted(
                                 "alternate_mobile",
                                 mobileNumber,
                               )}
@@ -1022,15 +1002,14 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                           </Field>
                           <Field
                             label="Emergency Contact Number"
-                            required
                             error={errors.emergency_contact}
                           >
                             <input
+                              maxLength={10}
                               className={tInput(errors.emergency_contact)}
                               placeholder="Emergency number"
                               value={data.emergency_contact}
-                              onChange={handleRestrictedInput(
-                                setData,
+                              onChange={setRestricted(
                                 "emergency_contact",
                                 mobileNumber,
                               )}
@@ -1042,7 +1021,7 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                               value={data.emergency_relationship}
                               onChange={set("emergency_relationship")}
                             >
-                              <option value="">select</option>
+                              <option value="">Select</option>
                               <option value="FATHER">Father</option>
                               <option value="MOTHER">Mother</option>
                               <option value="UNCLE">Uncle</option>
@@ -1055,7 +1034,7 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                       {/* ═══ STEP 3 — Address ═══ */}
                       {step === 3 && (
                         <div className="space-y-7">
-                          {/* Permanent */}
+                          {/* Permanent Address */}
                           <div>
                             <h3 className="sm-section-heading text-sm font-bold pb-2 mb-4">
                               Permanent Address
@@ -1111,17 +1090,16 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                               </Field>
                               <Field
                                 label="Postal Code"
-                                required
                                 error={errors.permanent_postal_code}
                               >
                                 <input
+                                  maxLength={6}
                                   className={tInput(
                                     errors.permanent_postal_code,
                                   )}
                                   placeholder="600001"
                                   value={data.permanent_postal_code}
-                                  onChange={handleRestrictedInput(
-                                    setData,
+                                  onChange={setRestricted(
                                     "permanent_postal_code",
                                     pincode,
                                   )}
@@ -1150,31 +1128,29 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                             <input
                               type="checkbox"
                               checked={data.current_address_same_as_permanent}
-                              onChange={(e) => {
-                                const checked = e.target.checked;
-
-                                setData((prev) => ({
-                                  ...prev,
-                                  current_address_same_as_permanent: checked,
-
-                                  current_area: checked
-                                    ? prev.permanent_area
-                                    : prev.current_area,
-                                  current_city: checked
-                                    ? prev.permanent_city
-                                    : prev.current_city,
-                                  current_district: checked
-                                    ? prev.permanent_district
-                                    : prev.current_district,
-                                  current_state: checked
-                                    ? prev.permanent_state
-                                    : prev.current_state,
-                                  current_postal_code: checked
-                                    ? prev.permanent_postal_code
-                                    : prev.current_postal_code,
-                                  current_address: checked
-                                    ? prev.permanent_address
-                                    : prev.current_address,
+                              onChange={(checkboxEvent) => {
+                                const isChecked = checkboxEvent.target.checked;
+                                setData((prevData) => ({
+                                  ...prevData,
+                                  current_address_same_as_permanent: isChecked,
+                                  current_area: isChecked
+                                    ? prevData.permanent_area
+                                    : prevData.current_area,
+                                  current_city: isChecked
+                                    ? prevData.permanent_city
+                                    : prevData.current_city,
+                                  current_district: isChecked
+                                    ? prevData.permanent_district
+                                    : prevData.current_district,
+                                  current_state: isChecked
+                                    ? prevData.permanent_state
+                                    : prevData.current_state,
+                                  current_postal_code: isChecked
+                                    ? prevData.permanent_postal_code
+                                    : prevData.current_postal_code,
+                                  current_address: isChecked
+                                    ? prevData.permanent_address
+                                    : prevData.current_address,
                                 }));
                               }}
                             />
@@ -1183,7 +1159,7 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                             </span>
                           </label>
 
-                          {/* Current */}
+                          {/* Current Address */}
                           <div>
                             <h3 className="sm-section-heading text-sm font-bold pb-2 mb-4">
                               Current Address
@@ -1191,54 +1167,53 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
                               {[
                                 {
-                                  key: "current_area",
-                                  label: "Area",
-                                  err: errors.current_area,
+                                  fieldKey: "current_area",
+                                  fieldLabel: "Area",
                                 },
                                 {
-                                  key: "current_city",
-                                  label: "City",
-                                  err: errors.current_city,
+                                  fieldKey: "current_city",
+                                  fieldLabel: "City",
                                 },
                                 {
-                                  key: "current_district",
-                                  label: "District",
-                                  err: errors.current_district,
+                                  fieldKey: "current_district",
+                                  fieldLabel: "District",
                                 },
                                 {
-                                  key: "current_state",
-                                  label: "State",
-                                  err: errors.current_state,
+                                  fieldKey: "current_state",
+                                  fieldLabel: "State",
                                 },
                                 {
-                                  key: "current_postal_code",
-                                  label: "Postal Code",
-                                  err: errors.current_postal_code,
+                                  fieldKey: "current_postal_code",
+                                  fieldLabel: "Postal Code",
                                 },
-                              ].map(({ key, label, err }) => (
+                              ].map(({ fieldKey, fieldLabel }) => (
                                 <Field
-                                  key={key}
-                                  label={label}
+                                  key={fieldKey}
+                                  label={fieldLabel}
                                   required={
                                     !data.current_address_same_as_permanent
                                   }
-                                  error={err}
+                                  error={errors[fieldKey]}
                                 >
                                   <input
                                     disabled={
                                       data.current_address_same_as_permanent
                                     }
-                                    className={`${tInput(err)} ${data.current_address_same_as_permanent ? "sm-input-disabled" : ""}`}
-                                    value={data[key]}
-                                    // onChange={set(key)}
+                                    maxLength={
+                                      fieldKey === "current_postal_code"
+                                        ? 6
+                                        : undefined
+                                    }
+                                    className={`${tInput(errors[fieldKey])} ${
+                                      data.current_address_same_as_permanent
+                                        ? "sm-input-disabled"
+                                        : ""
+                                    }`}
+                                    value={data[fieldKey]}
                                     onChange={
-                                      key === "current_postal_code"
-                                        ? handleRestrictedInput(
-                                            setData,
-                                            key,
-                                            pincode,
-                                          )
-                                        : set(key)
+                                      fieldKey === "current_postal_code"
+                                        ? setRestricted(fieldKey, pincode)
+                                        : set(fieldKey)
                                     }
                                   />
                                 </Field>
@@ -1256,7 +1231,11 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                                     disabled={
                                       data.current_address_same_as_permanent
                                     }
-                                    className={`${tInput(errors.current_address)} ${data.current_address_same_as_permanent ? "sm-input-disabled" : ""}`}
+                                    className={`${tInput(errors.current_address)} ${
+                                      data.current_address_same_as_permanent
+                                        ? "sm-input-disabled"
+                                        : ""
+                                    }`}
                                     placeholder="House No, Street, Landmark…"
                                     value={data.current_address}
                                     onChange={set("current_address")}
@@ -1276,9 +1255,15 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                               Required Document Uploads
                             </p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                              {DOC_KEYS.map(({ key, label }) => (
-                                <DocCard key={key} docKey={key} label={label} />
-                              ))}
+                              {DOC_KEYS.map(
+                                ({ key: docKey, label: docLabel }) => (
+                                  <DocCard
+                                    key={docKey}
+                                    docKey={docKey}
+                                    label={docLabel}
+                                  />
+                                ),
+                              )}
                             </div>
                           </div>
 
@@ -1307,13 +1292,17 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                                 <div className="sm-sig-preview rounded-lg px-3 py-1.5 h-10 flex items-center">
                                   <img
                                     src={signaturePreview}
-                                    alt="sig"
+                                    alt="Signature"
                                     className="max-h-7 max-w-[120px]"
                                   />
                                 </div>
                               ) : (
                                 <span
-                                  className={`text-[11.5px] ${errors.signature ? "sm-sig-placeholder-error" : "sm-sig-placeholder"}`}
+                                  className={`text-[11.5px] ${
+                                    errors.signature
+                                      ? "sm-sig-placeholder-error"
+                                      : "sm-sig-placeholder"
+                                  }`}
                                 >
                                   {errors.signature ||
                                     "No signature uploaded yet."}
@@ -1326,7 +1315,7 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                     </motion.div>
                   </AnimatePresence>
 
-                  {/* ── Footer ── */}
+                  {/* ── Footer buttons ── */}
                   <div className="sm-footer flex items-center gap-3 mt-7 pt-5">
                     {step === 1 && !isEdit && (
                       <button
@@ -1362,9 +1351,10 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                       </button>
                     ) : (
                       <button
-                        type="submit"
+                        type="button"
                         disabled={submitting}
-                        className="sm-btn-submit inline-flex items-center gap-1.5 text-[13.5px] font-semibold active:scale-[0.97] px-5 py-2.5 rounded-lg transition-all shadow-sm"
+                        onClick={handleSubmit}
+                        className="sm-btn-submit inline-flex items-center gap-1.5 text-[13.5px] font-semibold active:scale-[0.97] px-5 py-2.5 rounded-lg transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         <CircleCheck size={16} />
                         {submitting
@@ -1377,7 +1367,7 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                       </button>
                     )}
                   </div>
-                </form>
+                </div>
               </>
             )}
           </motion.div>

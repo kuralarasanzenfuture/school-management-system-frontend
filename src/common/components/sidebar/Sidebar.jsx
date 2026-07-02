@@ -1,17 +1,40 @@
 import { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
-import sidebarMenu from "./sidebarMenu";
 import { FaChevronLeft, FaChevronRight, FaBars, FaTimes } from "react-icons/fa";
+import sidebarMenu from "./sidebarMenu";
+import SidebarSection from "./SidebarSection";
 
+/**
+ * App sidebar.
+ *
+ * `collapsed` / `setCollapsed` are owned by the parent (layout) component,
+ * not by Sidebar itself — that's what lets other parts of the layout (e.g.
+ * the page content width) react to the collapsed state too.
+ *
+ * Two independent "open" states:
+ *  - `collapsed` (prop): desktop-only — icon rail vs full-width sidebar.
+ *  - `mobileOpen` (local): small-screen-only — the sidebar is an off-canvas
+ *    drawer there, always full width when open, and collapse doesn't apply.
+ */
 const Sidebar = ({ collapsed, setCollapsed }) => {
   const isCollapsed = collapsed;
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Persist the collapsed preference so it survives a page refresh.
+  //
+  // NOTE: this only *writes* the value. Reading it back has to happen where
+  // `collapsed` state is first created (the parent layout component), e.g.:
+  //   const [collapsed, setCollapsed] = useState(
+  //     () => localStorage.getItem("sidebar-collapsed") === "true"
+  //   );
+  // Without that read-back, the sidebar will always reset to expanded on
+  // reload even though this effect is saving the preference correctly.
   useEffect(() => {
     localStorage.setItem("sidebar-collapsed", isCollapsed);
   }, [isCollapsed]);
 
-  // Close the mobile drawer automatically on route-size changes back to desktop
+  // If the window is resized back up to desktop width while the mobile
+  // drawer happens to be open, close it — otherwise it'd stay open
+  // underneath the desktop rail.
   useEffect(() => {
     const onResize = () => {
       if (window.innerWidth >= 1024) setMobileOpen(false);
@@ -20,20 +43,23 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  const closeMobileDrawer = () => setMobileOpen(false);
+
   return (
     <>
-      {/* Mobile top bar trigger */}
+      {/* ── Mobile: floating button that opens the drawer ── */}
       <button
         onClick={() => setMobileOpen(true)}
+        aria-label="Open menu"
         className="lg:hidden fixed top-3 left-3 z-[1100] w-10 h-10 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-600"
       >
         <FaBars size={15} />
       </button>
 
-      {/* Mobile backdrop */}
+      {/* ── Mobile: dimmed backdrop behind the open drawer ── */}
       {mobileOpen && (
         <div
-          onClick={() => setMobileOpen(false)}
+          onClick={closeMobileDrawer}
           className="lg:hidden fixed inset-0 z-[1099] bg-black/40 backdrop-blur-[1px] animate-[fadeIn_0.2s_ease]"
         />
       )}
@@ -53,7 +79,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
       >
         <style>{`@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }`}</style>
 
-        {/* Header */}
+        {/* ── Header: logo + collapse/close controls ── */}
         <div
           className={`h-[76px] px-4 flex items-center justify-between border-b border-[var(--sidebar-divider)] shrink-0 ${
             isCollapsed ? "lg:justify-center lg:px-0" : ""
@@ -75,97 +101,54 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
             )}
           </div>
 
-          {/* Desktop collapse button */}
+          {/* Desktop: collapse the rail down to icons only */}
           {!isCollapsed && (
             <button
-              className="hidden lg:flex w-8 h-8 rounded-lg bg-[var(--sidebar-control-bg)] hover:bg-[var(--sidebar-control-bg-hover)] text-[var(--sidebar-text)] items-center justify-center transition-colors duration-200"
               onClick={() => setCollapsed(true)}
+              aria-label="Collapse sidebar"
+              className="hidden lg:flex w-8 h-8 rounded-lg bg-[var(--sidebar-control-bg)] hover:bg-[var(--sidebar-control-bg-hover)] text-[var(--sidebar-text)] items-center justify-center transition-colors duration-200"
             >
               <FaChevronLeft size={13} />
             </button>
           )}
 
-          {/* Mobile close button */}
+          {/* Mobile: close the drawer */}
           <button
-            onClick={() => setMobileOpen(false)}
+            onClick={closeMobileDrawer}
+            aria-label="Close menu"
             className="lg:hidden w-8 h-8 rounded-lg bg-[var(--sidebar-control-bg)] hover:bg-[var(--sidebar-control-bg-hover)] text-[var(--sidebar-text)] flex items-center justify-center transition-colors duration-200"
           >
             <FaTimes size={14} />
           </button>
         </div>
 
-        {/* Toggle row when collapsed (desktop only) */}
+        {/* ── Desktop-only: re-expand button, shown only while collapsed ── */}
         {isCollapsed && (
           <div className="hidden lg:block p-3 shrink-0">
             <button
-              className="w-full h-8 rounded-lg bg-[var(--sidebar-control-bg)] hover:bg-[var(--sidebar-control-bg-hover)] text-[var(--sidebar-text)] flex items-center justify-center transition-colors duration-200"
               onClick={() => setCollapsed(false)}
+              aria-label="Expand sidebar"
+              className="w-full h-8 rounded-lg bg-[var(--sidebar-control-bg)] hover:bg-[var(--sidebar-control-bg-hover)] text-[var(--sidebar-text)] flex items-center justify-center transition-colors duration-200"
             >
               <FaChevronRight size={13} />
             </button>
           </div>
         )}
 
-        {/* Menu body */}
+        {/* ── Scrollable menu body ── */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden py-2.5 [scrollbar-width:thin] [scrollbar-color:#6f7ba6_transparent]">
           {sidebarMenu.map((section) => (
-            <div className="px-3 pb-3" key={section.label}>
-              {!isCollapsed || mobileOpen ? (
-                <div
-                  className={`px-2 py-3 text-[11px] uppercase tracking-wider font-semibold text-[var(--sidebar-text-muted)] ${
-                    isCollapsed ? "lg:hidden" : ""
-                  }`}
-                >
-                  {section.label}
-                </div>
-              ) : (
-                <div className="hidden lg:block h-px bg-[var(--sidebar-divider)] mx-1.5 my-3"></div>
-              )}
-
-              {section.items.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <NavLink
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => setMobileOpen(false)}
-                    className={({ isActive }) =>
-                      `flex items-center gap-3.5 px-3.5 py-[11px] rounded-[10px] mb-1.5 text-[var(--sidebar-text)] no-underline transition-all duration-200 ${
-                        isCollapsed ? "lg:justify-center lg:px-3" : ""
-                      } ${
-                        isActive
-                          ? "bg-[var(--sidebar-active-grad)] text-white shadow-[var(--sidebar-active-shadow)]"
-                          : "hover:bg-[var(--sidebar-hover-bg)] hover:text-[var(--sidebar-text-strong)]"
-                      }`
-                    }
-                  >
-                    <Icon className="min-w-[22px] text-[20px]" />
-                    {(!isCollapsed || mobileOpen) && (
-                      <>
-                        <span
-                          className={`flex-1 whitespace-nowrap ${isCollapsed ? "lg:hidden" : ""}`}
-                        >
-                          {item.name}
-                        </span>
-                        {item.badge && (
-                          <span
-                            className={`px-2 py-[3px] rounded-full bg-[var(--sidebar-badge-bg)] text-[var(--sidebar-badge-text)] text-[10px] font-bold ${
-                              isCollapsed ? "lg:hidden" : ""
-                            }`}
-                          >
-                            {item.badge}
-                          </span>
-                        )}
-                      </>
-                    )}
-                  </NavLink>
-                );
-              })}
-            </div>
+            <SidebarSection
+              key={section.label}
+              section={section}
+              isCollapsed={isCollapsed}
+              mobileOpen={mobileOpen}
+              onNavigate={closeMobileDrawer}
+            />
           ))}
         </div>
 
-        {/* User card */}
+        {/* ── Footer: current user card ── */}
         <div className="shrink-0 p-3 border-t border-[var(--sidebar-divider)]">
           <div
             className={`flex items-center gap-2.5 bg-[var(--sidebar-card-bg)] rounded-xl p-2.5 ${

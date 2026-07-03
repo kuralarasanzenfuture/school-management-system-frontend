@@ -1,7 +1,7 @@
 import api from "../../common/services/api";
 
 const getStudents = async () => {
-  const response = await api.get("/students");
+  const response = await api.get("/students/token");
   return response.data;
 };
 

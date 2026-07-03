@@ -1,0 +1,226 @@
+/* School.css
+   All COLOR styling for the School Profile feature (page, table, modal,
+   form) lives here as plain CSS classes driven by the theme variables in
+   app.css. Tailwind utility classes in the JSX only handle layout, spacing,
+   and sizing.
+*/
+
+/* ── Page ── */
+.scp-page {
+  background: var(--bg);
+}
+.scp-title {
+  color: var(--text-primary);
+}
+.scp-subtitle {
+  color: var(--text-muted);
+}
+
+.scp-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.scp-btn-primary:hover {
+  background: var(--btn-hover);
+}
+.scp-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.scp-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.scp-btn-outline:hover {
+  background: var(--input-bg);
+}
+
+/* ── Toolbar ── */
+.scp-toolbar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.scp-search-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.scp-search-input::placeholder {
+  color: var(--text-muted);
+}
+.scp-search-input:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.scp-count-text {
+  color: var(--text-muted);
+}
+
+/* ── Table card ── */
+.scp-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.scp-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.scp-row {
+  border-top: 1px solid var(--divider);
+}
+.scp-row:hover {
+  background: var(--input-bg);
+}
+
+.scp-logo {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-muted);
+}
+
+.scp-name {
+  color: var(--text-primary);
+}
+.scp-code {
+  color: var(--text-muted);
+}
+.scp-cell {
+  color: var(--text-secondary);
+}
+.scp-cell-muted {
+  color: var(--text-muted);
+}
+
+/* ── Status badges (matches schools.status ENUM) ── */
+.scp-status {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.scp-status-active {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.scp-status-inactive {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.scp-action-btn {
+  color: var(--text-muted);
+}
+.scp-action-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+.scp-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.scp-empty-state,
+.scp-loading {
+  color: var(--text-muted);
+}
+.scp-error {
+  color: var(--danger);
+}
+
+/* ── Modal ── */
+.scp-modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.scp-modal-panel {
+  background: var(--panel-bg);
+  box-shadow: var(--shadow);
+}
+.scp-modal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.scp-modal-title {
+  color: var(--text-primary);
+}
+.scp-modal-close {
+  color: var(--text-muted);
+}
+.scp-modal-close:hover {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+}
+
+/* ── Form ── */
+.scp-section-title {
+  color: var(--btn-bg);
+  border-bottom: 1px solid var(--divider);
+}
+
+.scp-field-label {
+  color: var(--text-secondary);
+}
+.scp-field-required {
+  color: var(--danger);
+}
+.scp-field-error {
+  color: var(--danger);
+}
+
+.scp-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.scp-input::placeholder {
+  color: var(--text-muted);
+}
+.scp-input:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.scp-input-error {
+  border-color: var(--danger) !important;
+}
+.scp-input-error:focus {
+  box-shadow: 0 0 0 4px var(--danger-ring);
+}
+
+.scp-status-toggle {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.scp-status-toggle-active {
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
+}
+.scp-status-toggle-inactive {
+  background: var(--danger-bg);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.scp-logo-upload {
+  background: var(--input-bg);
+  border: 2px dashed var(--input-border);
+  color: var(--btn-bg);
+}
+.scp-logo-upload:hover {
+  border-color: var(--input-focus);
+}
+
+.scp-form-footer {
+  border-top: 1px solid var(--divider);
+}
+.scp-btn-cancel {
+  color: var(--text-secondary);
+}
+.scp-btn-cancel:hover {
+  color: var(--text-primary);
+}

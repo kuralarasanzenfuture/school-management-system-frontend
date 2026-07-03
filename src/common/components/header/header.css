@@ -1,12 +1,118 @@
-.header {
-  height: 60px;
+/* header.css — all colors via CSS variables, layout in JSX Tailwind */
+
+.hd-header {
   background: var(--panel-bg);
-  color: var(--text-primary);
   border-bottom: 1px solid var(--divider);
+  height: 64px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
 
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* Search */
+.hd-search-wrap {
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.hd-search-wrap:focus-within {
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.hd-search-icon {
+  color: var(--text-muted);
+}
+.hd-search-input {
+  background: transparent;
+  color: var(--text-primary);
+  outline: none;
+  width: 100%;
+}
+.hd-search-input::placeholder {
+  color: var(--text-muted);
+}
 
-  padding: 0 24px;
+/* Icon buttons */
+.hd-icon-btn {
+  color: var(--text-secondary);
+  transition:
+    background 0.18s,
+    color 0.18s;
+}
+.hd-icon-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+
+/* Notification badge */
+.hd-notif-badge {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* Dark-mode toggle */
+.hd-theme-btn {
+  color: var(--text-secondary);
+  transition:
+    background 0.18s,
+    color 0.18s;
+}
+.hd-theme-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+
+/* Profile trigger */
+.hd-avatar-ring {
+  border: 2px solid var(--btn-bg);
+}
+
+.hd-profile-name {
+  color: var(--text-primary);
+}
+.hd-profile-role {
+  color: var(--text-muted);
+}
+
+/* Dropdown menu */
+.hd-dropdown {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
+}
+
+.hd-dropdown-header {
+  border-bottom: 1px solid var(--divider);
+}
+.hd-dropdown-name {
+  color: var(--text-primary);
+}
+.hd-dropdown-email {
+  color: var(--text-muted);
+}
+
+.hd-menu-item {
+  color: var(--text-secondary);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.hd-menu-item:hover {
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+.hd-menu-divider {
+  background: var(--divider);
+}
+
+.hd-menu-logout {
+  color: var(--danger);
+  transition: background 0.15s;
+}
+.hd-menu-logout:hover {
+  background: var(--danger-bg);
 }

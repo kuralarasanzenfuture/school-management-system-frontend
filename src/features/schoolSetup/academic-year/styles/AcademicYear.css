@@ -1,0 +1,231 @@
+/* AcademicYear.css
+   All COLOR styling for the Academic Year Management feature (page, table,
+   modal, form) lives here as plain CSS classes driven by the theme
+   variables in app.css. Tailwind utility classes in the JSX only handle
+   layout, spacing, and sizing.
+*/
+
+/* ── Page ── */
+.ay-page {
+  background: var(--bg);
+}
+.ay-title {
+  color: var(--text-primary);
+}
+.ay-subtitle {
+  color: var(--text-muted);
+}
+
+.ay-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.ay-btn-primary:hover {
+  background: var(--btn-hover);
+}
+.ay-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ay-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.ay-btn-outline:hover {
+  background: var(--input-bg);
+}
+
+/* ── Toolbar ── */
+.ay-toolbar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ay-search-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.ay-search-input::placeholder {
+  color: var(--text-muted);
+}
+.ay-search-input:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.ay-count-text {
+  color: var(--text-muted);
+}
+
+/* ── Table card ── */
+.ay-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ay-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.ay-row {
+  border-top: 1px solid var(--divider);
+}
+.ay-row:hover {
+  background: var(--input-bg);
+}
+
+.ay-name {
+  color: var(--text-primary);
+}
+.ay-cell {
+  color: var(--text-secondary);
+}
+.ay-cell-muted {
+  color: var(--text-muted);
+}
+
+/* ── Current-year badge ── */
+.ay-current-badge {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+}
+
+/* ── Status badges (matches the academic_years.status ENUM) ── */
+.ay-status {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.ay-status-active {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.ay-status-inactive {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.ay-action-btn {
+  color: var(--text-muted);
+}
+.ay-action-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+.ay-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.ay-empty-state,
+.ay-loading {
+  color: var(--text-muted);
+}
+.ay-error {
+  color: var(--danger);
+}
+
+/* ── Modal ── */
+.ay-modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.ay-modal-panel {
+  background: var(--panel-bg);
+  box-shadow: var(--shadow);
+}
+.ay-modal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.ay-modal-title {
+  color: var(--text-primary);
+}
+.ay-modal-close {
+  color: var(--text-muted);
+}
+.ay-modal-close:hover {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+}
+
+/* ── Form ── */
+.ay-field-label {
+  color: var(--text-secondary);
+}
+.ay-field-required {
+  color: var(--danger);
+}
+.ay-field-error {
+  color: var(--danger);
+}
+.ay-field-hint {
+  color: var(--text-muted);
+}
+
+.ay-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.ay-input::placeholder {
+  color: var(--text-muted);
+}
+.ay-input:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.ay-input-error {
+  border-color: var(--danger) !important;
+}
+.ay-input-error:focus {
+  box-shadow: 0 0 0 4px var(--danger-ring);
+}
+
+.ay-preview-name {
+  background: var(--input-bg);
+  color: var(--text-primary);
+  border: 1px dashed var(--input-border);
+}
+
+.ay-checkbox-row {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.ay-checkbox-row-checked {
+  background: var(--badge-bg);
+  border-color: var(--btn-bg);
+  color: var(--btn-bg);
+}
+.ay-checkbox {
+  accent-color: var(--btn-bg);
+}
+
+.ay-status-toggle {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.ay-status-toggle-active {
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
+}
+.ay-status-toggle-inactive {
+  background: var(--danger-bg);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.ay-form-footer {
+  border-top: 1px solid var(--divider);
+}
+.ay-btn-cancel {
+  color: var(--text-secondary);
+}
+.ay-btn-cancel:hover {
+  color: var(--text-primary);
+}

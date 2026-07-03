@@ -1,0 +1,206 @@
+/* Class.css
+   All COLOR styling for the Class Management feature (page, table, modal,
+   form) lives here as plain CSS classes driven by the theme variables in
+   app.css. Tailwind utility classes in the JSX only handle layout, spacing,
+   and sizing.
+*/
+
+/* ── Page ── */
+.cp-page {
+  background: var(--bg);
+}
+.cp-title {
+  color: var(--text-primary);
+}
+.cp-subtitle {
+  color: var(--text-muted);
+}
+
+.cp-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.cp-btn-primary:hover {
+  background: var(--btn-hover);
+}
+.cp-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cp-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.cp-btn-outline:hover {
+  background: var(--input-bg);
+}
+
+/* ── Toolbar ── */
+.cp-toolbar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.cp-search-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.cp-search-input::placeholder {
+  color: var(--text-muted);
+}
+.cp-search-input:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.cp-count-text {
+  color: var(--text-muted);
+}
+
+/* ── Table card ── */
+.cp-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.cp-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.cp-row {
+  border-top: 1px solid var(--divider);
+}
+.cp-row:hover {
+  background: var(--input-bg);
+}
+
+.cp-name {
+  color: var(--text-primary);
+}
+.cp-cell {
+  color: var(--text-secondary);
+}
+.cp-cell-muted {
+  color: var(--text-muted);
+}
+
+/* ── Status badges (matches the classes.status ENUM) ── */
+.cp-status {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.cp-status-active {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.cp-status-inactive {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.cp-action-btn {
+  color: var(--text-muted);
+}
+.cp-action-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+.cp-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.cp-empty-state,
+.cp-loading {
+  color: var(--text-muted);
+}
+.cp-error {
+  color: var(--danger);
+}
+
+/* ── Modal ── */
+.cp-modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.cp-modal-panel {
+  background: var(--panel-bg);
+  box-shadow: var(--shadow);
+}
+.cp-modal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.cp-modal-title {
+  color: var(--text-primary);
+}
+.cp-modal-close {
+  color: var(--text-muted);
+}
+.cp-modal-close:hover {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+}
+
+/* ── Form ── */
+.cp-field-label {
+  color: var(--text-secondary);
+}
+.cp-field-required {
+  color: var(--danger);
+}
+.cp-field-error {
+  color: var(--danger);
+}
+.cp-field-hint {
+  color: var(--text-muted);
+}
+
+.cp-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.cp-input::placeholder {
+  color: var(--text-muted);
+}
+.cp-input:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.cp-input-error {
+  border-color: var(--danger) !important;
+}
+.cp-input-error:focus {
+  box-shadow: 0 0 0 4px var(--danger-ring);
+}
+
+.cp-status-toggle {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.cp-status-toggle-active {
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
+}
+.cp-status-toggle-inactive {
+  background: var(--danger-bg);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.cp-form-footer {
+  border-top: 1px solid var(--divider);
+}
+.cp-btn-cancel {
+  color: var(--text-secondary);
+}
+.cp-btn-cancel:hover {
+  color: var(--text-primary);
+}

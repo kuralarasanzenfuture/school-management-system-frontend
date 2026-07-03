@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { login } from "../redux/authThunk";
+import { loginUser } from "../../../redux/auth/authSlice.js";
 
 const roles = ["Admin", "Teacher", "Student", "Parent"];
 
@@ -30,15 +30,15 @@ const LoginForm = () => {
 
     try {
       const result = await dispatch(
-        login({
+        loginUser({
           login_id: loginId,
           password: password,
         }),
       );
 
-      console.log("Dispatch Result:", result);
+      // console.log("Dispatch Result:", result);
 
-      if (login.fulfilled.match(result)) {
+      if (loginUser.fulfilled.match(result)) {
         alert("Login Successful");
 
         navigate("/dashboard");

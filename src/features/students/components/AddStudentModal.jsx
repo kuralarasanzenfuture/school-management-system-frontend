@@ -322,74 +322,74 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
   const validate = (stepNumber) => {
     const validationErrors = {};
 
-    if (stepNumber === 1) {
-      if (!data.first_name.trim())
-        validationErrors.first_name = "First name is required";
-      if (!data.last_name.trim())
-        validationErrors.last_name = "Last name is required";
-      if (!data.gender) validationErrors.gender = "Gender is required";
-      if (!data.date_of_birth)
-        validationErrors.date_of_birth = "Date of birth is required";
-      if (!data.mobile_no)
-        validationErrors.mobile_no = "Mobile number is required";
-      if (data.email && !/^\S+@\S+\.\S+$/.test(data.email))
-        validationErrors.email = "Enter a valid email";
-      if (data.mobile_no && !/^\d{10}$/.test(data.mobile_no))
-        validationErrors.mobile_no = "Enter a 10-digit number";
-      if (data.aadhaar_no && !/^\d{12}$/.test(data.aadhaar_no))
-        validationErrors.aadhaar_no = "Aadhaar must be 12 digits";
-    }
+    // if (stepNumber === 1) {
+    //   if (!data.first_name.trim())
+    //     validationErrors.first_name = "First name is required";
+    //   if (!data.last_name.trim())
+    //     validationErrors.last_name = "Last name is required";
+    //   if (!data.gender) validationErrors.gender = "Gender is required";
+    //   if (!data.date_of_birth)
+    //     validationErrors.date_of_birth = "Date of birth is required";
+    //   if (!data.mobile_no)
+    //     validationErrors.mobile_no = "Mobile number is required";
+    //   if (data.email && !/^\S+@\S+\.\S+$/.test(data.email))
+    //     validationErrors.email = "Enter a valid email";
+    //   if (data.mobile_no && !/^\d{10}$/.test(data.mobile_no))
+    //     validationErrors.mobile_no = "Enter a 10-digit number";
+    //   if (data.aadhaar_no && !/^\d{12}$/.test(data.aadhaar_no))
+    //     validationErrors.aadhaar_no = "Aadhaar must be 12 digits";
+    // }
 
-    if (stepNumber === 2) {
-      if (!data.father_name.trim())
-        validationErrors.father_name = "Father's name is required";
-      if (!data.parent_mobile)
-        validationErrors.parent_mobile = "Parent's mobile number is required";
-      if (data.parent_mobile && !/^\d{10}$/.test(data.parent_mobile))
-        validationErrors.parent_mobile = "Enter a 10-digit number";
-      if (data.alternate_mobile && !/^\d{10}$/.test(data.alternate_mobile))
-        validationErrors.alternate_mobile = "Enter a 10-digit number";
-      if (data.emergency_contact && !/^\d{10}$/.test(data.emergency_contact))
-        validationErrors.emergency_contact = "Enter a 10-digit number";
-      if (data.parent_email && !/^\S+@\S+\.\S+$/.test(data.parent_email))
-        validationErrors.parent_email = "Enter a valid email";
-    }
+    // if (stepNumber === 2) {
+    //   if (!data.father_name.trim())
+    //     validationErrors.father_name = "Father's name is required";
+    //   if (!data.parent_mobile)
+    //     validationErrors.parent_mobile = "Parent's mobile number is required";
+    //   if (data.parent_mobile && !/^\d{10}$/.test(data.parent_mobile))
+    //     validationErrors.parent_mobile = "Enter a 10-digit number";
+    //   if (data.alternate_mobile && !/^\d{10}$/.test(data.alternate_mobile))
+    //     validationErrors.alternate_mobile = "Enter a 10-digit number";
+    //   if (data.emergency_contact && !/^\d{10}$/.test(data.emergency_contact))
+    //     validationErrors.emergency_contact = "Enter a 10-digit number";
+    //   if (data.parent_email && !/^\S+@\S+\.\S+$/.test(data.parent_email))
+    //     validationErrors.parent_email = "Enter a valid email";
+    // }
 
-    if (stepNumber === 3) {
-      if (!data.permanent_area.trim())
-        validationErrors.permanent_area = "Required";
-      if (!data.permanent_city.trim())
-        validationErrors.permanent_city = "Required";
-      if (!data.permanent_district.trim())
-        validationErrors.permanent_district = "Required";
-      if (!data.permanent_state.trim())
-        validationErrors.permanent_state = "Required";
-      if (!data.permanent_address.trim())
-        validationErrors.permanent_address = "Required";
-      if (
-        data.permanent_postal_code &&
-        !/^\d{6}$/.test(data.permanent_postal_code)
-      )
-        validationErrors.permanent_postal_code = "Enter a valid 6-digit code";
+    // if (stepNumber === 3) {
+    //   if (!data.permanent_area.trim())
+    //     validationErrors.permanent_area = "Required";
+    //   if (!data.permanent_city.trim())
+    //     validationErrors.permanent_city = "Required";
+    //   if (!data.permanent_district.trim())
+    //     validationErrors.permanent_district = "Required";
+    //   if (!data.permanent_state.trim())
+    //     validationErrors.permanent_state = "Required";
+    //   if (!data.permanent_address.trim())
+    //     validationErrors.permanent_address = "Required";
+    //   if (
+    //     data.permanent_postal_code &&
+    //     !/^\d{6}$/.test(data.permanent_postal_code)
+    //   )
+    //     validationErrors.permanent_postal_code = "Enter a valid 6-digit code";
 
-      if (!data.current_address_same_as_permanent) {
-        if (!data.current_area.trim())
-          validationErrors.current_area = "Required";
-        if (!data.current_city.trim())
-          validationErrors.current_city = "Required";
-        if (!data.current_district.trim())
-          validationErrors.current_district = "Required";
-        if (!data.current_state.trim())
-          validationErrors.current_state = "Required";
-        if (!data.current_address.trim())
-          validationErrors.current_address = "Required";
-        if (
-          data.current_postal_code &&
-          !/^\d{6}$/.test(data.current_postal_code)
-        )
-          validationErrors.current_postal_code = "Enter a valid 6-digit code";
-      }
-    }
+    //   if (!data.current_address_same_as_permanent) {
+    //     if (!data.current_area.trim())
+    //       validationErrors.current_area = "Required";
+    //     if (!data.current_city.trim())
+    //       validationErrors.current_city = "Required";
+    //     if (!data.current_district.trim())
+    //       validationErrors.current_district = "Required";
+    //     if (!data.current_state.trim())
+    //       validationErrors.current_state = "Required";
+    //     if (!data.current_address.trim())
+    //       validationErrors.current_address = "Required";
+    //     if (
+    //       data.current_postal_code &&
+    //       !/^\d{6}$/.test(data.current_postal_code)
+    //     )
+    //       validationErrors.current_postal_code = "Enter a valid 6-digit code";
+    //   }
+    // }
 
     // if (stepNumber === 4) {
     //   if (!signatureFile && !signaturePreview)

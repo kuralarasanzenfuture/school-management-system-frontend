@@ -1,0 +1,236 @@
+/* Section.css
+   All COLOR styling for the Section Management feature (page, table, modal,
+   form) lives here as plain CSS classes driven by the theme variables in
+   app.css. Tailwind utility classes in the JSX only handle layout, spacing,
+   and sizing.
+*/
+
+/* ── Page ── */
+.sp-page {
+  background: var(--bg);
+}
+.sp-title {
+  color: var(--text-primary);
+}
+.sp-subtitle {
+  color: var(--text-muted);
+}
+
+.sp-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.sp-btn-primary:hover {
+  background: var(--btn-hover);
+}
+.sp-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sp-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.sp-btn-outline:hover {
+  background: var(--input-bg);
+}
+
+/* ── Toolbar ── */
+.sp-toolbar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.sp-search-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.sp-search-input::placeholder {
+  color: var(--text-muted);
+}
+.sp-search-input:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.sp-count-text {
+  color: var(--text-muted);
+}
+
+/* ── Filter select (class filter in toolbar) ── */
+.sp-filter-select {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.sp-filter-select:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+
+/* ── Table card ── */
+.sp-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.sp-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.sp-row {
+  border-top: 1px solid var(--divider);
+}
+.sp-row:hover {
+  background: var(--input-bg);
+}
+
+.sp-name {
+  color: var(--text-primary);
+}
+.sp-class-chip {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+}
+.sp-cell {
+  color: var(--text-secondary);
+}
+.sp-cell-muted {
+  color: var(--text-muted);
+}
+
+/* ── Status badges (matches the sections.status ENUM) ── */
+.sp-status {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.sp-status-active {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.sp-status-inactive {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.sp-action-btn {
+  color: var(--text-muted);
+}
+.sp-action-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+.sp-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.sp-empty-state,
+.sp-loading {
+  color: var(--text-muted);
+}
+.sp-error {
+  color: var(--danger);
+}
+
+/* ── Modal ── */
+.sp-modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.sp-modal-panel {
+  background: var(--panel-bg);
+  box-shadow: var(--shadow);
+}
+.sp-modal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.sp-modal-title {
+  color: var(--text-primary);
+}
+.sp-modal-close {
+  color: var(--text-muted);
+}
+.sp-modal-close:hover {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+}
+
+/* ── Form ── */
+.sp-field-label {
+  color: var(--text-secondary);
+}
+.sp-field-required {
+  color: var(--danger);
+}
+.sp-field-error {
+  color: var(--danger);
+}
+.sp-field-hint {
+  color: var(--text-muted);
+}
+
+.sp-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.sp-input::placeholder {
+  color: var(--text-muted);
+}
+.sp-input:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.sp-input-error {
+  border-color: var(--danger) !important;
+}
+.sp-input-error:focus {
+  box-shadow: 0 0 0 4px var(--danger-ring);
+}
+
+.sp-select {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.sp-select:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.sp-select-error {
+  border-color: var(--danger) !important;
+}
+
+.sp-status-toggle {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.sp-status-toggle-active {
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
+}
+.sp-status-toggle-inactive {
+  background: var(--danger-bg);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.sp-form-footer {
+  border-top: 1px solid var(--divider);
+}
+.sp-btn-cancel {
+  color: var(--text-secondary);
+}
+.sp-btn-cancel:hover {
+  color: var(--text-primary);
+}

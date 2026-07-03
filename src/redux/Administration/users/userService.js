@@ -1,7 +1,7 @@
 import api from "../../../common/services/api";
 
 const getUsers = async () => {
-  const response = await api.get("/users");
+  const response = await api.get("/users/token");
   return response.data;
 };
 

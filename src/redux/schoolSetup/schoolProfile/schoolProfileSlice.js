@@ -5,7 +5,7 @@ import {
   createSchool,
   updateSchool,
   deleteSchool,
-} from "./schoolService";
+} from "./schoolProfileService";
 
 // Get All Schools
 export const fetchSchools = createAsyncThunk(

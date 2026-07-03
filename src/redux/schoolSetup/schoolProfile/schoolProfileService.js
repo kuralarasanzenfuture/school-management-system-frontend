@@ -2,7 +2,7 @@ import api from "../../../common/services/api";
 
 const getSchool = async () => {
   try {
-    const response = await api.get("/schools");
+    const response = await api.get("/schools/token");
     return response.data;
   } catch (error) {
     console.error("Error fetching school profile:", error);

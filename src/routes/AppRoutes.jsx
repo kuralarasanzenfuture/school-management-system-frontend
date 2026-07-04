@@ -15,6 +15,10 @@ import DepartmentPage from "../features/schoolSetup/departments/pages/Department
 import ClassPage from "../features/schoolSetup/class/pages/ClassPage.jsx";
 import SectionPage from "../features/schoolSetup/section/pages/SectionPage.jsx";
 import AcademicYearPage from "../features/schoolSetup/academic-year/pages/AcademicYearPage.jsx";
+import EmployeePage from "../features/employees/pages/EmployeePage.jsx";
+import EmployeeDesignationPage from "../features/employeeDesignations/pages/EmployeeDesignationPage.jsx";
+import PublicRoute from "./PublicRoute.jsx";
+import ProtectedRoute from "./ProtectedRoute.jsx";
 
 // import TeacherList from "../features/teachers/pages/TeacherList";
 
@@ -22,8 +26,14 @@ const AppRoutes = () => {
   return (
     <Routes>
       {/* Login */}
-      <Route path="/" element={<LoginPage />} />
-      <Route path="/login" element={<LoginPage />} />
+      <Route element={<PublicRoute />}>{/* Public */}
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage />} />
+      </Route>
+
+
+{/* Protected */}
+      <Route element={<ProtectedRoute />}>
 
       {/* Dashboard Layout */}
       <Route element={<MainLayout />}>
@@ -44,6 +54,13 @@ const AppRoutes = () => {
         <Route path="/departments" element={<DepartmentPage />} />
         <Route path="/classes" element={<ClassPage />} />
         <Route path="/sections" element={<SectionPage />} />
+
+        <Route path="/employees" element={<EmployeePage />} />
+        <Route path="/employee-designations" element={<EmployeeDesignationPage />} />
+
+        <Route path="*" element={<div>404</div>} />
+      </Route>
+
       </Route>
     </Routes>
   );

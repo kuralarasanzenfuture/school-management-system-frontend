@@ -13,6 +13,7 @@ export const login = async (credentials) => {
 export const getMe = async () => {
   try {
     const response = await api.get("/users/me");
+    console.log("getMe response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching user data:", error);
@@ -30,13 +31,28 @@ export const refreshToken = async () => {
   }
 };
 
+// export const logout = async () => {
+//   try {
+//     const response = await api.post("/users/logout");
+//     return response.data;
+//   } catch (error) {
+//     console.error("Error logging out:", error);
+//     throw error; // Rethrow the error to be handled by the caller
+//   }
+// };
+
 export const logout = async () => {
   try {
-    const response = await api.post("/users/logout");
+    const refreshToken = localStorage.getItem("refreshToken");
+
+    const response = await api.post("/users/logout", {
+      refreshToken,
+    });
+
     return response.data;
   } catch (error) {
     console.error("Error logging out:", error);
-    throw error; // Rethrow the error to be handled by the caller
+    throw error;
   }
 };
 

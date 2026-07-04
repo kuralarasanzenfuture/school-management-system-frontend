@@ -1,0 +1,273 @@
+/* Employee.css
+   All COLOR styling for the Employee Management feature (page, table,
+   modal, form) lives here as plain CSS classes driven by the theme
+   variables in app.css. Tailwind utility classes in the JSX only handle
+   layout, spacing, and sizing.
+*/
+
+/* ── Page ── */
+.ep-page {
+  background: var(--bg);
+}
+.ep-title {
+  color: var(--text-primary);
+}
+.ep-subtitle {
+  color: var(--text-muted);
+}
+
+.ep-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.ep-btn-primary:hover {
+  background: var(--btn-hover);
+}
+.ep-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ep-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.ep-btn-outline:hover {
+  background: var(--input-bg);
+}
+
+/* ── Toolbar ── */
+.ep-toolbar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ep-search-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.ep-search-input::placeholder {
+  color: var(--text-muted);
+}
+.ep-search-input:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.ep-count-text {
+  color: var(--text-muted);
+}
+.ep-filter-select {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.ep-filter-select:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+
+/* ── Table card ── */
+.ep-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ep-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.ep-row {
+  border-top: 1px solid var(--divider);
+}
+.ep-row:hover {
+  background: var(--input-bg);
+}
+
+.ep-avatar {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+}
+.ep-name {
+  color: var(--text-primary);
+}
+.ep-code {
+  color: var(--text-muted);
+}
+.ep-cell {
+  color: var(--text-secondary);
+}
+.ep-cell-muted {
+  color: var(--text-muted);
+}
+
+/* ── Status badges (matches employees.status ENUM) ── */
+.ep-status {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.ep-status-active {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.ep-status-inactive {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.ep-status-resigned {
+  background: var(--warning-bg, var(--input-bg));
+  color: var(--warning, var(--text-muted));
+}
+.ep-status-terminated {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.ep-action-btn {
+  color: var(--text-muted);
+}
+.ep-action-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+.ep-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.ep-empty-state,
+.ep-loading {
+  color: var(--text-muted);
+}
+.ep-error {
+  color: var(--danger);
+}
+
+/* ── Modal ── */
+.ep-modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.ep-modal-panel {
+  background: var(--panel-bg);
+  box-shadow: var(--shadow);
+}
+.ep-modal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.ep-modal-title {
+  color: var(--text-primary);
+}
+.ep-modal-close {
+  color: var(--text-muted);
+}
+.ep-modal-close:hover {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+}
+.ep-code-badge {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+}
+
+/* ── Form ── */
+.ep-section-title {
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--divider);
+}
+.ep-field-label {
+  color: var(--text-secondary);
+}
+.ep-field-required {
+  color: var(--danger);
+}
+.ep-field-error {
+  color: var(--danger);
+}
+.ep-field-hint {
+  color: var(--text-muted);
+}
+
+.ep-input,
+.ep-select,
+.ep-textarea {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.ep-input::placeholder,
+.ep-textarea::placeholder {
+  color: var(--text-muted);
+}
+.ep-input:focus,
+.ep-select:focus,
+.ep-textarea:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.ep-input-error {
+  border-color: var(--danger) !important;
+}
+.ep-input-error:focus {
+  box-shadow: 0 0 0 4px var(--danger-ring);
+}
+.ep-input-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ep-checkbox-row {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.ep-checkbox-row-checked {
+  background: var(--badge-bg);
+  border-color: var(--btn-bg);
+  color: var(--btn-bg);
+}
+.ep-checkbox {
+  accent-color: var(--btn-bg);
+}
+
+.ep-status-toggle {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.ep-status-toggle-active {
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
+}
+.ep-status-toggle-inactive {
+  background: var(--danger-bg);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.ep-upload-box {
+  background: var(--input-bg);
+  border: 1px dashed var(--input-border);
+  color: var(--text-muted);
+}
+.ep-upload-box:hover {
+  border-color: var(--input-focus);
+}
+.ep-upload-filename {
+  color: var(--text-secondary);
+}
+
+.ep-form-footer {
+  border-top: 1px solid var(--divider);
+}
+.ep-btn-cancel {
+  color: var(--text-secondary);
+}
+.ep-btn-cancel:hover {
+  color: var(--text-primary);
+}

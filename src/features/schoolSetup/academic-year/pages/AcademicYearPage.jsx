@@ -15,7 +15,7 @@ import "../styles/AcademicYear.css";
 
 // TODO: wire this up to wherever your app stores the logged-in admin's
 // current school (same assumption used for Class/Section school_id).
-const CURRENT_SCHOOL_ID = 1;
+// const CURRENT_SCHOOL_ID = 1;
 
 const AcademicYearPage = () => {
   const dispatch = useDispatch();
@@ -23,7 +23,20 @@ const AcademicYearPage = () => {
     (state) => state.academicYears,
   );
 
-//   console.log("Academic Years from Redux state:", academicYears);
+  //   console.log("Academic Years from Redux state:", academicYears);
+
+  // TODO: confirm this matches your actual auth slice's state shape.
+  // Assumed: state.auth.user holds the object shown in your login response,
+  // e.g. { id, username, email, phone, status, roles: ['ADMIN'], school_id? }
+  const { user, loading: authLoading } = useSelector((state) => state.auth);
+
+  const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
+  // console.log("User roles:", user?.roles);
+  // Non-admins only ever belong to one school — use theirs directly.
+  // Admins pick a school in the form's dropdown instead.
+  const schoolId = isAdmin ? null : user?.school_id;
+
+  // console.log("School ID:", schoolId);
 
   const [search, setSearch] = useState("");
 
@@ -162,7 +175,8 @@ const AcademicYearPage = () => {
         isOpen={modalOpen}
         onClose={closeModal}
         academicYear={editingYear}
-        schoolId={CURRENT_SCHOOL_ID}
+        schoolId={schoolId}
+        isAdmin={isAdmin}
         onSubmit={handleSubmit}
         submitting={submitting}
       />

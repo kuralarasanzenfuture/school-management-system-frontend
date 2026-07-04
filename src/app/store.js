@@ -9,6 +9,8 @@ import classReducer from "../redux/schoolSetup/class/classSlice";
 import sectionReducer from "../redux/schoolSetup/section/sectionSlice";
 import schoolProfileReducer from "../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
 import academicYearReducer from "../redux/schoolSetup/academic-year/academicYearSlice.js";
+import employeeReducer from "../redux/employee/employeeSlice.js";
+import employeeDesignationReducer from "../redux/employeeDesignation/employeeDesignationSlice.js";
 // import teacherReducer from "../features/teachers/slice";
 
 export const store = configureStore({
@@ -23,6 +25,8 @@ export const store = configureStore({
     classes: classReducer,
     sections: sectionReducer,
     academicYears: academicYearReducer,
+    employees: employeeReducer,
+    employeeDesignations: employeeDesignationReducer,
     // teachers: teacherReducer,
   },
 });

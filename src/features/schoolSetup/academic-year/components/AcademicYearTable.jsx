@@ -18,6 +18,25 @@ export default function AcademicYearTable({
   onDelete,
   deletingId,
 }) {
+  // function isCurrentYear(value) {
+  //   if (typeof value === "boolean") return value;
+  //   if (typeof value === "number") return value === 1;
+  //   if (typeof value === "string") return value === "true" || value === "1";
+  //   return Boolean(value);
+  // }
+
+  function isCurrentYear(year) {
+    if (!year.start_date || !year.end_date) return false;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const start = new Date(year.start_date);
+    const end = new Date(year.end_date);
+
+    return today >= start && today <= end;
+  }
+
   return (
     <div className="ay-table-card rounded-2xl overflow-hidden">
       <div className="overflow-x-auto">
@@ -41,7 +60,15 @@ export default function AcademicYearTable({
                     <span className="ay-name text-[13.5px] font-semibold">
                       {year.name}
                     </span>
-                    {year.is_current && (
+                    {/* {isCurrentYear(year.is_current) && (
+                      <span
+                        className="ay-current-badge inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium"
+                        title="Current academic year"
+                      >
+                        <Star size={11} /> Current
+                      </span>
+                    )} */}
+                    {isCurrentYear(year) && (
                       <span
                         className="ay-current-badge inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium"
                         title="Current academic year"

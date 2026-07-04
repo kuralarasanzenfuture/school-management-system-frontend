@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Loader2 } from "lucide-react";
+import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
 
 const EMPTY = {
+  school_id: "",
   start_date: "",
   end_date: "",
   is_current: false,
@@ -9,34 +12,42 @@ const EMPTY = {
 };
 
 /**
- * Add/edit form for a single academic year.
- *
- * NOTE: there is no `name` field — the backend derives it (e.g. "2026-2027")
- * from start_date/end_date, matching the POST payload you're sending
- * (school_id, start_date, end_date[, is_current]). We show a computed
- * preview here purely for the admin's benefit; it is not submitted.
- *
- * @param {object|null} initialData - pass an existing academic year to edit
- * @param {number} schoolId - current school's id, included in the payload
- * @param {(payload) => void} onSubmit
- * @param {() => void} onCancel
- * @param {boolean} submitting
+ * @param {boolean} isAdmin - if true, shows a school dropdown to pick from.
+ *                            if false, silently uses `schoolId` prop.
+ * @param {number} schoolId - current/only school id for non-admin users.
  */
 export default function AcademicYearForm({
   initialData = null,
   schoolId,
+  isAdmin = false,
   onSubmit,
   onCancel,
   submitting,
 }) {
   const isEdit = Boolean(initialData?.id);
+  const dispatch = useDispatch();
+
+  // adjust these selector paths to match your actual redux state shape
+  const schools = useSelector((state) => state.schoolProfile?.schools || []);
+  const schoolsLoading = useSelector(
+    (state) => state.schoolProfile?.loading || false,
+  );
+
   const [data, setData] = useState(EMPTY);
   const [errors, setErrors] = useState({});
+
+  // Admin picks from a list — fetch it once.
+  useEffect(() => {
+    if (isAdmin) {
+      dispatch(fetchSchools());
+    }
+  }, [isAdmin, dispatch]);
 
   useEffect(() => {
     setData(
       initialData
         ? {
+            school_id: initialData.school_id ?? schoolId ?? "",
             start_date: initialData.start_date
               ? initialData.start_date.slice(0, 10)
               : "",
@@ -46,10 +57,10 @@ export default function AcademicYearForm({
             is_current: Boolean(initialData.is_current),
             status: initialData.status || "active",
           }
-        : EMPTY,
+        : { ...EMPTY, school_id: isAdmin ? "" : (schoolId ?? "") },
     );
     setErrors({});
-  }, [initialData]);
+  }, [initialData, schoolId, isAdmin]);
 
   const set = (key) => (e) => {
     setData((d) => ({ ...d, [key]: e.target.value }));
@@ -66,6 +77,7 @@ export default function AcademicYearForm({
 
   const validate = () => {
     const e = {};
+    if (isAdmin && !data.school_id) e.school_id = "Please select a school";
     if (!data.start_date) e.start_date = "Start date is required";
     if (!data.end_date) e.end_date = "End date is required";
 
@@ -86,7 +98,9 @@ export default function AcademicYearForm({
     if (!validate()) return;
 
     onSubmit({
-      school_id: schoolId,
+      // admin: whatever they picked in the dropdown
+      // non-admin: the single school they belong to
+      school_id: isAdmin ? data.school_id : schoolId,
       start_date: data.start_date,
       end_date: data.end_date,
       is_current: data.is_current,
@@ -96,6 +110,34 @@ export default function AcademicYearForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {isAdmin && (
+        <div className="flex flex-col gap-1.5">
+          <label className="ay-field-label text-[13px] font-medium">
+            School <span className="ay-field-required">*</span>
+          </label>
+          <select
+            className={`ay-input w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200 ${errors.school_id ? "ay-input-error" : ""}`}
+            value={data.school_id}
+            onChange={set("school_id")}
+            disabled={schoolsLoading}
+          >
+            <option value="">
+              {schoolsLoading ? "Loading schools..." : "Select a school"}
+            </option>
+            {schools.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+          <div className="h-4">
+            {errors.school_id && (
+              <p className="ay-field-error text-[11px]">{errors.school_id}</p>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="flex flex-col gap-1.5">
           <label className="ay-field-label text-[13px] font-medium">
@@ -152,6 +194,7 @@ export default function AcademicYearForm({
           onChange={(e) =>
             setData((d) => ({ ...d, is_current: e.target.checked }))
           }
+          disabled
         />
         Set as the current academic year
       </label>

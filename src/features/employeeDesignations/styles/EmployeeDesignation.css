@@ -1,0 +1,202 @@
+/* EmployeeDesignation.css
+   All COLOR styling for the Employee Designation feature (page, table,
+   modal, form) lives here as plain CSS classes driven by the theme
+   variables in app.css. Tailwind utility classes in the JSX only handle
+   layout, spacing, and sizing.
+*/
+
+/* ── Page ── */
+.edp-page {
+  background: var(--bg);
+}
+.edp-title {
+  color: var(--text-primary);
+}
+.edp-subtitle {
+  color: var(--text-muted);
+}
+
+.edp-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.edp-btn-primary:hover {
+  background: var(--btn-hover);
+}
+.edp-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.edp-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.edp-btn-outline:hover {
+  background: var(--input-bg);
+}
+
+/* ── Toolbar ── */
+.edp-toolbar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.edp-search-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.edp-search-input::placeholder {
+  color: var(--text-muted);
+}
+.edp-search-input:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.edp-count-text {
+  color: var(--text-muted);
+}
+
+/* ── Table card ── */
+.edp-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.edp-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.edp-row {
+  border-top: 1px solid var(--divider);
+}
+.edp-row:hover {
+  background: var(--input-bg);
+}
+.edp-name {
+  color: var(--text-primary);
+}
+.edp-desc {
+  color: var(--text-secondary);
+}
+.edp-cell-muted {
+  color: var(--text-muted);
+}
+
+/* ── Status badges (matches employee_designations.status ENUM) ── */
+.edp-status {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.edp-status-active {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.edp-status-inactive {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.edp-action-btn {
+  color: var(--text-muted);
+}
+.edp-action-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+.edp-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.edp-empty-state,
+.edp-loading {
+  color: var(--text-muted);
+}
+.edp-error {
+  color: var(--danger);
+}
+
+/* ── Modal ── */
+.edp-modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.edp-modal-panel {
+  background: var(--panel-bg);
+  box-shadow: var(--shadow);
+}
+.edp-modal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.edp-modal-title {
+  color: var(--text-primary);
+}
+.edp-modal-close {
+  color: var(--text-muted);
+}
+.edp-modal-close:hover {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+}
+
+/* ── Form ── */
+.edp-field-label {
+  color: var(--text-secondary);
+}
+.edp-field-required {
+  color: var(--danger);
+}
+.edp-field-error {
+  color: var(--danger);
+}
+
+.edp-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.edp-input::placeholder {
+  color: var(--text-muted);
+}
+.edp-input:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.edp-input-error {
+  border-color: var(--danger) !important;
+}
+.edp-input-error:focus {
+  box-shadow: 0 0 0 4px var(--danger-ring);
+}
+
+.edp-status-toggle {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.edp-status-toggle-active {
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
+}
+.edp-status-toggle-inactive {
+  background: var(--danger-bg);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.edp-form-footer {
+  border-top: 1px solid var(--divider);
+}
+.edp-btn-cancel {
+  color: var(--text-secondary);
+}
+.edp-btn-cancel:hover {
+  color: var(--text-primary);
+}

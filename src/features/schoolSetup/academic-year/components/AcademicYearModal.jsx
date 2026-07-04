@@ -12,6 +12,7 @@ export default function AcademicYearModal({
   onClose,
   academicYear,
   schoolId,
+  isAdmin,
   onSubmit,
   submitting,
 }) {
@@ -43,6 +44,7 @@ export default function AcademicYearModal({
           <AcademicYearForm
             initialData={academicYear}
             schoolId={schoolId}
+            isAdmin={isAdmin}
             onSubmit={onSubmit}
             onCancel={onClose}
             submitting={submitting}

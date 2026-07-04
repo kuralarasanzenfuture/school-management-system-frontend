@@ -41,7 +41,8 @@ const LoginForm = () => {
       if (loginUser.fulfilled.match(result)) {
         alert("Login Successful");
 
-        navigate("/dashboard");
+        // navigate("/dashboard");
+        navigate("/dashboard", { replace: true });
       } else {
         alert(result.payload || "Login Failed");
       }

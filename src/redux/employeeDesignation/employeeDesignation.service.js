@@ -3,7 +3,7 @@ import api from "../../common/services/api";
 export const getEmployeeDesignations = async () => {
   try {
     const response = await api.get("/employees-designations/token");
-    console.log(response.data);
+    // console.log("getEmployeeDesignations response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching employee designations:", error);

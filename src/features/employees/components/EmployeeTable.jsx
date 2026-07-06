@@ -1,6 +1,6 @@
 import React from "react";
-import { Pencil, Trash2, ArrowUpDown } from "lucide-react";
-
+import { Pencil, Trash2, ArrowUpDown, Eye } from "lucide-react";
+const API_URL = import.meta.env.VITE_API_URL;
 function formatDate(value) {
   if (!value) return "—";
   const d = new Date(value);
@@ -27,6 +27,7 @@ const STATUS_CLASS = {
 
 export default function EmployeeTable({
   employees,
+  onView,
   onEdit,
   onDelete,
   deletingId,
@@ -60,12 +61,16 @@ export default function EmployeeTable({
             {employees.map((emp) => (
               <tr key={emp.id} className="ep-row transition-colors">
                 <td className="px-5 py-3.5">
-                  <div className="flex items-center gap-3">
+                  <div
+                    className="flex items-center gap-3 cursor-pointer"
+                    onClick={() => onView?.(emp)}
+                    title="View employee"
+                  >
                     <div className="ep-avatar w-9 h-9 rounded-full flex items-center justify-center text-[12.5px] font-semibold shrink-0">
                       {emp.photo_url ? (
                         <img
-                          src={emp.photo_url}
-                          alt=""
+                          src={`${API_URL}${emp.photo_url}`}
+                          alt={`${emp.first_name} ${emp.last_name}`}
                           className="w-9 h-9 rounded-full object-cover"
                         />
                       ) : (
@@ -109,6 +114,13 @@ export default function EmployeeTable({
 
                 <td className="px-3 py-3.5">
                   <div className="flex items-center justify-end gap-1 pr-2">
+                    <button
+                      onClick={() => onView?.(emp)}
+                      className="ep-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+                      title="View"
+                    >
+                      <Eye size={15} />
+                    </button>
                     <button
                       onClick={() => onEdit(emp)}
                       className="ep-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"

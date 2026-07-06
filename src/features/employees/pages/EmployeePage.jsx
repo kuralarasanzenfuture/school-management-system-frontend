@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Plus, Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import EmployeeTable from "../components/EmployeeTable";
 import EmployeeModal from "../components/EmployeeModal";
 
@@ -12,18 +13,21 @@ import {
 } from "../../../redux/employee/employeeSlice.js";
 
 import "../styles/Employee.css";
+import { fetchSchools } from "../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
 
 // TODO: wire this up to wherever your app stores the logged-in admin's
 // current school (same assumption used across Class/Section/AcademicYear).
-const CURRENT_SCHOOL_ID = 1;
+// const CURRENT_SCHOOL_ID = 1;
 
 const STATUS_OPTIONS = ["active", "inactive", "resigned", "terminated"];
 
 const EmployeePage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { employees, loading, error } = useSelector((state) => state.employees);
 
   const [search, setSearch] = useState("");
+  const [selectedSchool, setSelectedSchool] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -31,26 +35,83 @@ const EmployeePage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
+  const { user, loading: authLoading } = useSelector((state) => state.auth);
+
+  const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
+
+  const schoolId = isAdmin ? null : user?.school_id;
+
+  const schools = useSelector((state) => state.schoolProfile?.schools || []);
+  const schoolsLoading = useSelector(
+    (state) => state.schoolProfile?.loading || false,
+  );
+
+  useEffect(() => {
+    if (isAdmin && schools.length === 0) {
+      dispatch(fetchSchools());
+    }
+  }, [dispatch, isAdmin, schools.length]);
+
   useEffect(() => {
     dispatch(fetchEmployees());
   }, [dispatch]);
 
+  // const filteredEmployees = useMemo(() => {
+  //   const term = search.trim().toLowerCase();
+
+  //   return employees.filter((e) => {
+  //     const matchesSearch = term
+  //       ? `${e.first_name} ${e.last_name || ""}`.toLowerCase().includes(term) ||
+  //         e.employee_code?.toLowerCase().includes(term) ||
+  //         e.mobile?.toLowerCase().includes(term) ||
+  //         e.email?.toLowerCase().includes(term)
+  //       : true;
+
+  //     const matchesStatus = statusFilter ? e.status === statusFilter : true;
+
+  //     return matchesSearch && matchesStatus;
+  //   });
+  // }, [employees, search, statusFilter]);
+
   const filteredEmployees = useMemo(() => {
-    const term = search.trim().toLowerCase();
+  const term = search.trim().toLowerCase();
 
-    return employees.filter((e) => {
-      const matchesSearch = term
-        ? `${e.first_name} ${e.last_name || ""}`.toLowerCase().includes(term) ||
-          e.employee_code?.toLowerCase().includes(term) ||
-          e.mobile?.toLowerCase().includes(term) ||
-          e.email?.toLowerCase().includes(term)
-        : true;
+  return employees.filter((e) => {
+    const matchesSearch = term
+      ? `${e.first_name} ${e.last_name || ""}`.toLowerCase().includes(term) ||
+        e.employee_code?.toLowerCase().includes(term) ||
+        e.mobile?.toLowerCase().includes(term) ||
+        e.email?.toLowerCase().includes(term)
+      : true;
 
-      const matchesStatus = statusFilter ? e.status === statusFilter : true;
+    const matchesStatus = statusFilter
+      ? e.status === statusFilter
+      : true;
 
-      return matchesSearch && matchesStatus;
-    });
-  }, [employees, search, statusFilter]);
+    // Admin: filter by selected school
+    // Non-admin: show only their school
+    const matchesSchool = isAdmin
+      ? selectedSchool
+        ? Number(e.school_id) === Number(selectedSchool)
+        : true
+      : Number(e.school_id) === Number(schoolId);
+
+    return matchesSearch && matchesStatus && matchesSchool;
+  });
+}, [
+  employees,
+  search,
+  statusFilter,
+  selectedSchool,
+  isAdmin,
+  schoolId,
+]);
+
+  // Navigates to the read-only details page (EmployeeDetailsPage), which
+  // expects a route registered like <Route path="/employees/:id" ... />.
+  const openViewPage = (employee) => {
+    navigate(`/employees/${employee.id}`);
+  };
 
   const openAddModal = () => {
     setEditingEmployee(null);
@@ -151,6 +212,24 @@ const EmployeePage = () => {
           ))}
         </select>
 
+        {/* School Filter */}
+        {isAdmin && (
+          <select
+            value={selectedSchool}
+            onChange={(e) => setSelectedSchool(e.target.value)}
+            className="ep-search-input rounded-lg px-3 py-2 text-[13.5px] min-w-[220px]"
+            disabled={schoolsLoading}
+          >
+            <option value="">All Schools</option>
+
+            {schools.map((school) => (
+              <option key={school.id} value={school.id}>
+                {school.name}
+              </option>
+            ))}
+          </select>
+        )}
+
         <span className="ep-count-text text-[12.5px] ml-auto">
           {filteredEmployees.length} employee
           {filteredEmployees.length === 1 ? "" : "s"}
@@ -175,6 +254,7 @@ const EmployeePage = () => {
       ) : (
         <EmployeeTable
           employees={filteredEmployees}
+          onView={openViewPage}
           onEdit={openEditModal}
           onDelete={handleDelete}
           deletingId={deletingId}
@@ -185,7 +265,7 @@ const EmployeePage = () => {
         isOpen={modalOpen}
         onClose={closeModal}
         employee={editingEmployee}
-        schoolId={CURRENT_SCHOOL_ID}
+        // schoolId={CURRENT_SCHOOL_ID}
         onSubmit={handleSubmit}
         submitting={submitting}
       />

@@ -19,6 +19,7 @@ import EmployeePage from "../features/employees/pages/EmployeePage.jsx";
 import EmployeeDesignationPage from "../features/employeeDesignations/pages/EmployeeDesignationPage.jsx";
 import PublicRoute from "./PublicRoute.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
+import EmployeeDetailsPage from "../features/employees/pages/EmployeeDetailsPage.jsx";
 
 // import TeacherList from "../features/teachers/pages/TeacherList";
 
@@ -56,6 +57,7 @@ const AppRoutes = () => {
         <Route path="/sections" element={<SectionPage />} />
 
         <Route path="/employees" element={<EmployeePage />} />
+        <Route path="/employees/:id" element={<EmployeeDetailsPage />} />
         <Route path="/employee-designations" element={<EmployeeDesignationPage />} />
 
         <Route path="*" element={<div>404</div>} />

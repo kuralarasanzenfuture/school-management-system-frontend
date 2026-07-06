@@ -1,0 +1,163 @@
+/* EmployeeDetailsPage.css */
+
+.ed-page {
+  background: var(--bg);
+}
+
+.ed-back-btn {
+  color: var(--text-secondary);
+}
+.ed-back-btn:hover {
+  color: var(--btn-bg);
+}
+
+.ed-title {
+  color: var(--text-primary);
+}
+.ed-subtitle {
+  color: var(--text-muted);
+}
+
+.ed-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.ed-btn-outline:hover {
+  background: var(--input-bg);
+}
+
+.ed-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.ed-btn-primary:hover {
+  background: var(--btn-hover);
+}
+
+/* ── Profile hero card ── */
+.ed-hero-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+
+.ed-avatar-ring {
+  border: 3px solid var(--btn-bg);
+  background: var(--input-bg);
+}
+.ed-avatar-fallback {
+  color: var(--btn-bg);
+  background: var(--badge-bg);
+}
+.ed-avatar-clickable {
+  cursor: zoom-in;
+}
+
+.ed-hero-name {
+  color: var(--text-primary);
+}
+.ed-hero-email {
+  color: var(--text-muted);
+}
+.ed-hero-code {
+  color: var(--text-muted);
+}
+
+.ed-chip {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+}
+
+/* ── Section cards ── */
+.ed-section-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ed-section-title {
+  color: var(--btn-bg);
+  border-bottom: 1px solid var(--divider);
+}
+
+.ed-field-label {
+  color: var(--text-muted);
+}
+.ed-field-value {
+  color: var(--text-primary);
+}
+.ed-field-value-empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.ed-note {
+  color: var(--text-muted);
+  background: var(--input-bg);
+  border: 1px dashed var(--input-border);
+}
+
+/* ── Documents grid ── */
+.ed-doc-card {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+}
+.ed-doc-card-filled {
+  border-color: var(--success);
+  background: var(--success-bg);
+}
+.ed-doc-thumb {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+}
+.ed-doc-name {
+  color: var(--text-secondary);
+}
+.ed-doc-missing {
+  color: var(--text-muted);
+}
+.ed-doc-view-btn {
+  color: var(--badge-text);
+  background: var(--badge-bg);
+}
+.ed-doc-view-btn:hover {
+  opacity: 0.8;
+}
+.ed-doc-view-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.ed-doc-icon-filled {
+  color: var(--success);
+}
+.ed-doc-icon-empty {
+  color: var(--text-muted);
+}
+
+/* ── Lightbox ── */
+.ed-lightbox-overlay {
+  background: rgba(0, 0, 0, 0.75);
+}
+.ed-lightbox-frame {
+  background: var(--panel-bg);
+  box-shadow: var(--shadow);
+}
+.ed-lightbox-label {
+  color: var(--text-primary);
+}
+.ed-lightbox-close {
+  color: var(--text-muted);
+}
+.ed-lightbox-close:hover {
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+
+/* ── States ── */
+.ed-loading,
+.ed-notfound {
+  color: var(--text-secondary);
+}
+.ed-notfound-title {
+  color: var(--text-primary);
+}

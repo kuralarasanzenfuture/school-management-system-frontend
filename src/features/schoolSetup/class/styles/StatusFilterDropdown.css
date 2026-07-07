@@ -1,0 +1,37 @@
+/* StatusFilterDropdown.css */
+
+.cp-filter-btn {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.cp-filter-btn:hover {
+  background: var(--input-bg);
+}
+
+.cp-filter-dropdown {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+
+.cp-filter-item {
+  color: var(--text-primary);
+}
+.cp-filter-item:hover {
+  background: var(--input-bg);
+}
+
+.cp-filter-divider {
+  background: var(--divider);
+}
+
+.cp-filter-checkbox {
+  border: 1.5px solid var(--input-border);
+  background: var(--panel-bg);
+  color: var(--btn-text);
+}
+.cp-filter-checkbox-checked {
+  background: var(--btn-bg);
+  border-color: var(--btn-bg);
+}

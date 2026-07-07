@@ -12,27 +12,69 @@ import {
 } from "../../../../redux/schoolSetup/class/classSlice.js";
 
 import "../styles/Class.css";
+import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
+import StatusFilterDropdown from "../components/StatusFilterDropdown";
+import "../styles/StatusFilterDropdown.css";
 
 const ClassPage = () => {
   const dispatch = useDispatch();
   const { classes, loading, error } = useSelector((state) => state.classes);
 
   const [search, setSearch] = useState("");
-
+  const [selectedSchool, setSelectedSchool] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingClass, setEditingClass] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  // Replace your current single-value statusFilter with an array —
+  // default to both checked, matching "everything visible" out of the box.
+  const [statusFilter, setStatusFilter] = useState(["active", "inactive"]);
+
+  const { user, loading: authLoading } = useSelector((state) => state.auth);
+
+  const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
+
+  const schoolId = isAdmin ? null : user?.school_id;
+
+  const schools = useSelector((state) => state.schoolProfile?.schools || []);
+  const schoolsLoading = useSelector(
+    (state) => state.schoolProfile?.loading || false,
+  );
+
+  useEffect(() => {
+    if (isAdmin && schools.length === 0) {
+      dispatch(fetchSchools());
+    }
+  }, [dispatch, isAdmin, schools.length]);
 
   useEffect(() => {
     dispatch(fetchClasses());
   }, [dispatch]);
 
+  // const filteredClasses = useMemo(() => {
+  //   const term = search.trim().toLowerCase();
+  //   if (!term) return classes;
+  //   return classes.filter((c) => c.name?.toLowerCase().includes(term));
+  // }, [classes, search]);
+
   const filteredClasses = useMemo(() => {
     const term = search.trim().toLowerCase();
-    if (!term) return classes;
-    return classes.filter((c) => c.name?.toLowerCase().includes(term));
-  }, [classes, search]);
+
+    return classes.filter((c) => {
+      const matchesSearch =
+        !term ||
+        c.name?.toLowerCase().includes(term) ||
+        c.school_name?.toLowerCase().includes(term);
+
+      const matchesSchool = isAdmin
+        ? selectedSchool
+          ? Number(c.school_id) === Number(selectedSchool)
+          : true
+        : Number(c.school_id) === Number(schoolId);
+
+      return matchesSearch && matchesSchool;
+    });
+  }, [classes, search, selectedSchool, isAdmin, schoolId]);
 
   const openAddModal = () => {
     setEditingClass(null);
@@ -120,11 +162,72 @@ const ClassPage = () => {
             className="cp-search-input w-full rounded-lg pl-9 pr-3 py-2 text-[13.5px] transition-all"
           />
         </div>
+
+        {/* School Filter */}
+        {isAdmin && (
+          <select
+            value={selectedSchool}
+            onChange={(e) => setSelectedSchool(e.target.value)}
+            className="edp-search-input rounded-lg px-3 py-2 text-[13.5px] min-w-[220px]"
+            disabled={schoolsLoading}
+          >
+            <option value="">All Schools</option>
+
+            {schools.map((school) => (
+              <option key={school.id} value={school.id}>
+                {school.name}
+              </option>
+            ))}
+          </select>
+        )}
+
         <span className="cp-count-text text-[12.5px] ml-auto">
           {filteredClasses.length} class
           {filteredClasses.length === 1 ? "" : "es"}
         </span>
       </div>
+
+      {/* Toolbar */}
+      {/* <div className="cp-toolbar flex items-center gap-3 rounded-2xl px-4 py-3 mb-5">
+        <div className="relative flex-1 max-w-xs">
+          <Search
+            size={15}
+            className="cp-count-text absolute left-3 top-1/2 -translate-y-1/2"
+          />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search classes…"
+            className="cp-search-input w-full rounded-lg pl-9 pr-3 py-2 text-[13.5px] transition-all"
+          />
+        </div>
+
+        {isAdmin && (
+          <select
+            value={selectedSchool}
+            onChange={(e) => setSelectedSchool(e.target.value)}
+            className="edp-search-input rounded-lg px-3 py-2 text-[13.5px] min-w-[220px]"
+            disabled={schoolsLoading}
+          >
+            <option value="">All Schools</option>
+            {schools.map((school) => (
+              <option key={school.id} value={school.id}>
+                {school.name}
+              </option>
+            ))}
+          </select>
+        )}
+
+        <StatusFilterDropdown
+          selected={statusFilter}
+          onChange={setStatusFilter}
+        />
+
+        <span className="cp-count-text text-[12.5px] ml-auto">
+          {filteredClasses.length} class
+          {filteredClasses.length === 1 ? "" : "es"}
+        </span>
+      </div> */}
 
       {/* Content */}
       {loading ? (

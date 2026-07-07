@@ -14,6 +14,7 @@ import {
 import { fetchRoles } from "../../../../redux/Administration/roles/roleSlice.js";
 
 import "../styles/User.css";
+import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
 
 const UserPage = () => {
   const dispatch = useDispatch();
@@ -21,37 +22,75 @@ const UserPage = () => {
   const { roles } = useSelector((state) => state.roles);
   //   console.log("UserPage roles:", roles);
   const [search, setSearch] = useState("");
-
+  const [selectedSchool, setSelectedSchool] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+
+  const { user, loading: authLoading } = useSelector((state) => state.auth);
+
+  const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
+
+  const schoolId = isAdmin ? null : user?.school_id;
+
+  const schools = useSelector((state) => state.schoolProfile?.schools || []);
+  const schoolsLoading = useSelector(
+    (state) => state.schoolProfile?.loading || false,
+  );
+
+  useEffect(() => {
+    if (isAdmin && schools.length === 0) {
+      dispatch(fetchSchools());
+    }
+  }, [dispatch, isAdmin, schools.length]);
 
   useEffect(() => {
     dispatch(fetchUsers());
     dispatch(fetchRoles());
   }, [dispatch]);
 
+  // const filteredUsers = useMemo(() => {
+  //   const term = search.trim().toLowerCase();
+  //   if (!term) return users;
+  //   return users.filter(
+  //     (u) =>
+  //       u.username?.toLowerCase().includes(term) ||
+  //       u.email?.toLowerCase().includes(term) ||
+  //       u.phone?.toLowerCase().includes(term),
+  //   );
+  // }, [users, search]);
+
   const filteredUsers = useMemo(() => {
     const term = search.trim().toLowerCase();
-    if (!term) return users;
-    return users.filter(
-      (u) =>
+
+    return users.filter((u) => {
+      const matchesSearch =
+        !term ||
         u.username?.toLowerCase().includes(term) ||
         u.email?.toLowerCase().includes(term) ||
-        u.phone?.toLowerCase().includes(term),
-    );
-  }, [users, search]);
+        u.phone?.toLowerCase().includes(term) ||
+        u.school_name?.toLowerCase().includes(term);
+
+      const matchesSchool = isAdmin
+        ? selectedSchool
+          ? String(u.school_id) === String(selectedSchool)
+          : true
+        : String(u.school_id) === String(schoolId);
+
+      return matchesSearch && matchesSchool;
+    });
+  }, [users, search, selectedSchool, isAdmin, schoolId]);
 
   const openAddModal = () => {
     setEditingUser(null);
     setModalOpen(true);
   };
 
-    // const openEditModal = (user) => {
-    //   setEditingUser(user);
-    //   setModalOpen(true);
-    // };
+  // const openEditModal = (user) => {
+  //   setEditingUser(user);
+  //   setModalOpen(true);
+  // };
 
   const openEditModal = async (user) => {
     try {
@@ -141,6 +180,25 @@ const UserPage = () => {
             className="up-search-input w-full rounded-lg pl-9 pr-3 py-2 text-[13.5px] transition-all"
           />
         </div>
+
+        {/* School Filter */}
+        {isAdmin && (
+          <select
+            value={selectedSchool}
+            onChange={(e) => setSelectedSchool(e.target.value)}
+            className="up-search-input rounded-lg px-3 py-2 text-[13.5px] min-w-[220px]"
+            disabled={schoolsLoading}
+          >
+            <option value="">All Schools</option>
+
+            {schools.map((school) => (
+              <option key={school.id} value={school.id}>
+                {school.name}
+              </option>
+            ))}
+          </select>
+        )}
+
         <span className="up-count-text text-[12.5px] ml-auto">
           {filteredUsers.length} user{filteredUsers.length === 1 ? "" : "s"}
         </span>

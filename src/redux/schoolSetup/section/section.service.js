@@ -94,3 +94,18 @@ export const deleteSection = async (sectionId) => {
     throw error;
   }
 };
+
+export const checkSectionExists = async (classId, sectionName) => {
+  try {
+    const response = await api.get(`/sections/check-section`, {
+      params: {
+        class_id: classId,
+        name: sectionName,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error checking section existence:", error);
+    throw error;
+  }
+};

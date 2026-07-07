@@ -12,6 +12,7 @@ import {
 } from "../../../../redux/schoolSetup/academic-year/academicYearSlice.js";
 
 import "../styles/AcademicYear.css";
+import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
 
 // TODO: wire this up to wherever your app stores the logged-in admin's
 // current school (same assumption used for Class/Section school_id).
@@ -24,6 +25,13 @@ const AcademicYearPage = () => {
   );
 
   //   console.log("Academic Years from Redux state:", academicYears);
+
+  const [search, setSearch] = useState("");
+  const [selectedSchool, setSelectedSchool] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingYear, setEditingYear] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   // TODO: confirm this matches your actual auth slice's state shape.
   // Assumed: state.auth.user holds the object shown in your login response,
@@ -38,22 +46,45 @@ const AcademicYearPage = () => {
 
   // console.log("School ID:", schoolId);
 
-  const [search, setSearch] = useState("");
+  const schools = useSelector((state) => state.schoolProfile?.schools || []);
+  const schoolsLoading = useSelector(
+    (state) => state.schoolProfile?.loading || false,
+  );
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editingYear, setEditingYear] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [deletingId, setDeletingId] = useState(null);
+  useEffect(() => {
+    if (isAdmin && schools.length === 0) {
+      dispatch(fetchSchools());
+    }
+  }, [dispatch, isAdmin, schools.length]);
 
   useEffect(() => {
     dispatch(fetchAcademicYears());
   }, [dispatch]);
 
+  // const filteredYears = useMemo(() => {
+  //   const term = search.trim().toLowerCase();
+  //   if (!term) return academicYears;
+  //   return academicYears.filter((y) => y.name?.toLowerCase().includes(term));
+  // }, [academicYears, search]);
+
   const filteredYears = useMemo(() => {
     const term = search.trim().toLowerCase();
-    if (!term) return academicYears;
-    return academicYears.filter((y) => y.name?.toLowerCase().includes(term));
-  }, [academicYears, search]);
+
+    return academicYears.filter((y) => {
+      const matchesSearch =
+        !term ||
+        y.name?.toLowerCase().includes(term) ||
+        y.school_name?.toLowerCase().includes(term);
+
+      const matchesSchool = isAdmin
+        ? selectedSchool
+          ? String(y.school_id) === String(selectedSchool)
+          : true
+        : String(y.school_id) === String(schoolId);
+
+      return matchesSearch && matchesSchool;
+    });
+  }, [academicYears, search, selectedSchool, isAdmin, schoolId]);
 
   const openAddModal = () => {
     setEditingYear(null);
@@ -142,6 +173,25 @@ const AcademicYearPage = () => {
             className="ay-search-input w-full rounded-lg pl-9 pr-3 py-2 text-[13.5px] transition-all"
           />
         </div>
+
+        {/* School Filter */}
+        {isAdmin && (
+          <select
+            value={selectedSchool}
+            onChange={(e) => setSelectedSchool(e.target.value)}
+            className="ay-search-input rounded-lg px-3 py-2 text-[13.5px] min-w-[220px]"
+            disabled={schoolsLoading}
+          >
+            <option value="">All Schools</option>
+
+            {schools.map((school) => (
+              <option key={school.id} value={school.id}>
+                {school.name}
+              </option>
+            ))}
+          </select>
+        )}
+
         <span className="ay-count-text text-[12.5px] ml-auto">
           {filteredYears.length} year{filteredYears.length === 1 ? "" : "s"}
         </span>

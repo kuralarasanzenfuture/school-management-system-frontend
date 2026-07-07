@@ -13,45 +13,89 @@ import {
 import { fetchClasses } from "../../../../redux/schoolSetup/class/classSlice.js";
 
 import "../styles/Section.css";
+import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
 
 const SectionPage = () => {
   const dispatch = useDispatch();
   const { sections, loading, error } = useSelector((state) => state.sections);
 
-  console.log("Sections from Redux state:", sections);
+  // console.log("Sections from Redux state:", sections);
 
   const { classes } = useSelector((state) => state.classes);
   const [search, setSearch] = useState("");
-  const [schoolId, setSchoolId] = useState(
+  const [schoolIds, setSchoolId] = useState(
     localStorage.getItem("school_id") || "",
   );
   const [classFilter, setClassFilter] = useState("");
-
+  const [selectedSchool, setSelectedSchool] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingSection, setEditingSection] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+
+  const { user, loading: authLoading } = useSelector((state) => state.auth);
+
+  const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
+
+  const schoolId = isAdmin ? null : user?.school_id;
+
+  const schools = useSelector((state) => state.schoolProfile?.schools || []);
+  const schoolsLoading = useSelector(
+    (state) => state.schoolProfile?.loading || false,
+  );
+
+  useEffect(() => {
+    if (isAdmin && schools.length === 0) {
+      dispatch(fetchSchools());
+    }
+  }, [dispatch, isAdmin, schools.length]);
 
   useEffect(() => {
     dispatch(fetchSections({ schoolId: schoolId, classId: classFilter }));
     dispatch(fetchClasses());
   }, [dispatch, schoolId, classFilter]);
 
+  // const filteredSections = useMemo(() => {
+  //   const term = search.trim().toLowerCase();
+
+  //   return sections.filter((s) => {
+  //     const matchesSearch = term ? s.name?.toLowerCase().includes(term) : true;
+
+  //     const sectionClassId =
+  //       typeof s.class_id === "object" ? s.class_id?.id : s.class_id;
+  //     const matchesClass = classFilter
+  //       ? String(sectionClassId) === String(classFilter)
+  //       : true;
+
+  //     return matchesSearch && matchesClass;
+  //   });
+  // }, [sections, search, classFilter]);
+
   const filteredSections = useMemo(() => {
     const term = search.trim().toLowerCase();
 
     return sections.filter((s) => {
-      const matchesSearch = term ? s.name?.toLowerCase().includes(term) : true;
+      const matchesSearch =
+        !term ||
+        s.name?.toLowerCase().includes(term) ||
+        s.school_name?.toLowerCase().includes(term);
 
       const sectionClassId =
         typeof s.class_id === "object" ? s.class_id?.id : s.class_id;
+
       const matchesClass = classFilter
         ? String(sectionClassId) === String(classFilter)
         : true;
 
-      return matchesSearch && matchesClass;
+      const matchesSchool = isAdmin
+        ? selectedSchool
+          ? String(s.school_id) === String(selectedSchool)
+          : true
+        : String(s.school_id) === String(schoolId);
+
+      return matchesSearch && matchesClass && matchesSchool;
     });
-  }, [sections, search, classFilter]);
+  }, [sections, search, classFilter, selectedSchool, isAdmin, schoolId]);
 
   const openAddModal = () => {
     setEditingSection(null);
@@ -152,6 +196,24 @@ const SectionPage = () => {
             </option>
           ))}
         </select>
+
+        {/* School Filter */}
+        {isAdmin && (
+          <select
+            value={selectedSchool}
+            onChange={(e) => setSelectedSchool(e.target.value)}
+            className="edp-search-input rounded-lg px-3 py-2 text-[13.5px] min-w-[220px]"
+            disabled={schoolsLoading}
+          >
+            <option value="">All Schools</option>
+
+            {schools.map((school) => (
+              <option key={school.id} value={school.id}>
+                {school.name}
+              </option>
+            ))}
+          </select>
+        )}
 
         <span className="sp-count-text text-[12.5px] ml-auto">
           {filteredSections.length} section

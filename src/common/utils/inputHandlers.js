@@ -23,6 +23,16 @@ export const ifscCode = (value) =>
 // IFSC validation
 export const isValidIFSC = (value) => /^[A-Z]{4}0[A-Z0-9]{6}$/.test(value);
 
+export const toUpperCase = (value) => value.toUpperCase();
+
+export const toLowerCase = (value) => value.toLowerCase();
+
+export const capitalize = (value) =>
+  value.replace(/\b\w/g, (char) => char.toUpperCase());
+
+export const titleCase = (value) =>
+  value.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
+
 // Generic handler
 export const handleRestrictedInput =
   (setter, field, formatter = (v) => v) =>

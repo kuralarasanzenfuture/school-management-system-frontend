@@ -1,0 +1,66 @@
+/* Pagination.css — all colors via CSS variables */
+
+.pg-wrapper {
+  border-top: 1px solid var(--divider);
+}
+
+/* Info text */
+.pg-info {
+  color: var(--text-muted);
+}
+.pg-info-bold {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* Rows-per-page select */
+.pg-size-select {
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.pg-size-select:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+
+/* Navigation buttons — default */
+.pg-btn {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+  background: var(--panel-bg);
+  font-size: 13px;
+  font-weight: 500;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+.pg-btn:hover:not(:disabled) {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+  border-color: var(--btn-bg);
+}
+
+/* Active page */
+.pg-btn-active {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  border: 1px solid var(--btn-bg);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: default;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--btn-bg) 35%, transparent);
+}
+
+/* Ellipsis */
+.pg-ellipsis {
+  color: var(--text-muted);
+  font-weight: 600;
+  user-select: none;
+}

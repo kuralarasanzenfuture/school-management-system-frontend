@@ -74,38 +74,29 @@ const EmployeePage = () => {
   // }, [employees, search, statusFilter]);
 
   const filteredEmployees = useMemo(() => {
-  const term = search.trim().toLowerCase();
+    const term = search.trim().toLowerCase();
 
-  return employees.filter((e) => {
-    const matchesSearch = term
-      ? `${e.first_name} ${e.last_name || ""}`.toLowerCase().includes(term) ||
-        e.employee_code?.toLowerCase().includes(term) ||
-        e.mobile?.toLowerCase().includes(term) ||
-        e.email?.toLowerCase().includes(term)
-      : true;
+    return employees.filter((e) => {
+      const matchesSearch = term
+        ? `${e.first_name} ${e.last_name || ""}`.toLowerCase().includes(term) ||
+          e.employee_code?.toLowerCase().includes(term) ||
+          e.mobile?.toLowerCase().includes(term) ||
+          e.email?.toLowerCase().includes(term)
+        : true;
 
-    const matchesStatus = statusFilter
-      ? e.status === statusFilter
-      : true;
+      const matchesStatus = statusFilter ? e.status === statusFilter : true;
 
-    // Admin: filter by selected school
-    // Non-admin: show only their school
-    const matchesSchool = isAdmin
-      ? selectedSchool
-        ? Number(e.school_id) === Number(selectedSchool)
-        : true
-      : Number(e.school_id) === Number(schoolId);
+      // Admin: filter by selected school
+      // Non-admin: show only their school
+      const matchesSchool = isAdmin
+        ? selectedSchool
+          ? Number(e.school_id) === Number(selectedSchool)
+          : true
+        : Number(e.school_id) === Number(schoolId);
 
-    return matchesSearch && matchesStatus && matchesSchool;
-  });
-}, [
-  employees,
-  search,
-  statusFilter,
-  selectedSchool,
-  isAdmin,
-  schoolId,
-]);
+      return matchesSearch && matchesStatus && matchesSchool;
+    });
+  }, [employees, search, statusFilter, selectedSchool, isAdmin, schoolId]);
 
   // Navigates to the read-only details page (EmployeeDetailsPage), which
   // expects a route registered like <Route path="/employees/:id" ... />.
@@ -258,6 +249,8 @@ const EmployeePage = () => {
           onEdit={openEditModal}
           onDelete={handleDelete}
           deletingId={deletingId}
+          initialPageSize={10}
+          pageSizeOptions={[5, 10, 20, 50]}
         />
       )}
 

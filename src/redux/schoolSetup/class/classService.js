@@ -60,6 +60,22 @@ const deleteClass = async (id) => {
   }
 };
 
+const checkClassExists = async (schoolId, name) => {
+  try {
+    const response = await api.get("/classes/check-class", {
+      params: {
+        school_id: schoolId,
+        name,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error checking class existence:", error);
+    throw error;
+  }
+};
+
 export {
   getClasses,
   getClassById,
@@ -67,4 +83,5 @@ export {
   createClass,
   updateClass,
   deleteClass,
+  checkClassExists,
 };

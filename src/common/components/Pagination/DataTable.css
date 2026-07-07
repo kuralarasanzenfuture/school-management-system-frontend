@@ -1,0 +1,127 @@
+/* DataTable.css — all colors via CSS variables */
+
+/* Card wrapper */
+.dt-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+
+/* Card header */
+.dt-card-header {
+  border-bottom: 1px solid var(--divider);
+}
+.dt-card-title {
+  color: var(--text-primary);
+}
+
+/* Export button */
+.dt-export-btn {
+  border: 1px solid var(--input-border);
+  background: var(--panel-bg);
+  color: var(--text-secondary);
+}
+.dt-export-btn:hover {
+  background: var(--input-bg);
+}
+
+/* Table head */
+.dt-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.dt-th-sort {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s;
+}
+.dt-th-sort:hover {
+  color: var(--btn-bg);
+}
+.dt-sort-icon {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+.dt-sort-icon-active {
+  color: var(--btn-bg);
+  opacity: 1;
+}
+
+/* Rows */
+.dt-row {
+  border-top: 1px solid var(--divider);
+  transition: background 0.15s;
+}
+.dt-row:hover {
+  background: var(--input-bg);
+}
+
+/* Checkbox */
+.dt-checkbox {
+  accent-color: var(--btn-bg);
+}
+
+/* Cell text */
+.dt-cell-primary {
+  color: var(--text-primary);
+}
+.dt-cell-secondary {
+  color: var(--text-secondary);
+}
+.dt-cell-muted {
+  color: var(--text-muted);
+}
+
+/* Empty state */
+.dt-empty {
+  color: var(--text-muted);
+}
+
+/* Loading overlay */
+.dt-loading-overlay {
+  background: color-mix(in srgb, var(--panel-bg) 80%, transparent);
+}
+.dt-loading-text {
+  color: var(--text-muted);
+}
+
+/* Action buttons */
+.dt-action-btn {
+  color: var(--text-muted);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.dt-action-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+.dt-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* Bulk-action bar */
+.dt-bulk-bar {
+  background: var(--badge-bg);
+  border-bottom: 1px solid var(--divider);
+}
+.dt-bulk-text {
+  color: var(--btn-bg);
+}
+.dt-bulk-btn {
+  border: 1px solid var(--btn-bg);
+  color: var(--btn-bg);
+  background: transparent;
+  transition: background 0.15s;
+}
+.dt-bulk-btn:hover {
+  background: var(--panel-bg);
+}
+.dt-bulk-btn-danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.dt-bulk-btn-danger:hover {
+  background: var(--danger-bg);
+}

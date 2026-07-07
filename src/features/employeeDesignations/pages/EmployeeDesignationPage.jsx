@@ -219,6 +219,8 @@ const EmployeeDesignationPage = () => {
           onEdit={openEditModal}
           onDelete={handleDelete}
           deletingId={deletingId}
+          initialPageSize={10} // optional, default 10
+          pageSizeOptions={[5, 10, 20, 50]} // optional
         />
       )}
 

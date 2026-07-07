@@ -179,7 +179,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
 import { useDispatch, useSelector } from "react-redux";
-import { checkClassExists } from "../../../../redux/schoolSetup/class/classService.js";
+import { checkClassExists } from "../../../../redux/schoolSetup/class/class.service.js";
 
 const EMPTY = {
   school_id: "",

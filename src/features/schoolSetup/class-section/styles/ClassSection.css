@@ -1,0 +1,180 @@
+/* ClassSection.css */
+
+.cs-page {
+  background: var(--bg);
+}
+.cs-title {
+  color: var(--text-primary);
+}
+.cs-subtitle {
+  color: var(--text-muted);
+}
+
+.cs-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.cs-btn-primary:hover {
+  background: var(--btn-hover);
+}
+.cs-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.cs-btn-outline:hover {
+  background: var(--input-bg);
+}
+.cs-btn-cancel {
+  color: var(--text-secondary);
+}
+.cs-btn-cancel:hover {
+  color: var(--text-primary);
+}
+
+/* ── Toolbar ── */
+.cs-toolbar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+}
+.cs-search-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.cs-search-input:focus {
+  border-color: var(--btn-bg);
+}
+.cs-count-text {
+  color: var(--text-muted);
+}
+
+/* ── Table ── */
+.cs-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.cs-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.cs-row {
+  border-bottom: 1px solid var(--divider);
+}
+.cs-row:hover {
+  background: var(--input-bg);
+}
+.cs-cell {
+  color: var(--text-secondary);
+}
+.cs-cell-muted {
+  color: var(--text-muted);
+}
+.cs-loading,
+.cs-error {
+  color: var(--text-secondary);
+}
+.cs-empty-state {
+  color: var(--text-muted);
+}
+
+/* ── Status pill (table) ── */
+.cs-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.cs-status-active {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.cs-status-inactive {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* ── Row action buttons ── */
+.cs-action-btn {
+  color: var(--text-secondary);
+}
+.cs-action-btn:hover {
+  background: var(--input-bg);
+}
+.cs-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* ── Form fields ── */
+.cs-field-label {
+  color: var(--text-secondary);
+}
+.cs-field-required {
+  color: var(--danger);
+}
+.cs-field-error {
+  color: var(--danger);
+}
+.cs-input,
+.cs-select {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.cs-input:focus,
+.cs-select:focus {
+  border-color: var(--btn-bg);
+}
+.cs-input-error {
+  border-color: var(--danger);
+}
+
+/* ── Status toggle (form) ── */
+.cs-status-toggle {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.cs-status-toggle-active {
+  background: var(--success-bg);
+  color: var(--success);
+  border-color: var(--success);
+}
+.cs-status-toggle-inactive {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.cs-form-footer {
+  border-top: 1px solid var(--divider);
+}
+
+/* ── Modal ── */
+.cs-modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.cs-modal-panel {
+  background: var(--panel-bg);
+  box-shadow: var(--shadow);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.cs-modal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.cs-modal-title {
+  color: var(--text-primary);
+}
+.cs-modal-close {
+  color: var(--text-muted);
+}
+.cs-modal-close:hover {
+  color: var(--danger);
+  background: var(--danger-bg);
+}

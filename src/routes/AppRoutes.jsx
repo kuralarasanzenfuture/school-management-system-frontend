@@ -20,6 +20,7 @@ import EmployeeDesignationPage from "../features/employeeDesignations/pages/Empl
 import PublicRoute from "./PublicRoute.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
 import EmployeeDetailsPage from "../features/employees/pages/EmployeeDetailsPage.jsx";
+import ClassSectionPage from "../features/schoolSetup/class-section/pages/ClassSectionPage.jsx";
 
 // import TeacherList from "../features/teachers/pages/TeacherList";
 
@@ -27,42 +28,44 @@ const AppRoutes = () => {
   return (
     <Routes>
       {/* Login */}
-      <Route element={<PublicRoute />}>{/* Public */}
+      <Route element={<PublicRoute />}>
+        {/* Public */}
         <Route path="/" element={<LoginPage />} />
         <Route path="/login" element={<LoginPage />} />
       </Route>
 
-
-{/* Protected */}
+      {/* Protected */}
       <Route element={<ProtectedRoute />}>
+        {/* Dashboard Layout */}
+        <Route element={<MainLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
 
-      {/* Dashboard Layout */}
-      <Route element={<MainLayout />}>
-        <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/students" element={<StudentsPage />} />
+          <Route path="/students/:id" element={<StudentDetailsPage />} />
 
-        <Route path="/students" element={<StudentsPage />} />
-        <Route path="/students/:id" element={<StudentDetailsPage />} />
+          {/* <Route path="/teachers" element={<TeacherList />} /> */}
 
-        {/* <Route path="/teachers" element={<TeacherList />} /> */}
+          <Route path="/roles" element={<RolePage />} />
+          {/* <Route path="/roles/:id" element={<RolePage />} /> */}
+          <Route path="/users" element={<UserPage />} />
+          {/* <Route path="/users/:id" element={<UserPage />} /> */}
 
-        <Route path="/roles" element={<RolePage />} />
-        {/* <Route path="/roles/:id" element={<RolePage />} /> */}
-        <Route path="/users" element={<UserPage />} />
-        {/* <Route path="/users/:id" element={<UserPage />} /> */}
+          <Route path="/school-profile" element={<SchoolProfilePage />} />
+          <Route path="/academic-years" element={<AcademicYearPage />} />
+          <Route path="/departments" element={<DepartmentPage />} />
+          <Route path="/classes" element={<ClassPage />} />
+          <Route path="/sections" element={<SectionPage />} />
+          <Route path="/class-sections" element={<ClassSectionPage />} />
 
-        <Route path="/school-profile" element={<SchoolProfilePage />} />
-        <Route path="/academic-years" element={<AcademicYearPage />} />
-        <Route path="/departments" element={<DepartmentPage />} />
-        <Route path="/classes" element={<ClassPage />} />
-        <Route path="/sections" element={<SectionPage />} />
+          <Route path="/employees" element={<EmployeePage />} />
+          <Route path="/employees/:id" element={<EmployeeDetailsPage />} />
+          <Route
+            path="/employee-designations"
+            element={<EmployeeDesignationPage />}
+          />
 
-        <Route path="/employees" element={<EmployeePage />} />
-        <Route path="/employees/:id" element={<EmployeeDetailsPage />} />
-        <Route path="/employee-designations" element={<EmployeeDesignationPage />} />
-
-        <Route path="*" element={<div>404</div>} />
-      </Route>
-
+          <Route path="*" element={<div>404</div>} />
+        </Route>
       </Route>
     </Routes>
   );

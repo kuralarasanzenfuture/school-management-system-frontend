@@ -6,7 +6,7 @@ import {
   createClass,
   updateClass,
   deleteClass,
-} from "./classService.js";
+} from "./class.service.js";
 
 // ==============================
 // Fetch All Classes

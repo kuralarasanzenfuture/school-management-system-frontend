@@ -54,7 +54,7 @@ export default function ClassSectionForm({
   const { sections = [], loading: sectionsLoading } = useSelector(
     (state) => state.sections,
   );
-  console.log("sections", sections);
+  console.table(sections);
   const { academicYears = [], loading: yearsLoading } = useSelector(
     (state) => state.academicYears,
   );
@@ -64,15 +64,35 @@ export default function ClassSectionForm({
 
   useEffect(() => {
     if (isAdmin) dispatch(fetchSchools());
-    dispatch(fetchClasses());
-    dispatch(fetchSections());
-    dispatch(fetchAcademicYears());
-    dispatch(fetchEmployees());
   }, [dispatch, isAdmin]);
 
   const isEdit = Boolean(initialData?.id);
   const [data, setData] = useState(EMPTY);
   const [errors, setErrors] = useState({});
+
+  // The school that class/section/academic-year/teacher options should be
+  // scoped to: whatever the admin has picked, or the non-admin's own school.
+  const effectiveSchoolId = isAdmin ? data.school_id : schoolId;
+
+  // Re-fetch whenever the effective school changes, passing it along in
+  // case your fetchClasses/fetchSections/fetchAcademicYears thunks accept
+  // a school_id argument to filter server-side.
+  //
+  // IMPORTANT: I'm guessing these thunks accept an optional school_id
+  // param the same way other scoped fetches in this app likely do. If
+  // they don't, this argument is just ignored and harmless — but if the
+  // real bug is "fetchSections requires school_id and silently fails
+  // without it," passing it here is exactly what fixes the "only works
+  // after visiting the Sections page first" symptom (that other page is
+  // probably the one correctly supplying the id). Please confirm the
+  // actual signatures of these three thunks so I can tighten this up.
+  useEffect(() => {
+    if (isAdmin && !effectiveSchoolId) return; // nothing to scope to yet
+    dispatch(fetchClasses(effectiveSchoolId));
+    dispatch(fetchSections(effectiveSchoolId));
+    dispatch(fetchAcademicYears(effectiveSchoolId));
+    dispatch(fetchEmployees(effectiveSchoolId));
+  }, [dispatch, isAdmin, effectiveSchoolId]);
 
   // Resets the form only when switching between add/edit targets — not
   // whenever schoolId/isAdmin change (those come from an async auth fetch
@@ -108,6 +128,27 @@ export default function ClassSectionForm({
     setData((d) => ({ ...d, [key]: e.target.value }));
     if (errors[key]) setErrors((er) => ({ ...er, [key]: null }));
   };
+
+  // Belt-and-suspenders: even if the backend fetches ignore the school_id
+  // argument above and return everything, don't let cross-school options
+  // show up in the dropdowns. Records with no school_id field at all are
+  // kept (so this doesn't break setups where these lists aren't
+  // school-scoped server-side to begin with).
+  const scopedTo = (list) =>
+    !effectiveSchoolId
+      ? list
+      : list.filter(
+          (item) =>
+            item.school_id == null ||
+            String(item.school_id) === String(effectiveSchoolId),
+        );
+
+  const filteredClasses = scopedTo(classes);
+  const filteredSections = scopedTo(sections);
+  const filteredAcademicYears = scopedTo(academicYears);
+  const filteredEmployees = scopedTo(employees);
+
+  const needsSchoolFirst = isAdmin && !effectiveSchoolId;
 
   const validate = () => {
     const e = {};
@@ -183,12 +224,16 @@ export default function ClassSectionForm({
             className={inputCls("class_id")}
             value={data.class_id}
             onChange={set("class_id")}
-            disabled={classesLoading}
+            disabled={classesLoading || needsSchoolFirst}
           >
             <option value="">
-              {classesLoading ? "Loading..." : "Select Class"}
+              {needsSchoolFirst
+                ? "Select a school first"
+                : classesLoading
+                  ? "Loading..."
+                  : "Select Class"}
             </option>
-            {classes.map((c) => (
+            {filteredClasses.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>
@@ -209,12 +254,16 @@ export default function ClassSectionForm({
             className={inputCls("section_id")}
             value={data.section_id}
             onChange={set("section_id")}
-            disabled={sectionsLoading}
+            disabled={sectionsLoading || needsSchoolFirst}
           >
             <option value="">
-              {sectionsLoading ? "Loading..." : "Select Section"}
+              {needsSchoolFirst
+                ? "Select a school first"
+                : sectionsLoading
+                  ? "Loading..."
+                  : "Select Section"}
             </option>
-            {sections.map((s) => (
+            {filteredSections.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.section_name}
               </option>
@@ -235,12 +284,16 @@ export default function ClassSectionForm({
             className={inputCls("academic_year_id")}
             value={data.academic_year_id}
             onChange={set("academic_year_id")}
-            disabled={yearsLoading}
+            disabled={yearsLoading || needsSchoolFirst}
           >
             <option value="">
-              {yearsLoading ? "Loading..." : "Select Academic Year"}
+              {needsSchoolFirst
+                ? "Select a school first"
+                : yearsLoading
+                  ? "Loading..."
+                  : "Select Academic Year"}
             </option>
-            {academicYears.map((y) => (
+            {filteredAcademicYears.map((y) => (
               <option key={y.id} value={y.id}>
                 {y.name}
               </option>
@@ -263,10 +316,16 @@ export default function ClassSectionForm({
             className="cs-select w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200"
             value={data.class_teacher_id}
             onChange={set("class_teacher_id")}
-            disabled={employeesLoading}
+            disabled={employeesLoading || needsSchoolFirst}
           >
-            <option value="">{employeesLoading ? "Loading..." : "None"}</option>
-            {employees.map((emp) => (
+            <option value="">
+              {needsSchoolFirst
+                ? "Select a school first"
+                : employeesLoading
+                  ? "Loading..."
+                  : "None"}
+            </option>
+            {filteredEmployees.map((emp) => (
               <option key={emp.id} value={emp.id}>
                 {emp.first_name} {emp.last_name || ""}
               </option>

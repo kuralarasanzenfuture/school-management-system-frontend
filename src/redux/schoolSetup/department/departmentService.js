@@ -60,6 +60,22 @@ const deleteDepartment = async (id) => {
   }
 };
 
+export const checkDepartmentExist = async (schoolId, departmentName) => {
+  try {
+    const response = await api.get("/departments/check-department", {
+      params: {
+        school_id: schoolId,
+        name: departmentName,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error checking department:", error);
+    throw error;
+  }
+};
+
 export {
   getDepartments,
   getDepartmentById,

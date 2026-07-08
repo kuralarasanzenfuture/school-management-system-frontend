@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
@@ -20,6 +20,18 @@ const EMPTY = {
   capacity: "",
   status: "active",
 };
+
+// Some "get by id" / edit-record endpoints return joined objects (e.g.
+// { id, name }) for foreign-key fields instead of a plain id, even when
+// the list endpoint returns flat ids. This safely extracts a plain id
+// either way, so a <select>'s value always matches its <option value>
+// comparisons — without this, editing a record can silently fail to
+// pre-select the right option if the field ever arrives as an object.
+function idOf(value) {
+  if (value == null) return "";
+  if (typeof value === "object") return value.id ?? "";
+  return value;
+}
 
 /**
  * Add/edit form for a single class-section mapping.
@@ -68,7 +80,6 @@ export default function ClassSectionForm({
   const isEdit = Boolean(initialData?.id);
   const [data, setData] = useState(EMPTY);
   const [errors, setErrors] = useState({});
-  const skipSectionResetRef = useRef(true);
 
   // The school that class/section/academic-year/teacher options should be
   // scoped to: whatever the admin has picked, or the non-admin's own school.
@@ -98,21 +109,13 @@ export default function ClassSectionForm({
   // whenever schoolId/isAdmin change (those come from an async auth fetch
   // and could otherwise flip mid-edit and wipe what the user typed).
   useEffect(() => {
-    console.log("initialData:", initialData);
     if (initialData) {
-      console.log("initialData.section_id:", initialData.section_id);
-      const sectionId =
-        typeof initialData.section_id === "object"
-          ? initialData.section_id?.id
-          : (initialData.section_id ?? "");
-
-      console.log("Setting section_id:", sectionId);
       setData({
-        school_id: initialData.school_id ?? "",
-        class_id: initialData.class_id ?? "",
-        section_id: initialData.section_id ?? "",
-        academic_year_id: initialData.academic_year_id ?? "",
-        class_teacher_id: initialData.class_teacher_id ?? "",
+        school_id: idOf(initialData.school_id),
+        class_id: idOf(initialData.class_id),
+        section_id: idOf(initialData.section_id),
+        academic_year_id: idOf(initialData.academic_year_id),
+        class_teacher_id: idOf(initialData.class_teacher_id),
         capacity:
           initialData.capacity != null ? String(initialData.capacity) : "",
         status: initialData.status || "active",
@@ -121,28 +124,8 @@ export default function ClassSectionForm({
       setData({ ...EMPTY, school_id: isAdmin ? "" : (schoolId ?? "") });
     }
     setErrors({});
-    skipSectionResetRef.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialData]);
-
-  // console.log("section_id from API:", initialData.section_id);
-
-  useEffect(() => {
-    console.log("Current data:", data);
-  }, [data]);
-
-  // If the selected class changes (after the initial load), clear the
-  // section — a previously-picked section may belong to a different
-  // class. Skipped on the render right after switching add/edit targets,
-  // so an existing record's correct section isn't wiped out on open.
-  useEffect(() => {
-    if (skipSectionResetRef.current) {
-      skipSectionResetRef.current = false;
-      return;
-    }
-    setData((d) => ({ ...d, section_id: "" }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data.class_id]);
 
   // Backfills school_id for a non-admin once the auth fetch resolves,
   // without disturbing anything else already typed into a new record.
@@ -155,6 +138,17 @@ export default function ClassSectionForm({
   const set = (key) => (e) => {
     setData((d) => ({ ...d, [key]: e.target.value }));
     if (errors[key]) setErrors((er) => ({ ...er, [key]: null }));
+  };
+
+  // Changing the class atomically clears section_id in the SAME state
+  // update — a previously-picked section may belong to a different
+  // class. This only fires from the user's actual onChange interaction,
+  // never from the initialData load effect, so it can't race against
+  // that effect the way a separate useEffect watching data.class_id did.
+  const handleClassChange = (e) => {
+    const value = e.target.value;
+    setData((d) => ({ ...d, class_id: value, section_id: "" }));
+    setErrors((er) => ({ ...er, class_id: null, section_id: null }));
   };
 
   // Belt-and-suspenders: even if the backend fetches ignore the school_id
@@ -262,7 +256,7 @@ export default function ClassSectionForm({
           <select
             className={inputCls("class_id")}
             value={data.class_id}
-            onChange={set("class_id")}
+            onChange={handleClassChange}
             disabled={classesLoading || needsSchoolFirst}
           >
             <option value="">
@@ -304,24 +298,11 @@ export default function ClassSectionForm({
                     ? "Loading..."
                     : "Select Section"}
             </option>
-            {filteredSections.map((s) => {
-              console.log(s);
-              console.log("Edit section_id:", data.section_id);
-              console.log("Filtered Sections:", filteredSections);
-              console.log(
-                "Option id:",
-                s.id,
-                "Selected:",
-                data.section_id,
-                "Equal:",
-                String(s.id) === String(data.section_id),
-              );
-              return (
-                <option key={s.id} value={s.id}>
-                  {s.section_name}
-                </option>
-              );
-            })}
+            {filteredSections.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.section_name}
+              </option>
+            ))}
           </select>
           <div className="h-4">
             {errors.section_id && (
@@ -448,5 +429,3 @@ export default function ClassSectionForm({
     </form>
   );
 }
-
-

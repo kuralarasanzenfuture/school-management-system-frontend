@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
@@ -54,7 +54,6 @@ export default function ClassSectionForm({
   const { sections = [], loading: sectionsLoading } = useSelector(
     (state) => state.sections,
   );
-  console.table(sections);
   const { academicYears = [], loading: yearsLoading } = useSelector(
     (state) => state.academicYears,
   );
@@ -69,6 +68,7 @@ export default function ClassSectionForm({
   const isEdit = Boolean(initialData?.id);
   const [data, setData] = useState(EMPTY);
   const [errors, setErrors] = useState({});
+  const skipSectionResetRef = useRef(true);
 
   // The school that class/section/academic-year/teacher options should be
   // scoped to: whatever the admin has picked, or the non-admin's own school.
@@ -98,7 +98,15 @@ export default function ClassSectionForm({
   // whenever schoolId/isAdmin change (those come from an async auth fetch
   // and could otherwise flip mid-edit and wipe what the user typed).
   useEffect(() => {
+    console.log("initialData:", initialData);
     if (initialData) {
+      console.log("initialData.section_id:", initialData.section_id);
+      const sectionId =
+        typeof initialData.section_id === "object"
+          ? initialData.section_id?.id
+          : (initialData.section_id ?? "");
+
+      console.log("Setting section_id:", sectionId);
       setData({
         school_id: initialData.school_id ?? "",
         class_id: initialData.class_id ?? "",
@@ -113,8 +121,28 @@ export default function ClassSectionForm({
       setData({ ...EMPTY, school_id: isAdmin ? "" : (schoolId ?? "") });
     }
     setErrors({});
+    skipSectionResetRef.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialData]);
+
+  // console.log("section_id from API:", initialData.section_id);
+
+  useEffect(() => {
+    console.log("Current data:", data);
+  }, [data]);
+
+  // If the selected class changes (after the initial load), clear the
+  // section — a previously-picked section may belong to a different
+  // class. Skipped on the render right after switching add/edit targets,
+  // so an existing record's correct section isn't wiped out on open.
+  useEffect(() => {
+    if (skipSectionResetRef.current) {
+      skipSectionResetRef.current = false;
+      return;
+    }
+    setData((d) => ({ ...d, section_id: "" }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.class_id]);
 
   // Backfills school_id for a non-admin once the auth fetch resolves,
   // without disturbing anything else already typed into a new record.
@@ -144,11 +172,22 @@ export default function ClassSectionForm({
         );
 
   const filteredClasses = scopedTo(classes);
-  const filteredSections = scopedTo(sections);
+  // Sections belong to a specific class (each section record carries its
+  // own class_id/class_name), not just a school — so Section options must
+  // narrow further once a Class is picked, or a school with e.g. Class 9
+  // (sections A, B) and Class 10 (sections A, B, C) would show all 5
+  // sections regardless of which class is selected.
+  const filteredSections = scopedTo(sections).filter(
+    (s) =>
+      !data.class_id ||
+      s.class_id == null ||
+      String(s.class_id) === String(data.class_id),
+  );
   const filteredAcademicYears = scopedTo(academicYears);
   const filteredEmployees = scopedTo(employees);
 
   const needsSchoolFirst = isAdmin && !effectiveSchoolId;
+  const needsClassFirst = !needsSchoolFirst && !data.class_id;
 
   const validate = () => {
     const e = {};
@@ -254,20 +293,35 @@ export default function ClassSectionForm({
             className={inputCls("section_id")}
             value={data.section_id}
             onChange={set("section_id")}
-            disabled={sectionsLoading || needsSchoolFirst}
+            disabled={sectionsLoading || needsSchoolFirst || needsClassFirst}
           >
             <option value="">
               {needsSchoolFirst
                 ? "Select a school first"
-                : sectionsLoading
-                  ? "Loading..."
-                  : "Select Section"}
+                : needsClassFirst
+                  ? "Select a class first"
+                  : sectionsLoading
+                    ? "Loading..."
+                    : "Select Section"}
             </option>
-            {filteredSections.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.section_name}
-              </option>
-            ))}
+            {filteredSections.map((s) => {
+              console.log(s);
+              console.log("Edit section_id:", data.section_id);
+              console.log("Filtered Sections:", filteredSections);
+              console.log(
+                "Option id:",
+                s.id,
+                "Selected:",
+                data.section_id,
+                "Equal:",
+                String(s.id) === String(data.section_id),
+              );
+              return (
+                <option key={s.id} value={s.id}>
+                  {s.section_name}
+                </option>
+              );
+            })}
           </select>
           <div className="h-4">
             {errors.section_id && (
@@ -394,3 +448,5 @@ export default function ClassSectionForm({
     </form>
   );
 }
+
+

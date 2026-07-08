@@ -582,6 +582,7 @@ export default function DepartmentPage() {
   useEffect(() => {
     dispatch(fetchDepartments());
   }, [dispatch]);
+
   useEffect(() => {
     if (isAdmin && schools.length === 0) dispatch(fetchSchools());
   }, [dispatch, isAdmin, schools.length]);

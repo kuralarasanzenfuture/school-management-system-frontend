@@ -16,7 +16,7 @@ import {
   X,
   CircleCheck,
 } from "lucide-react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   createStudent,
   updateStudent,
@@ -28,6 +28,7 @@ import {
   mobileNumber,
   pincode,
 } from "../../../common/utils/inputHandlers";
+import { fetchSchools } from "../../../redux/schoolSetup/schoolProfile/schoolProfileSlice";
 
 const STEPS = [
   { id: 1, label: "Personal", icon: User },
@@ -64,7 +65,7 @@ const stepVariants = {
 };
 
 const INIT = {
-  school_id: 1,
+  school_id: "",
   first_name: "",
   middle_name: "",
   last_name: "",
@@ -135,6 +136,28 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
   const fileRef = useRef(null);
   const sigRef = useRef(null);
 
+  const { user } = useSelector((state) => state.auth);
+  const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
+
+  // Non-admins only ever belong to one school — use theirs directly.
+  // Admins pick a school in the dropdown instead.
+  const fixedSchoolId = isAdmin ? null : user?.school_id;
+
+  // Which school the uniqueness check should run against: whatever the
+  // admin has picked so far (may be empty), or the non-admin's own school.
+  const effectiveSchoolId = isAdmin ? data.school_id : fixedSchoolId;
+
+  const schools = useSelector((state) => state.schoolProfile?.schools || []);
+  const schoolsLoading = useSelector(
+    (state) => state.schoolProfile?.loading || false,
+  );
+
+  useEffect(() => {
+    if (isAdmin && schools.length === 0) {
+      dispatch(fetchSchools());
+    }
+  }, [dispatch, isAdmin, schools.length]);
+
   /* ── Hydrate form in edit mode ── */
   useEffect(() => {
     if (!isOpen) return;
@@ -195,7 +218,10 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
           : null,
       });
     } else {
-      setData(INIT);
+      // New record: start blank, but pre-fill school_id immediately for
+      // non-admins if we already know it (avoids a flash of "no school"
+      // before the backfill effect below runs).
+      setData({ ...INIT, school_id: isAdmin ? "" : (fixedSchoolId ?? "") });
       setPhotoPreview(null);
       setSignaturePreview(null);
       setDocMeta({});
@@ -207,7 +233,18 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
     setStep(1);
     setErrors({});
     setSubmitted(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isEdit, student]);
+
+  // Backfill school_id for a non-admin creating a new student, in case
+  // fixedSchoolId wasn't available yet when the modal first opened (async
+  // auth load). Only touches a brand-new record, never an edit in
+  // progress, and never overwrites something already picked.
+  useEffect(() => {
+    if (isOpen && !isEdit && !isAdmin && fixedSchoolId) {
+      setData((d) => (d.school_id ? d : { ...d, school_id: fixedSchoolId }));
+    }
+  }, [isOpen, isEdit, isAdmin, fixedSchoolId]);
 
   /* ── Age auto-calc ── */
   const age = useMemo(() => {
@@ -322,79 +359,88 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
   const validate = (stepNumber) => {
     const validationErrors = {};
 
-    // if (stepNumber === 1) {
-    //   if (!data.first_name.trim())
-    //     validationErrors.first_name = "First name is required";
-    //   if (!data.last_name.trim())
-    //     validationErrors.last_name = "Last name is required";
-    //   if (!data.gender) validationErrors.gender = "Gender is required";
-    //   if (!data.date_of_birth)
-    //     validationErrors.date_of_birth = "Date of birth is required";
-    //   if (!data.mobile_no)
-    //     validationErrors.mobile_no = "Mobile number is required";
-    //   if (data.email && !/^\S+@\S+\.\S+$/.test(data.email))
-    //     validationErrors.email = "Enter a valid email";
-    //   if (data.mobile_no && !/^\d{10}$/.test(data.mobile_no))
-    //     validationErrors.mobile_no = "Enter a 10-digit number";
-    //   if (data.aadhaar_no && !/^\d{12}$/.test(data.aadhaar_no))
-    //     validationErrors.aadhaar_no = "Aadhaar must be 12 digits";
-    // }
+    if (stepNumber === 1) {
+      // Active regardless of the rest of step-1 validation below being
+      // disabled — an admin must not be able to submit without a school,
+      // since every downstream record depends on it.
+      if (isAdmin && !data.school_id) {
+        validationErrors.school_id = "Please select a school";
+      }
+    }
 
-    // if (stepNumber === 2) {
-    //   if (!data.father_name.trim())
-    //     validationErrors.father_name = "Father's name is required";
-    //   if (!data.parent_mobile)
-    //     validationErrors.parent_mobile = "Parent's mobile number is required";
-    //   if (data.parent_mobile && !/^\d{10}$/.test(data.parent_mobile))
-    //     validationErrors.parent_mobile = "Enter a 10-digit number";
-    //   if (data.alternate_mobile && !/^\d{10}$/.test(data.alternate_mobile))
-    //     validationErrors.alternate_mobile = "Enter a 10-digit number";
-    //   if (data.emergency_contact && !/^\d{10}$/.test(data.emergency_contact))
-    //     validationErrors.emergency_contact = "Enter a 10-digit number";
-    //   if (data.parent_email && !/^\S+@\S+\.\S+$/.test(data.parent_email))
-    //     validationErrors.parent_email = "Enter a valid email";
-    // }
+    if (stepNumber === 1) {
+      if (!data.first_name.trim())
+        validationErrors.first_name = "First name is required";
+      if (!data.last_name.trim())
+        validationErrors.last_name = "Last name is required";
+      if (!data.gender) validationErrors.gender = "Gender is required";
+      if (!data.date_of_birth)
+        validationErrors.date_of_birth = "Date of birth is required";
+      if (!data.mobile_no)
+        validationErrors.mobile_no = "Mobile number is required";
+      if (data.email && !/^\S+@\S+\.\S+$/.test(data.email))
+        validationErrors.email = "Enter a valid email";
+      if (data.mobile_no && !/^\d{10}$/.test(data.mobile_no))
+        validationErrors.mobile_no = "Enter a 10-digit number";
+      if (data.aadhaar_no && !/^\d{12}$/.test(data.aadhaar_no))
+        validationErrors.aadhaar_no = "Aadhaar must be 12 digits";
+    }
 
-    // if (stepNumber === 3) {
-    //   if (!data.permanent_area.trim())
-    //     validationErrors.permanent_area = "Required";
-    //   if (!data.permanent_city.trim())
-    //     validationErrors.permanent_city = "Required";
-    //   if (!data.permanent_district.trim())
-    //     validationErrors.permanent_district = "Required";
-    //   if (!data.permanent_state.trim())
-    //     validationErrors.permanent_state = "Required";
-    //   if (!data.permanent_address.trim())
-    //     validationErrors.permanent_address = "Required";
-    //   if (
-    //     data.permanent_postal_code &&
-    //     !/^\d{6}$/.test(data.permanent_postal_code)
-    //   )
-    //     validationErrors.permanent_postal_code = "Enter a valid 6-digit code";
+    if (stepNumber === 2) {
+      if (!data.father_name.trim())
+        validationErrors.father_name = "Father's name is required";
+      if (!data.parent_mobile)
+        validationErrors.parent_mobile = "Parent's mobile number is required";
+      if (data.parent_mobile && !/^\d{10}$/.test(data.parent_mobile))
+        validationErrors.parent_mobile = "Enter a 10-digit number";
+      if (data.alternate_mobile && !/^\d{10}$/.test(data.alternate_mobile))
+        validationErrors.alternate_mobile = "Enter a 10-digit number";
+      if (data.emergency_contact && !/^\d{10}$/.test(data.emergency_contact))
+        validationErrors.emergency_contact = "Enter a 10-digit number";
+      if (data.parent_email && !/^\S+@\S+\.\S+$/.test(data.parent_email))
+        validationErrors.parent_email = "Enter a valid email";
+    }
 
-    //   if (!data.current_address_same_as_permanent) {
-    //     if (!data.current_area.trim())
-    //       validationErrors.current_area = "Required";
-    //     if (!data.current_city.trim())
-    //       validationErrors.current_city = "Required";
-    //     if (!data.current_district.trim())
-    //       validationErrors.current_district = "Required";
-    //     if (!data.current_state.trim())
-    //       validationErrors.current_state = "Required";
-    //     if (!data.current_address.trim())
-    //       validationErrors.current_address = "Required";
-    //     if (
-    //       data.current_postal_code &&
-    //       !/^\d{6}$/.test(data.current_postal_code)
-    //     )
-    //       validationErrors.current_postal_code = "Enter a valid 6-digit code";
-    //   }
-    // }
+    if (stepNumber === 3) {
+      if (!data.permanent_area.trim())
+        validationErrors.permanent_area = "Required";
+      if (!data.permanent_city.trim())
+        validationErrors.permanent_city = "Required";
+      if (!data.permanent_district.trim())
+        validationErrors.permanent_district = "Required";
+      if (!data.permanent_state.trim())
+        validationErrors.permanent_state = "Required";
+      if (!data.permanent_address.trim())
+        validationErrors.permanent_address = "Required";
+      if (
+        data.permanent_postal_code &&
+        !/^\d{6}$/.test(data.permanent_postal_code)
+      )
+        validationErrors.permanent_postal_code = "Enter a valid 6-digit code";
 
-    // if (stepNumber === 4) {
-    //   if (!signatureFile && !signaturePreview)
-    //     validationErrors.signature = "Signature upload is required";
-    // }
+      if (!data.current_address_same_as_permanent) {
+        if (!data.current_area.trim())
+          validationErrors.current_area = "Required";
+        if (!data.current_city.trim())
+          validationErrors.current_city = "Required";
+        if (!data.current_district.trim())
+          validationErrors.current_district = "Required";
+        if (!data.current_state.trim())
+          validationErrors.current_state = "Required";
+        if (!data.current_address.trim())
+          validationErrors.current_address = "Required";
+        if (
+          data.current_postal_code &&
+          !/^\d{6}$/.test(data.current_postal_code)
+        )
+          validationErrors.current_postal_code = "Enter a valid 6-digit code";
+      }
+    }
+
+    if (stepNumber === 4) {
+      // if (!signatureFile && !signaturePreview)
+      //   validationErrors.signature = "Signature upload is required";
+    }
 
     setErrors(validationErrors);
     return Object.keys(validationErrors).length === 0;
@@ -497,6 +543,8 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
     if (!validate(TOTAL_STEPS)) return;
 
     const formData = buildFormData();
+    // console.table([...formData.entries()]);
+
     setSubmitting(true);
 
     try {
@@ -612,7 +660,10 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                       onClick={() => {
                         setSubmitted(false);
                         setStep(1);
-                        setData(INIT);
+                        setData({
+                          ...INIT,
+                          school_id: isAdmin ? "" : (fixedSchoolId ?? ""),
+                        });
                         setPhotoFile(null);
                         setPhotoPreview(null);
                         setSignatureFile(null);
@@ -773,6 +824,32 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                               ref={fileRef}
                             />
                           </div>
+
+                          {isAdmin && (
+                            <Field
+                              label="School"
+                              required
+                              error={errors.school_id}
+                            >
+                              <select
+                                className={tInput(errors.school_id)}
+                                value={data.school_id}
+                                onChange={set("school_id")}
+                                disabled={schoolsLoading}
+                              >
+                                <option value="">
+                                  {schoolsLoading
+                                    ? "Loading schools..."
+                                    : "Select a school"}
+                                </option>
+                                {schools.map((s) => (
+                                  <option key={s.id} value={s.id}>
+                                    {s.name}
+                                  </option>
+                                ))}
+                              </select>
+                            </Field>
+                          )}
 
                           <Field
                             label="First Name"

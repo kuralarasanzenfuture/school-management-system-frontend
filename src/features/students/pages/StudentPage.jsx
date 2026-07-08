@@ -6,26 +6,26 @@ import {
   AlertTriangle,
   Download,
   Plus,
-  ChevronDown,
   ArrowUpDown,
   FileText,
   Eye,
   Pencil,
   Trash2,
-  ChevronLeft,
-  ChevronRight,
   LayoutGrid,
   List,
 } from "lucide-react";
-import AddStudentModal from "../components/AddStudentModal";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
   deleteStudent,
   getStudents,
 } from "../../../redux/student/studentSlice";
+import { fetchSchools } from "../../../redux/schoolSetup/schoolProfile/schoolProfileSlice";
+import AddStudentModal from "../components/AddStudentModal";
+import Pagination from "../../../common/components/table/Pagination";
+import usePagination from "../../../common/components/table/usePagination";
 import { avatarColors } from "../../../common/utils/colors";
 import "../styles/StudentPage.css";
-import { useNavigate } from "react-router-dom";
 
 const CLASS_TABS = [
   "All Classes",
@@ -35,8 +35,9 @@ const CLASS_TABS = [
   "Class XI",
   "Class XII",
 ];
-const PAGE_SIZE = 20;
+const IMAGE_BASE_URL = "http://localhost:5000";
 
+/* ── helpers ── */
 function StatCard({ icon: Icon, tone, value, label }) {
   return (
     <div className="sp-stat-card flex items-center gap-3.5 rounded-2xl px-5 py-4">
@@ -63,48 +64,78 @@ function Badge({ children, className = "sp-badge-neutral" }) {
   );
 }
 
-// Formats an ISO date of birth into a short readable date; falls back to "—".
 function formatDob(dob) {
   if (!dob) return "—";
-  const d = new Date(dob);
-  if (isNaN(d)) return "—";
-  return d.toLocaleDateString("en-IN", {
+  const dateObj = new Date(dob);
+  if (isNaN(dateObj)) return "—";
+  return dateObj.toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "short",
     year: "numeric",
   });
 }
 
-const IMAGE_BASE_URL = "http://localhost:5000"; // Adjust this to your actual API base URL
+function getStudentClass(student) {
+  return student.student_class || student.class || student.studentClass || null;
+}
+
+function getAvatarColor(value) {
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = value.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return avatarColors[Math.abs(hash) % avatarColors.length];
+}
+
+/* ───────────────────────────────────────────────────── */
 
 export default function StudentsPage() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const { students, loading, error } = useSelector((state) => state.students);
-  // console.log("Students from Redux state:", students);
+  const { user } = useSelector((state) => state.auth);
+  const schools = useSelector((state) => state.schoolProfile?.schools ?? []);
+  const schoolsLoading = useSelector(
+    (state) => state.schoolProfile?.loading ?? false,
+  );
+
+  const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
+  const schoolId = isAdmin ? null : user?.school_id;
+
   const [openModal, setOpenModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
   const [activeTab, setActiveTab] = useState("All Classes");
-  const [page, setPage] = useState(1);
-  const [selected, setSelected] = useState([]);
-
   const [statusFilter, setStatusFilter] = useState("All");
   const [genderFilter, setGenderFilter] = useState("All");
+  const [selectedSchool, setSelectedSchool] = useState("");
+  const [selected, setSelected] = useState([]);
 
-  const navigate = useNavigate();
-
+  /* ── Fetch ── */
   useEffect(() => {
     dispatch(getStudents());
   }, [dispatch]);
+  useEffect(() => {
+    if (isAdmin && schools.length === 0) dispatch(fetchSchools());
+  }, [dispatch, isAdmin, schools.length]);
 
-  // Resolve the class value regardless of which key the API uses.
-  const getStudentClass = (s) =>
-    s.student_class || s.class || s.studentClass || null;
-
+  /* ── Filter ── */
   const filtered = useMemo(() => {
-    let result = students || [];
+    let result = students ?? [];
 
-    // Class filter
+    // School filter:
+    //   Admin → use dropdown (empty = all schools)
+    //   Non-admin → always restrict to their own school_id
+    result = result.filter((student) => {
+      if (isAdmin) {
+        return selectedSchool
+          ? String(student.school_id) === String(selectedSchool)
+          : true;
+      }
+      return String(student.school_id) === String(schoolId);
+    });
+
+    // Class tab filter
     if (activeTab !== "All Classes") {
       const cls = activeTab.replace("Class ", "");
       result = result.filter(
@@ -132,38 +163,66 @@ export default function StudentsPage() {
     }
 
     return result;
-  }, [students, activeTab, statusFilter, genderFilter]);
+  }, [
+    students,
+    isAdmin,
+    schoolId,
+    selectedSchool,
+    activeTab,
+    statusFilter,
+    genderFilter,
+  ]);
 
-  // console.log(filtered);
+  /* ── Pagination ── */
+  const {
+    pagedData: pageRows,
+    currentPage: page,
+    pageSize,
+    totalItems,
+    setPage,
+    setPageSize,
+    reset,
+  } = usePagination({ data: filtered, initialSize: 20 });
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const pageRows = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-
-  const toggleAll = (e) =>
-    setSelected(e.target.checked ? pageRows.map((s) => s.id) : []);
-  const toggleOne = (id) =>
-    setSelected((s) =>
-      s.includes(id) ? s.filter((x) => x !== id) : [...s, id],
-    );
-
-  const getAvatarColor = (value) => {
-    let hash = 0;
-    for (let i = 0; i < value.length; i++) {
-      hash = value.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return avatarColors[Math.abs(hash) % avatarColors.length];
+  /* ── Filter change handlers — reset to page 1 ── */
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    reset();
+  };
+  const handleStatus = (e) => {
+    setStatusFilter(e.target.value);
+    reset();
+  };
+  const handleGender = (e) => {
+    setGenderFilter(e.target.value);
+    reset();
+  };
+  const handleSchool = (e) => {
+    setSelectedSchool(e.target.value);
+    reset();
   };
 
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this student?",
+  /* ── Checkbox helpers ── */
+  const toggleAll = (event) =>
+    setSelected(
+      event.target.checked ? pageRows.map((student) => student.id) : [],
     );
-    if (!confirmDelete) return;
 
+  const toggleOne = (id) =>
+    setSelected((prevSelected) =>
+      prevSelected.includes(id)
+        ? prevSelected.filter((existingId) => existingId !== id)
+        : [...prevSelected, id],
+    );
+
+  /* ── CRUD actions ── */
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this student?"))
+      return;
     try {
       await dispatch(deleteStudent(id)).unwrap();
-    } catch (err) {
-      alert(err || "Failed to delete student");
+    } catch (deleteError) {
+      alert(deleteError || "Failed to delete student");
     }
   };
 
@@ -171,30 +230,22 @@ export default function StudentsPage() {
     setEditingStudent(null);
     setOpenModal(true);
   };
-
   const openEditModal = (student) => {
     setEditingStudent(student);
     setOpenModal(true);
   };
-
   const closeModal = () => {
     setOpenModal(false);
     setEditingStudent(null);
-    // Refresh the list in case something changed.
     dispatch(getStudents());
   };
 
-  if (loading) {
-    return <h3 className="sp-loading px-6 py-10">Loading...</h3>;
-  }
-
-  if (error) {
-    return <h3 className="sp-error px-6 py-10">{error}</h3>;
-  }
+  if (loading) return <h3 className="sp-loading px-6 py-10">Loading...</h3>;
+  if (error) return <h3 className="sp-error px-6 py-10">{error}</h3>;
 
   return (
     <div className="sp-page min-h-screen p-6">
-      {/* Header */}
+      {/* ── Header ── */}
       <div className="flex items-start justify-between mb-3">
         <div>
           <h1 className="sp-title text-2xl font-bold">Students</h1>
@@ -215,7 +266,7 @@ export default function StudentsPage() {
         </div>
       </div>
 
-      {/* Stat cards */}
+      {/* ── Stat cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard
           icon={Users}
@@ -226,8 +277,8 @@ export default function StudentsPage() {
         <StatCard
           icon={UserCheck}
           tone="success"
-          value={students?.length ?? 0}
-          label="Active students"
+          value={filtered.length}
+          label="Showing"
         />
         <StatCard
           icon={AlertTriangle}
@@ -243,16 +294,14 @@ export default function StudentsPage() {
         />
       </div>
 
-      {/* Filter bar */}
+      {/* ── Filter bar ── */}
       <div className="sp-filter-bar flex flex-wrap items-center gap-2.5 rounded-2xl px-4 py-3 mb-6">
+        {/* Class tabs */}
         <div className="flex items-center gap-1.5 flex-wrap">
           {CLASS_TABS.map((tab) => (
             <button
               key={tab}
-              onClick={() => {
-                setActiveTab(tab);
-                setPage(1);
-              }}
+              onClick={() => handleTabChange(tab)}
               className={`px-3.5 py-2 rounded-lg text-[13px] font-semibold transition-colors ${
                 activeTab === tab ? "sp-tab-active" : "sp-tab"
               }`}
@@ -261,11 +310,13 @@ export default function StudentsPage() {
             </button>
           ))}
         </div>
+
         <div className="sp-divider w-px h-6 mx-1" />
+
+        {/* Status filter */}
         <select
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          // className="sp-select-btn px-3.5 py-2 rounded-lg text-[13px] font-medium border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400"
+          onChange={handleStatus}
           className="sp-select-btn px-3.5 py-2 rounded-lg text-[13px] font-medium"
         >
           <option value="All">All Status</option>
@@ -275,10 +326,10 @@ export default function StudentsPage() {
           <option value="dropped">Dropped</option>
         </select>
 
+        {/* Gender filter */}
         <select
           value={genderFilter}
-          onChange={(e) => setGenderFilter(e.target.value)}
-          // className="sp-select-btn px-3.5 py-2 rounded-lg text-[13px] font-medium border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400"
+          onChange={handleGender}
           className="sp-select-btn px-3.5 py-2 rounded-lg text-[13px] font-medium"
         >
           <option value="All">All Genders</option>
@@ -286,10 +337,30 @@ export default function StudentsPage() {
           <option value="female">Female</option>
           <option value="other">Other</option>
         </select>
+
+        {/* School filter — ADMIN only */}
+        {isAdmin && (
+          <select
+            value={selectedSchool}
+            onChange={handleSchool}
+            className="sp-select-btn px-3.5 py-2 rounded-lg text-[13px] font-medium min-w-[200px]"
+            disabled={schoolsLoading}
+          >
+            <option value="">All Schools</option>
+            {schools.map((school) => (
+              <option key={school.id} value={school.id}>
+                {school.name}
+              </option>
+            ))}
+          </select>
+        )}
+
+        {/* Count + view toggle */}
         <div className="ml-auto flex items-center gap-3">
           <span className="sp-count-text text-[12.5px]">
-            Showing {filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}-
-            {Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
+            {totalItems === 0
+              ? "No results"
+              : `${(page - 1) * pageSize + 1}–${Math.min(page * pageSize, totalItems)} of ${totalItems}`}
           </span>
           <div className="sp-toggle-group flex items-center rounded-lg overflow-hidden">
             <button className="sp-toggle-btn-active p-2">
@@ -302,8 +373,9 @@ export default function StudentsPage() {
         </div>
       </div>
 
-      {/* Table card */}
+      {/* ── Table card ── */}
       <div className="sp-table-card rounded-2xl overflow-hidden">
+        {/* Card header */}
         <div className="sp-table-header flex items-center justify-between px-5 py-4">
           <h2 className="sp-table-title text-[15px] font-bold">
             Student directory
@@ -324,7 +396,7 @@ export default function StudentsPage() {
                     onChange={toggleAll}
                     checked={
                       pageRows.length > 0 &&
-                      pageRows.every((s) => selected.includes(s.id))
+                      pageRows.every((student) => selected.includes(student.id))
                     }
                   />
                 </th>
@@ -360,165 +432,154 @@ export default function StudentsPage() {
                 </th>
               </tr>
             </thead>
+
             <tbody>
-              {pageRows.map((s) => {
-                const initials =
-                  `${s.first_name?.[0] || ""}${s.last_name?.[0] || ""}`.toUpperCase();
-                const avatarColor = getAvatarColor(
-                  `${s.id}-${s.first_name}-${s.last_name}`,
-                );
-                const studentClass = getStudentClass(s);
-                const city = s.permanent_city || s.current_city || null;
-
-                const imageUrl =
-                  s.photo_url &&
-                  s.photo_url !== "null" &&
-                  s.photo_url.trim() !== ""
-                    ? `${IMAGE_BASE_URL}${s.photo_url.startsWith("/") ? "" : "/"}${s.photo_url}`
-                    : null;
-
-                // console.log("Photo:", s.photo_url);
-                // console.log("Image URL:", s.id, imageUrl);
-                return (
-                  <tr key={s.id} className="sp-row transition-colors">
-                    <td className="px-5 py-3.5">
-                      <input
-                        type="checkbox"
-                        className="sp-checkbox w-4 h-4 rounded"
-                        checked={selected.includes(s.id)}
-                        onChange={() => toggleOne(s.id)}
-                      />
-                    </td>
-                    <td className="px-3 py-3.5">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-9 h-9 rounded-full overflow-hidden flex items-center justify-center text-white text-[12px] font-bold shrink-0 ${avatarColor}`}
-                        >
-                          {imageUrl ? (
-                            <img
-                              src={imageUrl}
-                              alt={s.first_name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            initials
-                          )}
-                        </div>
-                        <div>
-                          <p className="sp-name text-[13.5px] font-semibold">
-                            {s.first_name} {s.last_name}
-                          </p>
-                          <p className="sp-email text-[12px]">{s.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="sp-cell px-3 py-3.5 text-[13.5px]">
-                      {s.mobile_no || <span className="sp-cell-muted">—</span>}
-                    </td>
-                    <td className="sp-cell px-3 py-3.5 text-[13.5px] capitalize">
-                      {s.gender || <span className="sp-cell-muted">—</span>}
-                    </td>
-                    <td className="px-3 py-3.5">
-                      {studentClass ? (
-                        <Badge>{studentClass}</Badge>
-                      ) : (
-                        <Badge className="sp-badge-fallback">—</Badge>
-                      )}
-                    </td>
-                    <td className="sp-cell px-3 py-3.5 text-[13.5px]">
-                      {city || <span className="sp-cell-muted">—</span>}
-                    </td>
-                    <td className="sp-cell px-3 py-3.5 text-[13.5px]">
-                      {formatDob(s.date_of_birth)}
-                    </td>
-                    <td className="sp-cell px-3 py-3.5 text-[13.5px]">
-                      {s.status ? (
-                        <span className={`sp-status sp-status-${s.status}`}>
-                          {s.status}
-                        </span>
-                      ) : (
-                        <span className="sp-cell-muted">—</span>
-                      )}
-                    </td>
-                    <td className="px-3 py-3.5">
-                      <div className="flex items-center justify-end gap-1 pr-2">
-                        <button
-                          className="sp-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                          title="View"
-                          onClick={() => {
-                            console.log(s.id);
-                            navigate(`/students/${s.id}`);
-                          }}
-                        >
-                          <Eye size={15} />
-                        </button>
-                        <button
-                          className="sp-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                          title="Edit"
-                          onClick={() => openEditModal(s)}
-                        >
-                          <Pencil size={15} />
-                        </button>
-                        <button
-                          className="sp-action-btn sp-action-btn-danger w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                          title="Delete"
-                          onClick={() => handleDelete(s.id)}
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-
-              {pageRows.length === 0 && (
+              {pageRows.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={8}
+                    colSpan={9}
                     className="sp-empty-state px-5 py-10 text-center text-[13.5px]"
                   >
                     No students found for this filter.
                   </td>
                 </tr>
+              ) : (
+                pageRows.map((student) => {
+                  const initials =
+                    `${student.first_name?.[0] ?? ""}${student.last_name?.[0] ?? ""}`.toUpperCase();
+                  const avatarColor = getAvatarColor(
+                    `${student.id}-${student.first_name}-${student.last_name}`,
+                  );
+                  const studentClass = getStudentClass(student);
+                  const city =
+                    student.permanent_city || student.current_city || null;
+                  const imageUrl =
+                    student.photo_url &&
+                    student.photo_url !== "null" &&
+                    student.photo_url.trim() !== ""
+                      ? `${IMAGE_BASE_URL}${student.photo_url.startsWith("/") ? "" : "/"}${student.photo_url}`
+                      : null;
+
+                  return (
+                    <tr key={student.id} className="sp-row transition-colors">
+                      <td className="px-5 py-3.5">
+                        <input
+                          type="checkbox"
+                          className="sp-checkbox w-4 h-4 rounded"
+                          checked={selected.includes(student.id)}
+                          onChange={() => toggleOne(student.id)}
+                        />
+                      </td>
+
+                      {/* Name + avatar */}
+                      <td className="px-3 py-3.5">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-9 h-9 rounded-full overflow-hidden flex items-center justify-center text-white text-[12px] font-bold shrink-0 ${avatarColor}`}
+                          >
+                            {imageUrl ? (
+                              <img
+                                src={imageUrl}
+                                alt={student.first_name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              initials
+                            )}
+                          </div>
+                          <div>
+                            <p className="sp-name text-[13.5px] font-semibold">
+                              {student.first_name} {student.last_name}
+                            </p>
+                            <p className="sp-email text-[12px]">
+                              {student.email}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="sp-cell px-3 py-3.5 text-[13.5px]">
+                        {student.mobile_no || (
+                          <span className="sp-cell-muted">—</span>
+                        )}
+                      </td>
+
+                      <td className="sp-cell px-3 py-3.5 text-[13.5px] capitalize">
+                        {student.gender || (
+                          <span className="sp-cell-muted">—</span>
+                        )}
+                      </td>
+
+                      <td className="px-3 py-3.5">
+                        {studentClass ? (
+                          <Badge>{studentClass}</Badge>
+                        ) : (
+                          <Badge className="sp-badge-fallback">—</Badge>
+                        )}
+                      </td>
+
+                      <td className="sp-cell px-3 py-3.5 text-[13.5px]">
+                        {city || <span className="sp-cell-muted">—</span>}
+                      </td>
+
+                      <td className="sp-cell px-3 py-3.5 text-[13.5px]">
+                        {formatDob(student.date_of_birth)}
+                      </td>
+
+                      <td className="sp-cell px-3 py-3.5 text-[13.5px]">
+                        {student.status ? (
+                          <span
+                            className={`sp-status sp-status-${student.status}`}
+                          >
+                            {student.status}
+                          </span>
+                        ) : (
+                          <span className="sp-cell-muted">—</span>
+                        )}
+                      </td>
+
+                      {/* Actions */}
+                      <td className="px-3 py-3.5">
+                        <div className="flex items-center justify-end gap-1 pr-2">
+                          <button
+                            onClick={() => navigate(`/students/${student.id}`)}
+                            className="sp-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+                            title="View"
+                          >
+                            <Eye size={15} />
+                          </button>
+                          <button
+                            onClick={() => openEditModal(student)}
+                            className="sp-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+                            title="Edit"
+                          >
+                            <Pencil size={15} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(student.id)}
+                            className="sp-action-btn sp-action-btn-danger w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
         </div>
 
-        {/* Pagination */}
-        <div className="sp-table-header flex items-center justify-between px-5 py-4">
-          <p className="sp-pagination-text text-[12.5px]">
-            Page {page} of {totalPages}
-          </p>
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="sp-page-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-            >
-              <ChevronLeft size={15} />
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-              <button
-                key={n}
-                onClick={() => setPage(n)}
-                className={`w-8 h-8 rounded-lg text-[13px] font-semibold transition-colors ${
-                  n === page ? "sp-page-btn-active" : "sp-page-btn"
-                }`}
-              >
-                {n}
-              </button>
-            ))}
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className="sp-page-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-            >
-              <ChevronRight size={15} />
-            </button>
-          </div>
-        </div>
+        {/* ── Global Pagination ── */}
+        <Pagination
+          currentPage={page}
+          totalItems={totalItems}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+        />
       </div>
 
       <AddStudentModal

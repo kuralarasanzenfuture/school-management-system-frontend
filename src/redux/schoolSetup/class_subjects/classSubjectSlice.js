@@ -5,6 +5,7 @@ import {
   getAllClassSubjects,
   getClassSubjectById,
   createClassSubject,
+  bulkAssignSubjects,
   updateClassSubject,
   deleteClassSubject,
 } from "./classSubject.service.js";
@@ -17,10 +18,10 @@ export const fetchClassSubjects = createAsyncThunk(
       return await getAllClassSubjects();
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch class subjects"
+        error.response?.data?.message || "Failed to fetch class subjects",
       );
     }
-  }
+  },
 );
 
 // Fetch By Id
@@ -31,10 +32,10 @@ export const fetchClassSubjectById = createAsyncThunk(
       return await getClassSubjectById(id);
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch class subject"
+        error.response?.data?.message || "Failed to fetch class subject",
       );
     }
-  }
+  },
 );
 
 // Create
@@ -45,10 +46,23 @@ export const createClassSubjectThunk = createAsyncThunk(
       return await createClassSubject(classSubjectData);
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to create class subject"
+        error.response?.data?.message || "Failed to create class subject",
       );
     }
-  }
+  },
+);
+
+export const addBulkAssignSubjects = createAsyncThunk(
+  "classSections/bulkAssignSubjects",
+  async (data, { rejectWithValue }) => {
+    try {
+      return await bulkAssignSubjects(data);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to create class section",
+      );
+    }
+  },
 );
 
 // Update
@@ -59,10 +73,10 @@ export const updateClassSubjectThunk = createAsyncThunk(
       return await updateClassSubject(id, classSubjectData);
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to update class subject"
+        error.response?.data?.message || "Failed to update class subject",
       );
     }
-  }
+  },
 );
 
 // Delete
@@ -74,10 +88,10 @@ export const deleteClassSubjectThunk = createAsyncThunk(
       return id;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to delete class subject"
+        error.response?.data?.message || "Failed to delete class subject",
       );
     }
-  }
+  },
 );
 
 const unwrap = (payload) => payload?.data ?? payload;
@@ -138,6 +152,18 @@ const classSubjectSlice = createSlice({
         state.error = action.payload;
       })
 
+      // addBulkAssignSubjects
+      .addCase(addBulkAssignSubjects.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(addBulkAssignSubjects.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(addBulkAssignSubjects.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
       // Update
       .addCase(updateClassSubjectThunk.pending, (state) => {
         state.loading = true;
@@ -148,7 +174,7 @@ const classSubjectSlice = createSlice({
         const updated = unwrap(action.payload);
 
         const index = state.classSubjects.findIndex(
-          (item) => item.id === updated.id
+          (item) => item.id === updated.id,
         );
 
         if (index !== -1) {
@@ -169,7 +195,7 @@ const classSubjectSlice = createSlice({
       .addCase(deleteClassSubjectThunk.fulfilled, (state, action) => {
         state.loading = false;
         state.classSubjects = state.classSubjects.filter(
-          (item) => item.id !== action.payload
+          (item) => item.id !== action.payload,
         );
       })
       .addCase(deleteClassSubjectThunk.rejected, (state, action) => {

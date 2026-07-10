@@ -30,6 +30,16 @@ export const createClassSubject = async (classSubjectData) => {
     }
 };
 
+export const bulkAssignSubjects = async (data) => {
+  try {
+    const response = await api.post("/class-subjects/bulk-assign-subjects", data);
+    return response.data;
+  } catch (error) {
+    console.error("Error bulk assigning subjects:", error);
+    throw error;
+  }
+}
+
 export const updateClassSubject = async (id, classSubjectData) => {
     try {
         const response = await api.put(`/class-subjects/${id}`, classSubjectData);

@@ -30,16 +30,6 @@ export const createClassSection = async (classSectionData) => {
   }
 };
 
-export const bulkAssignSubjects = async (data) => {
-  try {
-    const response = await api.post("/class-sections/bulk-assign-subjects", data);
-    return response.data;
-  } catch (error) {
-    console.error("Error bulk assigning subjects:", error);
-    throw error;
-  }
-}
-
 export const updateClassSection = async (id, classSectionData) => {
   try {
     const response = await api.put(`/class-sections/${id}`, classSectionData);

@@ -2,7 +2,7 @@ import api from "../../../common/services/api";
 
 export const getAllClassSections = async () => {
   try {
-    const response = await api.get(`/class-sections`);
+    const response = await api.get(`/class-sections/token`);
     return response.data;
   } catch (error) {
     console.error("Error fetching class sections:", error);
@@ -29,6 +29,16 @@ export const createClassSection = async (classSectionData) => {
     throw error;
   }
 };
+
+export const bulkAssignSubjects = async (data) => {
+  try {
+    const response = await api.post("/class-sections/bulk-assign-subjects", data);
+    return response.data;
+  } catch (error) {
+    console.error("Error bulk assigning subjects:", error);
+    throw error;
+  }
+}
 
 export const updateClassSection = async (id, classSectionData) => {
   try {

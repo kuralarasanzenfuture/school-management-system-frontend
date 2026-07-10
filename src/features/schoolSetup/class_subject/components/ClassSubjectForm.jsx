@@ -1,0 +1,386 @@
+import React, { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
+// ASSUMPTION: these follow the same naming pattern as other list thunks
+// in this app. Adjust the imports/export names if they differ.
+import { fetchClasses } from "../../../../redux/schoolSetup/class/classSlice.js";
+import { fetchAcademicYears } from "../../../../redux/schoolSetup/academic-year/academicYearSlice.js";
+import { fetchEmployees } from "../../../../redux/employee/employeeSlice.js";
+import { fetchSubjects } from "../../../../redux/schoolSetup/subject/subjectSlice.js";
+import { fetchSubjectGroups } from "../../../../redux/schoolSetup/subject_group/subjectGroupSlice.js";
+
+const EMPTY = {
+  school_id: "",
+  class_id: "",
+  subject_id: "",
+  subject_group_id: "",
+  employee_id: "",
+  academic_year_id: "",
+  is_optional: false,
+};
+
+function idOf(value) {
+  if (value == null) return "";
+  if (typeof value === "object") return value.id ?? "";
+  return value;
+}
+
+/**
+ * Add/edit form for a single class-subject mapping (which subject is
+ * taught in which class for a given academic year, optionally under a
+ * subject group and/or with a specific teacher assigned).
+ *
+ * @param {object|null} initialData
+ * @param {(payload: object) => void} onSubmit
+ * @param {() => void} onCancel
+ * @param {boolean} submitting
+ */
+export default function ClassSubjectForm({
+  initialData = null,
+  onSubmit,
+  onCancel,
+  submitting,
+}) {
+  const dispatch = useDispatch();
+
+  const { user } = useSelector((state) => state.auth);
+  const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
+  const schoolId = isAdmin ? null : user?.school_id;
+
+  const schools = useSelector((state) => state.schoolProfile?.schools || []);
+  const schoolsLoading = useSelector(
+    (state) => state.schoolProfile?.loading || false,
+  );
+
+  const { classes = [], loading: classesLoading } = useSelector(
+    (state) => state.classes,
+  );
+  const { subjects = [], loading: subjectsLoading } = useSelector(
+    (state) => state.subjects,
+  );
+  const { subjectGroups = [], loading: subjectGroupsLoading } = useSelector(
+    (state) => state.subjectGroups,
+  );
+  const { employees = [], loading: employeesLoading } = useSelector(
+    (state) => state.employees,
+  );
+  const { academicYears = [], loading: yearsLoading } = useSelector(
+    (state) => state.academicYears,
+  );
+
+  const isEdit = Boolean(initialData?.id);
+  const [data, setData] = useState(EMPTY);
+  const [errors, setErrors] = useState({});
+
+  const effectiveSchoolId = isAdmin ? data.school_id : schoolId;
+
+  useEffect(() => {
+    if (isAdmin) dispatch(fetchSchools());
+  }, [dispatch, isAdmin]);
+
+  // Re-fetch dependent lists whenever the effective school changes,
+  // passing it along in case these thunks accept a school_id argument to
+  // filter server-side (confirmed for fetchSubjects/fetchSubjectGroups;
+  // assumed for the rest — harmless if a thunk ignores the argument).
+  useEffect(() => {
+    if (isAdmin && !effectiveSchoolId) return;
+    dispatch(fetchClasses(effectiveSchoolId));
+    dispatch(fetchSubjects(effectiveSchoolId));
+    dispatch(fetchSubjectGroups(effectiveSchoolId));
+    dispatch(fetchEmployees(effectiveSchoolId));
+    dispatch(fetchAcademicYears(effectiveSchoolId));
+  }, [dispatch, isAdmin, effectiveSchoolId]);
+
+  // Resets the form only when switching between add/edit targets — not
+  // whenever schoolId/isAdmin change (those come from an async auth fetch
+  // and could otherwise flip mid-edit and wipe what the user typed).
+  useEffect(() => {
+    if (initialData) {
+      setData({
+        school_id: idOf(initialData.school_id),
+        class_id: idOf(initialData.class_id),
+        subject_id: idOf(initialData.subject_id),
+        subject_group_id: idOf(initialData.subject_group_id),
+        employee_id: idOf(initialData.employee_id),
+        academic_year_id: idOf(initialData.academic_year_id),
+        is_optional: Boolean(
+          initialData.is_optional === 1 || initialData.is_optional === true,
+        ),
+      });
+    } else {
+      setData({ ...EMPTY, school_id: isAdmin ? "" : (schoolId ?? "") });
+    }
+    setErrors({});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialData]);
+
+  // Backfills school_id for a non-admin once the auth fetch resolves,
+  // without disturbing anything else already typed into a new record.
+  useEffect(() => {
+    if (!initialData && !isAdmin && schoolId) {
+      setData((d) => (d.school_id ? d : { ...d, school_id: schoolId }));
+    }
+  }, [schoolId, isAdmin, initialData]);
+
+  const set = (key) => (e) => {
+    setData((d) => ({ ...d, [key]: e.target.value }));
+    if (errors[key]) setErrors((er) => ({ ...er, [key]: null }));
+  };
+
+  const scopedTo = (list) =>
+    !effectiveSchoolId
+      ? list
+      : list.filter(
+          (item) =>
+            item.school_id == null ||
+            String(item.school_id) === String(effectiveSchoolId),
+        );
+
+  const filteredClasses = scopedTo(classes);
+  const filteredSubjects = scopedTo(subjects);
+  const filteredSubjectGroups = scopedTo(subjectGroups);
+  const filteredEmployees = scopedTo(employees);
+  const filteredAcademicYears = scopedTo(academicYears);
+
+  const needsSchoolFirst = isAdmin && !effectiveSchoolId;
+
+  const validate = () => {
+    const e = {};
+    if (isAdmin && !data.school_id) e.school_id = "Please select a school";
+    if (!data.class_id) e.class_id = "Class is required";
+    if (!data.subject_id) e.subject_id = "Subject is required";
+    if (!data.academic_year_id)
+      e.academic_year_id = "Academic year is required";
+
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    onSubmit({
+      school_id: Number(isAdmin ? data.school_id : schoolId),
+      class_id: Number(data.class_id),
+      subject_id: Number(data.subject_id),
+      subject_group_id: data.subject_group_id
+        ? Number(data.subject_group_id)
+        : null,
+      employee_id: data.employee_id ? Number(data.employee_id) : null,
+      academic_year_id: Number(data.academic_year_id),
+      is_optional: data.is_optional,
+    });
+  };
+
+  const inputCls = (key) =>
+    `cx-input w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200 ${errors[key] ? "cx-input-error" : ""}`;
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {isAdmin && (
+        <div className="flex flex-col gap-1.5">
+          <label className="cx-field-label text-[13px] font-medium">
+            School <span className="cx-field-required">*</span>
+          </label>
+          <select
+            className={inputCls("school_id")}
+            value={data.school_id}
+            onChange={set("school_id")}
+            disabled={schoolsLoading}
+          >
+            <option value="">
+              {schoolsLoading ? "Loading schools..." : "Select a school"}
+            </option>
+            {schools.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+          <div className="h-4">
+            {errors.school_id && (
+              <p className="cx-field-error text-[11px]">{errors.school_id}</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="flex flex-col gap-1.5">
+          <label className="cx-field-label text-[13px] font-medium">
+            Class <span className="cx-field-required">*</span>
+          </label>
+          <select
+            className={inputCls("class_id")}
+            value={data.class_id}
+            onChange={set("class_id")}
+            disabled={classesLoading || needsSchoolFirst}
+          >
+            <option value="">
+              {needsSchoolFirst
+                ? "Select a school first"
+                : classesLoading
+                  ? "Loading..."
+                  : "Select Class"}
+            </option>
+            {filteredClasses.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+          <div className="h-4">
+            {errors.class_id && (
+              <p className="cx-field-error text-[11px]">{errors.class_id}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label className="cx-field-label text-[13px] font-medium">
+            Subject <span className="cx-field-required">*</span>
+          </label>
+          <select
+            className={inputCls("subject_id")}
+            value={data.subject_id}
+            onChange={set("subject_id")}
+            disabled={subjectsLoading || needsSchoolFirst}
+          >
+            <option value="">
+              {needsSchoolFirst
+                ? "Select a school first"
+                : subjectsLoading
+                  ? "Loading..."
+                  : "Select Subject"}
+            </option>
+            {filteredSubjects.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+                {s.code ? ` (${s.code})` : ""}
+              </option>
+            ))}
+          </select>
+          <div className="h-4">
+            {errors.subject_id && (
+              <p className="cx-field-error text-[11px]">{errors.subject_id}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label className="cx-field-label text-[13px] font-medium">
+            Academic Year <span className="cx-field-required">*</span>
+          </label>
+          <select
+            className={inputCls("academic_year_id")}
+            value={data.academic_year_id}
+            onChange={set("academic_year_id")}
+            disabled={yearsLoading || needsSchoolFirst}
+          >
+            <option value="">
+              {needsSchoolFirst
+                ? "Select a school first"
+                : yearsLoading
+                  ? "Loading..."
+                  : "Select Academic Year"}
+            </option>
+            {filteredAcademicYears.map((y) => (
+              <option key={y.id} value={y.id}>
+                {y.name}
+              </option>
+            ))}
+          </select>
+          <div className="h-4">
+            {errors.academic_year_id && (
+              <p className="cx-field-error text-[11px]">
+                {errors.academic_year_id}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label className="cx-field-label text-[13px] font-medium">
+            Subject Group
+          </label>
+          <select
+            className="cx-select w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200"
+            value={data.subject_group_id}
+            onChange={set("subject_group_id")}
+            disabled={subjectGroupsLoading || needsSchoolFirst}
+          >
+            <option value="">
+              {needsSchoolFirst
+                ? "Select a school first"
+                : subjectGroupsLoading
+                  ? "Loading..."
+                  : "None"}
+            </option>
+            {filteredSubjectGroups.map((sg) => (
+              <option key={sg.id} value={sg.id}>
+                {sg.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label className="cx-field-label text-[13px] font-medium">
+            Teacher
+          </label>
+          <select
+            className="cx-select w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200"
+            value={data.employee_id}
+            onChange={set("employee_id")}
+            disabled={employeesLoading || needsSchoolFirst}
+          >
+            <option value="">
+              {needsSchoolFirst
+                ? "Select a school first"
+                : employeesLoading
+                  ? "Loading..."
+                  : "None"}
+            </option>
+            {filteredEmployees.map((emp) => (
+              <option key={emp.id} value={emp.id}>
+                {emp.first_name} {emp.last_name || ""}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <label className="cx-checkbox-row flex items-center gap-2 rounded-lg px-3.5 py-2.5 text-[13.5px] font-medium cursor-pointer transition-colors">
+        <input
+          type="checkbox"
+          className="cx-checkbox w-4 h-4 rounded"
+          checked={data.is_optional}
+          onChange={(e) =>
+            setData((d) => ({ ...d, is_optional: e.target.checked }))
+          }
+        />
+        This subject is optional/elective
+      </label>
+
+      <div className="cx-form-footer flex items-center justify-end gap-3 pt-4 mt-1">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="cx-btn-cancel text-[13.5px] font-semibold px-4 py-2.5 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={submitting}
+          className="cx-btn-primary inline-flex items-center gap-2 text-[13.5px] font-semibold px-5 py-2.5 rounded-lg transition-colors"
+        >
+          {submitting && <Loader2 size={14} className="animate-spin" />}
+          {isEdit ? "Update Mapping" : "Create Mapping"}
+        </button>
+      </div>
+    </form>
+  );
+}

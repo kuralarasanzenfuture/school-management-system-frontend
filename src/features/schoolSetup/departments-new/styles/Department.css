@@ -1,0 +1,365 @@
+/* DepartmentPage.css
+   All COLOR styling lives here, driven by theme variables in app.css.
+   Tailwind utility classes in JSX handle layout, spacing, and sizing only.
+*/
+
+/* ── Page ── */
+.dp-page {
+  background: var(--bg);
+}
+
+/* ── Header ── */
+.dp-title {
+  color: var(--text-primary);
+}
+.dp-subtitle {
+  color: var(--text-muted);
+}
+
+.dp-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.dp-btn-outline:hover {
+  background: var(--input-bg);
+}
+
+.dp-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.dp-btn-primary:hover {
+  background: var(--btn-hover);
+}
+
+/* ── Stat cards ── */
+.dp-stat-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.dp-stat-value {
+  color: var(--text-primary);
+}
+.dp-stat-label {
+  color: var(--text-muted);
+}
+
+.dp-icon-primary-bg {
+  background: var(--badge-bg);
+}
+.dp-icon-primary {
+  color: var(--btn-bg);
+}
+.dp-icon-success-bg {
+  background: var(--success-bg);
+}
+.dp-icon-success {
+  color: var(--success);
+}
+.dp-icon-warning-bg {
+  background: var(--warning-bg);
+}
+.dp-icon-warning {
+  color: var(--warning);
+}
+.dp-icon-danger-bg {
+  background: var(--danger-bg);
+}
+.dp-icon-danger {
+  color: var(--danger);
+}
+
+/* ── Filter / search bar ── */
+.dp-filter-bar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.dp-search-wrap {
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text-secondary);
+}
+.dp-search-wrap:focus-within {
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.dp-search-icon {
+  color: var(--text-muted);
+}
+.dp-search-input {
+  background: transparent;
+  color: var(--text-primary);
+  outline: none;
+}
+.dp-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.dp-count-text {
+  color: var(--text-muted);
+}
+
+.dp-toggle-group {
+  border: 1px solid var(--input-border);
+}
+.dp-toggle-btn {
+  color: var(--text-muted);
+}
+.dp-toggle-btn:hover {
+  background: var(--input-bg);
+}
+.dp-toggle-btn-active {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── Table card ── */
+.dp-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.dp-table-header {
+  border-bottom: 1px solid var(--divider);
+}
+.dp-table-title {
+  color: var(--text-primary);
+}
+
+.dp-export-btn {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.dp-export-btn:hover {
+  background: var(--input-bg);
+}
+
+.dp-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.dp-row {
+  border-top: 1px solid var(--divider);
+}
+.dp-row:hover {
+  background: var(--input-bg);
+}
+
+.dp-checkbox {
+  accent-color: var(--btn-bg);
+}
+
+.dp-cell-primary {
+  color: var(--text-primary);
+}
+.dp-cell-secondary {
+  color: var(--text-secondary);
+}
+.dp-cell-muted {
+  color: var(--text-muted);
+}
+
+.dp-badge {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dp-action-btn {
+  color: var(--text-muted);
+}
+.dp-action-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+.dp-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.dp-empty-state {
+  color: var(--text-muted);
+}
+
+/* ── Pagination ── */
+.dp-pagination-text {
+  color: var(--text-muted);
+}
+.dp-page-btn {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.dp-page-btn:hover {
+  background: var(--input-bg);
+}
+.dp-page-btn:disabled {
+  opacity: 0.4;
+}
+.dp-page-btn-active {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  border-color: var(--btn-bg);
+}
+
+/* ── Loading / error ── */
+.dp-loading {
+  color: var(--text-secondary);
+}
+.dp-error {
+  color: var(--danger);
+}
+
+/* ── Modal overlay + panel ── */
+.dp-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.dp-modal {
+  background: var(--panel-bg);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+}
+
+.dp-modal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.dp-modal-title {
+  color: var(--text-primary);
+}
+.dp-modal-footer {
+  border-top: 1px solid var(--divider);
+}
+
+.dp-close-btn {
+  color: var(--text-muted);
+}
+.dp-close-btn:hover {
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+/* ── Modal form fields ── */
+.dp-field-label {
+  color: var(--text-secondary);
+}
+.dp-field-required {
+  color: var(--danger);
+}
+.dp-field-error {
+  color: var(--danger);
+}
+
+.dp-input {
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.dp-input::placeholder {
+  color: var(--text-muted);
+}
+.dp-input:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.dp-input-error {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 12%, transparent) !important;
+}
+
+/* ── Modal buttons ── */
+.dp-modal-btn-cancel {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+  background: var(--panel-bg);
+}
+.dp-modal-btn-cancel:hover {
+  background: var(--input-bg);
+}
+
+.dp-modal-btn-submit {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.dp-modal-btn-submit:hover {
+  background: var(--btn-hover);
+}
+.dp-modal-btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Delete confirmation modal ── */
+.dp-delete-icon-wrap {
+  background: var(--danger-bg);
+}
+.dp-delete-icon {
+  color: var(--danger);
+}
+.dp-delete-title {
+  color: var(--text-primary);
+}
+.dp-delete-desc {
+  color: var(--text-muted);
+}
+
+.dp-modal-btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.dp-modal-btn-danger:hover {
+  opacity: 0.88;
+}
+.dp-modal-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dp-status-toggle {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.dp-status-toggle-active {
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
+}
+.dp-status-toggle-inactive {
+  background: var(--danger-bg);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.dp-form-footer {
+  border-top: 1px solid var(--divider);
+}
+.dp-btn-cancel {
+  color: var(--text-secondary);
+}
+.dp-btn-cancel:hover {
+  color: var(--text-primary);
+}
+
+.dp-status {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.dp-status-active {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.dp-status-inactive {
+  background: var(--danger-bg);
+  color: var(--danger);
+}

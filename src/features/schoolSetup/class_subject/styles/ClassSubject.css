@@ -1,0 +1,159 @@
+/* ClassSubject.css */
+
+.cx-page {
+  background: var(--bg);
+}
+.cx-title {
+  color: var(--text-primary);
+}
+.cx-subtitle {
+  color: var(--text-muted);
+}
+
+.cx-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.cx-btn-primary:hover {
+  background: var(--btn-hover);
+}
+.cx-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.cx-btn-outline:hover {
+  background: var(--input-bg);
+}
+.cx-btn-cancel {
+  color: var(--text-secondary);
+}
+.cx-btn-cancel:hover {
+  color: var(--text-primary);
+}
+
+/* ── Toolbar ── */
+.cx-toolbar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+}
+.cx-search-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.cx-search-input:focus {
+  border-color: var(--btn-bg);
+}
+.cx-count-text {
+  color: var(--text-muted);
+}
+
+/* ── Table ── */
+.cx-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.cx-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.cx-row {
+  border-bottom: 1px solid var(--divider);
+}
+.cx-row:hover {
+  background: var(--input-bg);
+}
+.cx-cell {
+  color: var(--text-secondary);
+}
+.cx-cell-muted {
+  color: var(--text-muted);
+}
+.cx-loading,
+.cx-error {
+  color: var(--text-secondary);
+}
+.cx-empty-state {
+  color: var(--text-muted);
+}
+
+.cx-optional-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  background: var(--badge-bg);
+  color: var(--badge-text);
+}
+
+/* ── Row action buttons ── */
+.cx-action-btn {
+  color: var(--text-secondary);
+}
+.cx-action-btn:hover {
+  background: var(--input-bg);
+}
+.cx-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* ── Form fields ── */
+.cx-field-label {
+  color: var(--text-secondary);
+}
+.cx-field-required {
+  color: var(--danger);
+}
+.cx-field-error {
+  color: var(--danger);
+}
+.cx-input,
+.cx-select {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.cx-input:focus,
+.cx-select:focus {
+  border-color: var(--btn-bg);
+}
+.cx-input-error {
+  border-color: var(--danger);
+}
+
+.cx-checkbox-row {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+
+.cx-form-footer {
+  border-top: 1px solid var(--divider);
+}
+
+/* ── Modal ── */
+.cx-modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.cx-modal-panel {
+  background: var(--panel-bg);
+  box-shadow: var(--shadow);
+}
+.cx-modal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.cx-modal-title {
+  color: var(--text-primary);
+}
+.cx-modal-close {
+  color: var(--text-muted);
+}
+.cx-modal-close:hover {
+  color: var(--danger);
+  background: var(--danger-bg);
+}

@@ -1,61 +1,3 @@
-// import React, { useState } from "react";
-// import AddStudentModal from "../components/AddStudentModal";
-
-// const StudentList = () => {
-//   const [open, setOpen] = useState(false);
-//   return (
-//     <div className="student">
-//       <h1>Student</h1>
-//       <button
-//         onClick={() => setOpen(true)}
-//         className="rounded-xl bg-indigo-600 px-5 py-3 text-white"
-//       >
-//         Add Student
-//       </button>
-
-//       <AddStudentModal isOpen={open} onClose={() => setOpen(false)} />
-//     </div>
-//   );
-// };
-
-// export default StudentList;
-
-// import React, { useState } from "react";
-// import AddStudentModal from "../components/AddStudentModal";
-// import StudentAdmissionForm from "../components/StudentAdmissionForm";
-
-// const StudentList = () => {
-//   const [open, setOpen] = useState(false);
-
-//   return (
-//     <div className="p-8">
-//       <div className="flex justify-between items-center mb-8">
-//         <h1 className="text-3xl font-bold">
-//           Students
-//         </h1>
-
-//         <button
-//           onClick={() => setOpen(true)}
-//           className="rounded-xl bg-indigo-600 px-6 py-3 text-white hover:bg-indigo-700 transition"
-//         >
-//           Add Student
-//         </button>
-//       </div>
-
-//       <AddStudentModal
-//         isOpen={open}
-//         onClose={() => setOpen(false)}
-//       >
-//         <StudentAdmissionForm />
-//       </AddStudentModal>
-//     </div>
-//   );
-// };
-
-// export default StudentList;
-
-// -----------------------------------------------------------
-
 import React, { useState, useMemo, useEffect } from "react";
 import {
   Users,
@@ -243,7 +185,7 @@ function AttendanceBar({ value }) {
   );
 }
 
-export default function StudentsPage() {
+export default function StudentAdmissionPage() {
   const dispatch = useDispatch();
 
   const { students, loading, error } = useSelector((state) => state.students);

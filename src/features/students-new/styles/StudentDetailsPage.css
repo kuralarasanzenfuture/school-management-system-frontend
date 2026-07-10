@@ -1,0 +1,160 @@
+/* StudentDetailsPage.css */
+
+.sd-page {
+  background: var(--bg);
+}
+
+.sd-back-btn {
+  color: var(--text-secondary);
+}
+.sd-back-btn:hover {
+  color: var(--btn-bg);
+}
+
+.sd-title {
+  color: var(--text-primary);
+}
+.sd-subtitle {
+  color: var(--text-muted);
+}
+
+.sd-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.sd-btn-outline:hover {
+  background: var(--input-bg);
+}
+
+.sd-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.sd-btn-primary:hover {
+  background: var(--btn-hover);
+}
+
+/* ── Profile hero card ── */
+.sd-hero-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+
+.sd-avatar-ring {
+  border: 3px solid var(--btn-bg);
+  background: var(--input-bg);
+}
+.sd-avatar-fallback {
+  color: var(--btn-bg);
+  background: var(--badge-bg);
+}
+.sd-avatar-clickable {
+  cursor: zoom-in;
+}
+
+.sd-hero-name {
+  color: var(--text-primary);
+}
+.sd-hero-email {
+  color: var(--text-muted);
+}
+
+.sd-chip {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+}
+
+/* ── Section cards ── */
+.sd-section-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.sd-section-title {
+  color: var(--btn-bg);
+  border-bottom: 1px solid var(--divider);
+}
+
+.sd-field-label {
+  color: var(--text-muted);
+}
+.sd-field-value {
+  color: var(--text-primary);
+}
+.sd-field-value-empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.sd-note {
+  color: var(--text-muted);
+  background: var(--input-bg);
+  border: 1px dashed var(--input-border);
+}
+
+/* ── Documents grid ── */
+.sd-doc-card {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+}
+.sd-doc-card-filled {
+  border-color: var(--success);
+  background: var(--success-bg);
+}
+.sd-doc-thumb {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+}
+.sd-doc-name {
+  color: var(--text-secondary);
+}
+.sd-doc-missing {
+  color: var(--text-muted);
+}
+.sd-doc-view-btn {
+  color: var(--badge-text);
+  background: var(--badge-bg);
+}
+.sd-doc-view-btn:hover {
+  opacity: 0.8;
+}
+.sd-doc-view-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.sd-doc-icon-filled {
+  color: var(--success);
+}
+.sd-doc-icon-empty {
+  color: var(--text-muted);
+}
+
+/* ── Lightbox ── */
+.sd-lightbox-overlay {
+  background: rgba(0, 0, 0, 0.75);
+}
+.sd-lightbox-frame {
+  background: var(--panel-bg);
+  box-shadow: var(--shadow);
+}
+.sd-lightbox-label {
+  color: var(--text-primary);
+}
+.sd-lightbox-close {
+  color: var(--text-muted);
+}
+.sd-lightbox-close:hover {
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+
+/* ── States ── */
+.sd-loading,
+.sd-notfound {
+  color: var(--text-secondary);
+}
+.sd-notfound-title {
+  color: var(--text-primary);
+}

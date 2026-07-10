@@ -3,6 +3,7 @@ import {
   getAllClassSections,
   getClassSectionById,
   createClassSection,
+  bulkAssignSubjects,
   updateClassSection,
   deleteClassSection,
 } from "./classSection.service.js";
@@ -41,6 +42,19 @@ export const addClassSection = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       return await createClassSection(data);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to create class section",
+      );
+    }
+  },
+);
+
+export const addBulkAssignSubjects = createAsyncThunk(
+  "classSections/bulkAssignSubjects",
+  async (data, { rejectWithValue }) => {
+    try {
+      return await bulkAssignSubjects(data);
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to create class section",
@@ -140,6 +154,18 @@ const classSectionSlice = createSlice({
         state.classSections.unshift(newItem);
       })
       .addCase(addClassSection.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // addBulkAssignSubjects
+      .addCase(addBulkAssignSubjects.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(addBulkAssignSubjects.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(addBulkAssignSubjects.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

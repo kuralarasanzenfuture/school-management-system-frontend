@@ -12,6 +12,10 @@ import schoolProfileReducer from "../redux/schoolSetup/schoolProfile/schoolProfi
 import academicYearReducer from "../redux/schoolSetup/academic-year/academicYearSlice.js";
 import employeeReducer from "../redux/employee/employeeSlice.js";
 import employeeDesignationReducer from "../redux/employeeDesignation/employeeDesignationSlice.js";
+import studentAdmissionReducer from "../redux/studentsAdmission/studentAdmissionSlice.js";
+import subjectReducer from "../redux/schoolSetup/subject/subjectSlice.js";
+import subjectGroupReducer from "../redux/schoolSetup/subject_group/subjectGroupSlice.js";
+import classSubjectReducer from "../redux/schoolSetup/class_subjects/classSubjectSlice.js";
 // import teacherReducer from "../features/teachers/slice";
 
 export const store = configureStore({
@@ -29,6 +33,12 @@ export const store = configureStore({
     academicYears: academicYearReducer,
     employees: employeeReducer,
     employeeDesignations: employeeDesignationReducer,
+
+    studentAdmissions: studentAdmissionReducer,
+
+    subjects: subjectReducer,
+    subjectGroups: subjectGroupReducer,
+    classSubjects: classSubjectReducer,
     // teachers: teacherReducer,
   },
 });

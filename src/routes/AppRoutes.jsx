@@ -24,7 +24,8 @@ import ClassSectionPage from "../features/schoolSetup/class-section/pages/ClassS
 import StudentAdmissionPage from "../features/studentsAdmission/pages/StudentAdmissionPage.jsx";
 import SubjectPage from "../features/schoolSetup/subject/pages/SubjectPage.jsx";
 import SubjectGroupPage from "../features/schoolSetup/subject_group/pages/SubjectGroupPage.jsx";
-import ClassSubjectPage from "../features/schoolSetup/class_subject/pages/ClassSubjectPage.jsx";
+// import ClassSubjectPage from "../features/schoolSetup/class_subject/pages/ClassSubjectPage.jsx";
+import ClassSubjectPage from "../features/schoolSetup/class_subject-new/pages/ClassSubjectPage.jsx";
 
 // import TeacherList from "../features/teachers/pages/TeacherList";
 

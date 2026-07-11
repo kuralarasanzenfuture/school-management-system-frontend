@@ -1,5 +1,7 @@
 import React from "react";
 import { Pencil, Trash2 } from "lucide-react";
+import Pagination from "../../../../common/components/table/Pagination";
+import usePagination from "../../../../common/components/table/usePagination";
 
 // Normalizes 1/0, true/false, "1"/"0" into a real boolean.
 function isTrue(value) {
@@ -20,7 +22,11 @@ export default function ClassSubjectTable({
   onDelete,
   deletingId,
   showSchoolColumn = false,
+  initialPageSize = 10,
+  pageSizeOptions = [5, 10, 20, 50],
 }) {
+  const { pagedData, currentPage, pageSize, totalItems, setPage, setPageSize } =
+    usePagination({ data: classSubjects, initialSize: initialPageSize });
   return (
     <div className="cx-table-card rounded-2xl overflow-hidden">
       <div className="overflow-x-auto">
@@ -47,7 +53,7 @@ export default function ClassSubjectTable({
             </tr>
           </thead>
           <tbody>
-            {classSubjects.map((cx) => (
+            {pagedData.map((cx) => (
               <tr key={cx.id} className="cx-row transition-colors">
                 {showSchoolColumn && (
                   <td className="cx-cell px-5 py-3.5 text-[13px]">
@@ -124,6 +130,15 @@ export default function ClassSubjectTable({
           </tbody>
         </table>
       </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalItems={totalItems}
+        pageSize={pageSize}
+        pageSizeOptions={pageSizeOptions}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+      />
     </div>
   );
 }

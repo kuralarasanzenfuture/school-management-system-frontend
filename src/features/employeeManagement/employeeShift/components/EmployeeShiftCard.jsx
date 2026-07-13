@@ -3,7 +3,7 @@ import { Pencil, Trash2, Clock, Timer } from "lucide-react";
 import {
     formatTime,
     shiftTimelinePosition,
-} from "../../../features/employeeShift/shiftTimeUtils.js";
+} from "../utils/shiftTimeUtils.js";
 
 const HOUR_MARKS = [0, 6, 12, 18, 24];
 

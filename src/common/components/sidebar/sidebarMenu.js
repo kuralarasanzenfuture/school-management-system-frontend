@@ -248,6 +248,7 @@ const sidebarMenu = [
       { name: "Employees", icon: FaUsers, path: "/employees" },
       { name: "Designations", icon: FaUserTie, path: "/employee-designations" },
       { name: "Departments", icon: FaBuilding, path: "/employee-departments" },
+      { name: "Employee Shifts", icon: FaClock, path: "/employee-shifts" },
       {
         name: "Employee Documents",
         icon: FaFolderOpen,

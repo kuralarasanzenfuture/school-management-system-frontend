@@ -1,5 +1,7 @@
 import React from "react";
 import { Pencil, Trash2, Bus, Home } from "lucide-react";
+import usePagination from "../../../common/components/table/usePagination";
+import Pagination from "../../../common/components/table/Pagination";
 
 const STATUS_CLASS = {
   active: "sa-status-active",
@@ -36,7 +38,12 @@ export default function StudentAdmissionTable({
   onEdit,
   onDelete,
   deletingId,
+  initialPageSize = 10,
+  pageSizeOptions = [5, 10, 20, 50],
 }) {
+  const { pagedData, currentPage, pageSize, totalItems, setPage, setPageSize } =
+    usePagination({ data: admissions, initialSize: initialPageSize });
+
   return (
     <div className="sa-table-card rounded-2xl overflow-hidden">
       <div className="overflow-x-auto">
@@ -57,7 +64,7 @@ export default function StudentAdmissionTable({
             </tr>
           </thead>
           <tbody>
-            {admissions.map((a) => {
+            {pagedData.map((a) => {
               const studentName =
                 a.student_name ||
                 (studentsById[a.student_id]
@@ -152,6 +159,14 @@ export default function StudentAdmissionTable({
           </tbody>
         </table>
       </div>
+      <Pagination
+        currentPage={currentPage}
+        totalItems={totalItems}
+        pageSize={pageSize}
+        pageSizeOptions={pageSizeOptions}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+      />
     </div>
   );
 }

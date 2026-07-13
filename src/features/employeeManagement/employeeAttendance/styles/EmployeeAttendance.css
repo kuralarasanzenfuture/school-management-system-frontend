@@ -1,0 +1,380 @@
+/* EmployeeAttendance.css
+   All COLOR styling via CSS variables — layout/spacing in Tailwind JSX.
+*/
+
+/* ── Page ── */
+.ea-page {
+  background: var(--bg);
+}
+
+/* ── Header ── */
+.ea-title {
+  color: var(--text-primary);
+}
+.ea-subtitle {
+  color: var(--text-muted);
+}
+
+.ea-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.ea-btn-outline:hover {
+  background: var(--input-bg);
+}
+
+.ea-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.ea-btn-primary:hover {
+  background: var(--btn-hover);
+}
+
+/* ── Stat cards ── */
+.ea-stat-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ea-stat-value {
+  color: var(--text-primary);
+}
+.ea-stat-label {
+  color: var(--text-muted);
+}
+
+.ea-icon-present-bg {
+  background: var(--success-bg);
+}
+.ea-icon-present {
+  color: var(--success);
+}
+.ea-icon-absent-bg {
+  background: var(--danger-bg);
+}
+.ea-icon-absent {
+  color: var(--danger);
+}
+.ea-icon-late-bg {
+  background: var(--warning-bg);
+}
+.ea-icon-late {
+  color: var(--warning);
+}
+.ea-icon-leave-bg {
+  background: var(--badge-bg);
+}
+.ea-icon-leave {
+  color: var(--btn-bg);
+}
+.ea-icon-halfday-bg {
+  background: #fdf4ff;
+}
+.ea-icon-halfday {
+  color: #a855f7;
+}
+.ea-icon-holiday-bg {
+  background: #ecfeff;
+}
+.ea-icon-holiday {
+  color: #06b6d4;
+}
+
+/* ── Filter bar ── */
+.ea-filter-bar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ea-input {
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.ea-input::placeholder {
+  color: var(--text-muted);
+}
+.ea-input:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.ea-search-icon {
+  color: var(--text-muted);
+}
+.ea-count-text {
+  color: var(--text-muted);
+}
+
+/* ── Table card ── */
+.ea-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ea-table-header {
+  border-bottom: 1px solid var(--divider);
+}
+.ea-table-title {
+  color: var(--text-primary);
+}
+
+.ea-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.ea-row {
+  border-top: 1px solid var(--divider);
+  transition: background 0.15s;
+}
+.ea-row:hover {
+  background: var(--input-bg);
+}
+
+.ea-checkbox {
+  accent-color: var(--btn-bg);
+}
+
+.ea-cell-primary {
+  color: var(--text-primary);
+}
+.ea-cell-secondary {
+  color: var(--text-secondary);
+}
+.ea-cell-muted {
+  color: var(--text-muted);
+}
+
+.ea-avatar {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── Status badges ── */
+.ea-status {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+  display: inline-block;
+}
+.ea-status-present {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.ea-status-absent {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.ea-status-late {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.ea-status-half_day {
+  background: #fdf4ff;
+  color: #a855f7;
+}
+.ea-status-leave {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+.ea-status-holiday {
+  background: #ecfeff;
+  color: #06b6d4;
+}
+.ea-status-week_off {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+
+/* ── Time chip ── */
+.ea-time-chip {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--divider);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.ea-time-chip-late {
+  background: var(--warning-bg);
+  color: var(--warning);
+  border-color: var(--warning-bg);
+}
+
+/* ── Action buttons ── */
+.ea-action-btn {
+  color: var(--text-muted);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.ea-action-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+.ea-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.ea-empty-state {
+  color: var(--text-muted);
+}
+
+/* ── Modal ── */
+.ea-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.ea-modal {
+  background: var(--panel-bg);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+}
+.ea-modal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.ea-modal-footer {
+  border-top: 1px solid var(--divider);
+}
+.ea-modal-title {
+  color: var(--text-primary);
+}
+
+.ea-close-btn {
+  color: var(--text-muted);
+}
+.ea-close-btn:hover {
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+/* ── Modal form ── */
+.ea-field-label {
+  color: var(--text-secondary);
+}
+.ea-field-required {
+  color: var(--danger);
+}
+.ea-field-error {
+  color: var(--danger);
+}
+
+.ea-form-input {
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.ea-form-input::placeholder {
+  color: var(--text-muted);
+}
+.ea-form-input:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.ea-form-input-error {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 12%, transparent) !important;
+}
+.ea-input-disabled {
+  background: var(--input-bg);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+/* ── Modal status selector ── */
+.ea-status-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.ea-status-option {
+  border: 2px solid var(--input-border);
+  background: var(--panel-bg);
+  color: var(--text-secondary);
+  border-radius: 10px;
+  padding: 10px 6px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  font-size: 12px;
+  font-weight: 600;
+}
+.ea-status-option:hover {
+  border-color: var(--btn-bg);
+}
+
+.ea-status-option-present.ea-selected {
+  border-color: var(--success);
+  background: var(--success-bg);
+  color: var(--success);
+}
+.ea-status-option-absent.ea-selected {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.ea-status-option-late.ea-selected {
+  border-color: var(--warning);
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.ea-status-option-half_day.ea-selected {
+  border-color: #a855f7;
+  background: #fdf4ff;
+  color: #a855f7;
+}
+.ea-status-option-leave.ea-selected {
+  border-color: var(--btn-bg);
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+.ea-status-option-holiday.ea-selected {
+  border-color: #06b6d4;
+  background: #ecfeff;
+  color: #06b6d4;
+}
+.ea-status-option-week_off.ea-selected {
+  border-color: var(--text-muted);
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+
+/* ── Modal buttons ── */
+.ea-modal-btn-cancel {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+  background: var(--panel-bg);
+}
+.ea-modal-btn-cancel:hover {
+  background: var(--input-bg);
+}
+
+.ea-modal-btn-submit {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.ea-modal-btn-submit:hover {
+  background: var(--btn-hover);
+}
+.ea-modal-btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Section heading divider ── */
+.ea-section-label {
+  color: var(--btn-bg);
+  border-bottom: 1px solid var(--divider);
+}

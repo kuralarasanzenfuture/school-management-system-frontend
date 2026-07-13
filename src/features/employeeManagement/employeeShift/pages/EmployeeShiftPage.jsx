@@ -10,8 +10,8 @@ import {
     createEmployeeShiftThunk,
     updateEmployeeShiftThunk,
     deleteEmployeeShiftThunk,
-} from "../../../redux/employeeShift/employeeShiftSlice.js";
-import { fetchSchools } from "../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
+} from "../../../../redux/employeeShift/employeeShiftSlice.js";
+import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
 import "../styles/EmployeeShift.css";
 
 const EmployeeShiftPage = () => {

@@ -1,6 +1,8 @@
 import React from "react";
 import { Pencil, Trash2 } from "lucide-react";
-import { formatTime } from "../../../features/employeeShift/shiftTimeUtils.js";
+import { formatTime } from "../utils/shiftTimeUtils.js";
+import Pagination from "../../../../common/components/table/Pagination.jsx";
+import usePagination from "../../../../common/components/table/usePagination.jsx";
 
 const STATUS_CLASS = {
     active: "es-status-active",
@@ -13,7 +15,13 @@ export default function EmployeeShiftTable({
     onDelete,
     deletingId,
     showSchoolColumn = false,
+    initialPageSize = 10,
+    pageSizeOptions = [5, 10, 20, 50],
 }) {
+    const { pagedData, currentPage, pageSize, totalItems, setPage, setPageSize } =
+        usePagination({ data: shifts, initialSize: initialPageSize });
+
+        // console.log("pagedData:", pagedData);
     return (
         <div className="es-table-card rounded-2xl overflow-hidden">
             <div className="overflow-x-auto">
@@ -39,7 +47,7 @@ export default function EmployeeShiftTable({
                         </tr>
                     </thead>
                     <tbody>
-                        {shifts.map((shift) => (
+                        {pagedData.map((shift) => (
                             <tr key={shift.id} className="es-row transition-colors">
                                 {showSchoolColumn && (
                                     <td className="es-cell px-5 py-3.5 text-[13px]">
@@ -105,6 +113,14 @@ export default function EmployeeShiftTable({
                     </tbody>
                 </table>
             </div>
+            <Pagination
+                currentPage={currentPage}
+                totalItems={totalItems}
+                pageSize={pageSize}
+                pageSizeOptions={pageSizeOptions}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+            />
         </div>
     );
 }

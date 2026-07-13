@@ -16,6 +16,8 @@ import studentAdmissionReducer from "../redux/studentsAdmission/studentAdmission
 import subjectReducer from "../redux/schoolSetup/subject/subjectSlice.js";
 import subjectGroupReducer from "../redux/schoolSetup/subject_group/subjectGroupSlice.js";
 import classSubjectReducer from "../redux/schoolSetup/class_subjects/classSubjectSlice.js";
+
+import employeeShiftReducer from "../redux/employeeShift/employeeShiftSlice.js";
 // import teacherReducer from "../features/teachers/slice";
 
 export const store = configureStore({
@@ -39,6 +41,8 @@ export const store = configureStore({
     subjects: subjectReducer,
     subjectGroups: subjectGroupReducer,
     classSubjects: classSubjectReducer,
+
+    employeeShifts: employeeShiftReducer,
     // teachers: teacherReducer,
   },
 });

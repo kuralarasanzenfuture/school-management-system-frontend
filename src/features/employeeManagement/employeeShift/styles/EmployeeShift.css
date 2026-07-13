@@ -257,6 +257,32 @@
 .es-time-range-icon {
   color: var(--btn-bg);
 }
+.es-time-select {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+  flex: 1;
+  min-width: 0;
+}
+.es-time-select:focus {
+  border-color: var(--btn-bg);
+}
+.es-time-period {
+  flex: 0 0 auto;
+  font-weight: 600;
+}
+.es-time-colon {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.es-working-hours-preview {
+  border-top: 1px dashed var(--input-border);
+  color: var(--btn-bg);
+}
+.es-working-hours-preview-note {
+  color: var(--text-muted);
+  font-weight: 400;
+}
 
 /* ── Status toggle (form) ── */
 .es-status-toggle {

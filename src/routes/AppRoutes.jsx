@@ -26,7 +26,8 @@ import SubjectPage from "../features/schoolSetup/subject/pages/SubjectPage.jsx";
 import SubjectGroupPage from "../features/schoolSetup/subject_group/pages/SubjectGroupPage.jsx";
 // import ClassSubjectPage from "../features/schoolSetup/class_subject/pages/ClassSubjectPage.jsx";
 import ClassSubjectPage from "../features/schoolSetup/class_subject-new/pages/ClassSubjectPage.jsx";
-import EmployeeShiftPage from "../features/employeeManagement/employeeShift/pages/EmployeeShiftPage.jsx";
+import EmployeeShiftPage from "../features/employeeManagement/employeeShift-new/pages/EmployeeShiftPage.jsx";
+import EmployeeAttendancePage from "../features/employeeManagement/employeeAttendance/pages/EmployeeAttendancePage.jsx";
 
 // import TeacherList from "../features/teachers/pages/TeacherList";
 
@@ -76,6 +77,7 @@ const AppRoutes = () => {
           <Route path="/subject-groups" element={<SubjectGroupPage />} />
           <Route path="/class-subjects" element={<ClassSubjectPage />} />
           <Route path="/employee-shifts" element={<EmployeeShiftPage />} />
+          <Route path="/employee-attendance" element={<EmployeeAttendancePage />} />
 
           <Route path="*" element={<div>404</div>} />
         </Route>

@@ -18,11 +18,15 @@ import subjectGroupReducer from "../redux/schoolSetup/subject_group/subjectGroup
 import classSubjectReducer from "../redux/schoolSetup/class_subjects/classSubjectSlice.js";
 
 import employeeShiftReducer from "../redux/employeeShift/employeeShiftSlice.js";
+import employeeAttendanceReducer from "../redux/employeeAttendance/employeeAttendanceSlice.js";
+
+import changePasswordReducer from "../redux/changePassword/changePasswordSlice.js";
 // import teacherReducer from "../features/teachers/slice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    changePassword: changePasswordReducer,
     schoolProfile: schoolProfileReducer,
     students: studentReducer,
     roles: roleReducer,
@@ -43,6 +47,7 @@ export const store = configureStore({
     classSubjects: classSubjectReducer,
 
     employeeShifts: employeeShiftReducer,
+    employeeAttendance: employeeAttendanceReducer,
     // teachers: teacherReducer,
   },
 });

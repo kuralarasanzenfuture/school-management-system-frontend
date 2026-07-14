@@ -1,0 +1,378 @@
+/* EmployeeShift.css */
+
+.es-page {
+  background: var(--bg);
+}
+.es-title {
+  color: var(--text-primary);
+}
+.es-subtitle {
+  color: var(--text-muted);
+}
+
+.es-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.es-btn-primary:hover {
+  background: var(--btn-hover);
+}
+.es-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.es-btn-outline:hover {
+  background: var(--input-bg);
+}
+.es-btn-cancel {
+  color: var(--text-secondary);
+}
+.es-btn-cancel:hover {
+  color: var(--text-primary);
+}
+
+/* ── Stat summary cards ── */
+.es-stat-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.es-stat-label {
+  color: var(--text-muted);
+}
+.es-stat-value {
+  color: var(--text-primary);
+}
+.es-stat-value-active {
+  color: var(--success);
+}
+
+/* ── Toolbar ── */
+.es-toolbar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+}
+.es-search-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.es-search-input:focus {
+  border-color: var(--btn-bg);
+}
+.es-count-text {
+  color: var(--text-muted);
+}
+
+.es-view-toggle {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+}
+.es-view-toggle-btn {
+  color: var(--text-muted);
+}
+.es-view-toggle-btn-active {
+  background: var(--panel-bg);
+  color: var(--btn-bg);
+  box-shadow: var(--card-shadow);
+}
+
+/* ── Shift cards ── */
+.es-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+  transition: border-color 0.15s ease;
+}
+.es-card:hover {
+  border-color: var(--btn-bg);
+}
+.es-card-inactive {
+  opacity: 0.7;
+}
+.es-card-name {
+  color: var(--text-primary);
+}
+.es-card-action-btn {
+  color: var(--text-secondary);
+}
+.es-card-action-btn:hover {
+  background: var(--input-bg);
+}
+.es-card-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.es-card-time-icon {
+  color: var(--btn-bg);
+}
+.es-card-time {
+  color: var(--text-primary);
+}
+.es-card-time-dash {
+  color: var(--text-muted);
+}
+
+.es-empty-state-card {
+  background: var(--panel-bg);
+  border: 1px dashed var(--input-border);
+  color: var(--text-muted);
+}
+
+/* ── New badges: shift type, default, crosses midnight ── */
+.es-type-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--badge-bg);
+  color: var(--badge-text);
+}
+.es-default-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  background: var(--success-bg);
+  color: var(--success);
+}
+.es-default-star {
+  color: var(--success);
+}
+.es-midnight-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 10.5px;
+  font-weight: 600;
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--input-border);
+}
+.es-midnight-icon {
+  color: var(--text-muted);
+}
+.es-default-warning {
+  color: var(--danger);
+}
+
+/* ── 24h timeline strip (signature element) ── */
+.es-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.es-timeline-track {
+  position: relative;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  overflow: hidden;
+}
+.es-timeline-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--btn-bg);
+  border-radius: 9999px;
+  min-width: 2px;
+}
+.es-timeline-marks {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.es-timeline-mark {
+  flex: 0 0 auto;
+}
+
+.es-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  background: var(--badge-bg);
+  color: var(--badge-text);
+}
+
+/* ── Table ── */
+.es-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.es-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.es-row {
+  border-bottom: 1px solid var(--divider);
+}
+.es-row:hover {
+  background: var(--input-bg);
+}
+.es-cell {
+  color: var(--text-secondary);
+}
+.es-cell-muted {
+  color: var(--text-muted);
+}
+.es-loading,
+.es-error {
+  color: var(--text-secondary);
+}
+.es-empty-state {
+  color: var(--text-muted);
+}
+
+/* ── Status pill ── */
+.es-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.es-status-active {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.es-status-inactive {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* ── Row action buttons (table) ── */
+.es-action-btn {
+  color: var(--text-secondary);
+}
+.es-action-btn:hover {
+  background: var(--input-bg);
+}
+.es-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* ── Form fields ── */
+.es-field-label {
+  color: var(--text-secondary);
+}
+.es-field-required {
+  color: var(--danger);
+}
+.es-field-error {
+  color: var(--danger);
+}
+.es-input,
+.es-select {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.es-input:focus,
+.es-select:focus {
+  border-color: var(--btn-bg);
+}
+.es-input-error {
+  border-color: var(--danger);
+}
+
+.es-time-range-group {
+  background: var(--input-bg);
+  border: 1px dashed var(--input-border);
+}
+.es-time-range-icon {
+  color: var(--btn-bg);
+}
+
+/* Custom time-of-day dropdown: strip the native browser arrow/appearance
+   entirely and draw our own chevron, so it reads as a real designed
+   control instead of a stock <select>. */
+.es-time-input {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: var(--panel-bg);
+  border: 1.5px solid var(--input-border);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.es-time-input:hover {
+  border-color: var(--btn-bg);
+}
+.es-time-input:focus {
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 18%, transparent);
+}
+.es-time-input-chevron {
+  color: var(--text-muted);
+}
+
+.es-working-hours-preview {
+  border-top: 1px dashed var(--input-border);
+  color: var(--btn-bg);
+}
+.es-working-hours-preview-note {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* ── Status toggle (form) ── */
+.es-status-toggle {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.es-status-toggle-active {
+  background: var(--success-bg);
+  color: var(--success);
+  border-color: var(--success);
+}
+.es-status-toggle-inactive {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.es-form-footer {
+  border-top: 1px solid var(--divider);
+}
+
+/* ── Modal ── */
+.es-modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.es-modal-panel {
+  background: var(--panel-bg);
+  box-shadow: var(--shadow);
+}
+.es-modal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.es-modal-title {
+  color: var(--text-primary);
+}
+.es-modal-close {
+  color: var(--text-muted);
+}
+.es-modal-close:hover {
+  color: var(--danger);
+  background: var(--danger-bg);
+}

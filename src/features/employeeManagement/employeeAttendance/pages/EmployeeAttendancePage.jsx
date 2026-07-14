@@ -4,10 +4,10 @@ import {
     getAttendanceRecords,
     getAttendanceSummary,
     removeAttendance,
-} from "../../../../redux/employeeAttendance/employeeAttendanceSlice";
-import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice";
-import AttendanceTable from "../components/AttendanceTable";
-import MarkAttendanceModal from "../components/MarkAttendanceModal";
+} from "../../../../redux/employeeAttendance/employeeAttendanceSlice.js";
+import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
+import AttendanceTable from "../components/AttendanceTable.jsx";
+import MarkAttendanceModal from "../components/MarkAttendanceModal.jsx";
 import "../styles/EmployeeAttendance.css";
 import {
     UserCheck, UserX, Clock, CalendarOff,
@@ -51,6 +51,19 @@ export default function EmployeeAttendancePage() {
     const [statusFilter, setStatusFilter] = useState("All");
     const [searchQuery, setSearchQuery] = useState("");
 
+    const today = new Date();
+
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1)
+        .toISOString()
+        .split("T")[0];
+
+    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+        .toISOString()
+        .split("T")[0];
+
+    const [startDate, setStartDate] = useState(firstDay);
+    const [endDate, setEndDate] = useState(lastDay);
+
     /* ── Modal ── */
     const [showModal, setShowModal] = useState(false);
     const [editTarget, setEditTarget] = useState(null);
@@ -63,17 +76,18 @@ export default function EmployeeAttendancePage() {
 
     /* ── Fetch records + summary when filters change ── */
     useEffect(() => {
-        const params = {
-            date: selectedDate,
+        const summaryParams = {
+            start_date: selectedDate,
+            end_date: selectedDate,
             school_id: isAdmin ? (selectedSchool || undefined) : schoolId,
         };
-        dispatch(getAttendanceRecords(params));
-        dispatch(getAttendanceSummary(params));
+
+        dispatch(getAttendanceSummary(summaryParams));
     }, [dispatch, selectedDate, selectedSchool, isAdmin, schoolId]);
 
     /* ── Client-side filter (status + search) ── */
     const filteredRecords = useMemo(() => {
-        let result = records ?? [];
+        let result = summary ?? [];
 
         if (statusFilter !== "All") {
             result = result.filter(
@@ -105,8 +119,16 @@ export default function EmployeeAttendancePage() {
             school_id: isAdmin ? (selectedSchool || undefined) : schoolId,
         };
         dispatch(getAttendanceRecords(params));
-        dispatch(getAttendanceSummary(params));
+        dispatch(
+            getAttendanceSummary({
+                start_date: selectedDate,
+                end_date: selectedDate,
+                school_id: isAdmin ? (selectedSchool || undefined) : schoolId,
+            })
+        );
     };
+
+    console.log(records , summary);
 
     const openMarkModal = () => { setEditTarget(null); setShowModal(true); };
     const openEditModal = (record) => { setEditTarget(record); setShowModal(true); };

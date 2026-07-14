@@ -28,6 +28,7 @@ import SubjectGroupPage from "../features/schoolSetup/subject_group/pages/Subjec
 import ClassSubjectPage from "../features/schoolSetup/class_subject-new/pages/ClassSubjectPage.jsx";
 import EmployeeShiftPage from "../features/employeeManagement/employeeShift-new/pages/EmployeeShiftPage.jsx";
 import EmployeeAttendancePage from "../features/employeeManagement/employeeAttendance/pages/EmployeeAttendancePage.jsx";
+import LeaveTypePage from "../features/employeeManagement/employeeLeaveType/pages/LeaveTypePage.jsx";
 
 // import TeacherList from "../features/teachers/pages/TeacherList";
 
@@ -78,6 +79,7 @@ const AppRoutes = () => {
           <Route path="/class-subjects" element={<ClassSubjectPage />} />
           <Route path="/employee-shifts" element={<EmployeeShiftPage />} />
           <Route path="/employee-attendance" element={<EmployeeAttendancePage />} />
+          <Route path="/employee-leaves" element={<LeaveTypePage />} />
 
           <Route path="*" element={<div>404</div>} />
         </Route>

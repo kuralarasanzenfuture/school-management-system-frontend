@@ -1,0 +1,434 @@
+/* LeaveType.css — all colors via CSS variables, layout via Tailwind */
+
+/* ── Page ── */
+.lt-page {
+  background: var(--bg);
+}
+.lt-title {
+  color: var(--text-primary);
+}
+.lt-subtitle {
+  color: var(--text-muted);
+}
+
+/* ── Buttons ── */
+.lt-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.lt-btn-outline:hover {
+  background: var(--input-bg);
+}
+.lt-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.lt-btn-primary:hover {
+  background: var(--btn-hover);
+}
+
+/* ── Stat cards ── */
+.lt-stat-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.lt-stat-value {
+  color: var(--text-primary);
+}
+.lt-stat-label {
+  color: var(--text-muted);
+}
+
+.lt-icon-total-bg {
+  background: var(--badge-bg);
+}
+.lt-icon-total {
+  color: var(--btn-bg);
+}
+.lt-icon-active-bg {
+  background: var(--success-bg);
+}
+.lt-icon-active {
+  color: var(--success);
+}
+.lt-icon-paid-bg {
+  background: #ecfdf5;
+}
+.lt-icon-paid {
+  color: #059669;
+}
+.lt-icon-unpaid-bg {
+  background: var(--warning-bg);
+}
+.lt-icon-unpaid {
+  color: var(--warning);
+}
+
+/* ── Filter bar ── */
+.lt-filter-bar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.lt-search-wrap {
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.lt-search-wrap:focus-within {
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.lt-search-icon {
+  color: var(--text-muted);
+}
+.lt-search-input {
+  background: transparent;
+  color: var(--text-primary);
+  outline: none;
+  width: 100%;
+}
+.lt-search-input::placeholder {
+  color: var(--text-muted);
+}
+.lt-select {
+  border: 1px solid var(--input-border);
+  background: var(--panel-bg);
+  color: var(--text-secondary);
+  transition: border-color 0.2s;
+}
+.lt-select:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+}
+.lt-count-text {
+  color: var(--text-muted);
+}
+
+/* ── Toggle group ── */
+.lt-toggle-group {
+  border: 1px solid var(--input-border);
+}
+.lt-toggle-btn {
+  color: var(--text-muted);
+}
+.lt-toggle-btn:hover {
+  background: var(--input-bg);
+}
+.lt-toggle-btn-active {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── Table card ── */
+.lt-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.lt-table-header {
+  border-bottom: 1px solid var(--divider);
+}
+.lt-table-title {
+  color: var(--text-primary);
+}
+.lt-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.lt-row {
+  border-top: 1px solid var(--divider);
+  transition: background 0.15s;
+}
+.lt-row:hover {
+  background: var(--input-bg);
+}
+
+.lt-cell-primary {
+  color: var(--text-primary);
+}
+.lt-cell-secondary {
+  color: var(--text-secondary);
+}
+.lt-cell-muted {
+  color: var(--text-muted);
+}
+
+/* ── Status badges ── */
+.lt-status {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.lt-status-active {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.lt-status-inactive {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* ── Boolean pill (paid / unpaid / yes / no) ── */
+.lt-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.lt-pill-yes {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.lt-pill-no {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+
+/* ── Gender badge ── */
+.lt-gender-all {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+.lt-gender-male {
+  background: #eff6ff;
+  color: #3b82f6;
+}
+.lt-gender-female {
+  background: #fdf2f8;
+  color: #ec4899;
+}
+
+/* ── Code chip ── */
+.lt-code {
+  background: var(--input-bg);
+  border: 1px solid var(--divider);
+  color: var(--text-secondary);
+  font-family: monospace;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+/* ── Card grid view ── */
+.lt-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s;
+}
+.lt-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+.lt-card-header-bar {
+  border-bottom: 1px solid var(--divider);
+}
+.lt-card-divider {
+  background: var(--divider);
+}
+
+.lt-card-stat-label {
+  color: var(--text-muted);
+}
+.lt-card-stat-value {
+  color: var(--text-primary);
+}
+
+/* ── Action buttons ── */
+.lt-action-btn {
+  color: var(--text-muted);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.lt-action-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+.lt-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.lt-empty-state {
+  color: var(--text-muted);
+}
+
+/* ── Modal ── */
+.lt-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.lt-modal {
+  background: var(--panel-bg);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+}
+.lt-modal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.lt-modal-footer {
+  border-top: 1px solid var(--divider);
+}
+.lt-modal-title {
+  color: var(--text-primary);
+}
+
+.lt-close-btn {
+  color: var(--text-muted);
+}
+.lt-close-btn:hover {
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+/* ── Modal form ── */
+.lt-field-label {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+}
+.lt-field-required {
+  color: var(--danger);
+}
+.lt-field-error {
+  color: var(--danger);
+  font-size: 11px;
+}
+
+.lt-form-input {
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  width: 100%;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.lt-form-input::placeholder {
+  color: var(--text-muted);
+}
+.lt-form-input:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.lt-form-input-error {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 12%, transparent) !important;
+}
+
+/* ── Toggle switch ── */
+.lt-toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lt-toggle-label {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.lt-toggle {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--input-border);
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.lt-toggle input {
+  display: none;
+}
+.lt-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+.lt-toggle input:checked ~ .lt-toggle-knob {
+  transform: translateX(18px);
+}
+.lt-toggle:has(input:checked) {
+  background: var(--btn-bg);
+}
+
+/* ── Section divider ── */
+.lt-section-label {
+  color: var(--btn-bg);
+  border-bottom: 1px solid var(--divider);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+/* ── Modal cancel / submit ── */
+.lt-modal-btn-cancel {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+  background: var(--panel-bg);
+}
+.lt-modal-btn-cancel:hover {
+  background: var(--input-bg);
+}
+.lt-modal-btn-submit {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.lt-modal-btn-submit:hover {
+  background: var(--btn-hover);
+}
+.lt-modal-btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Delete confirm modal ── */
+.lt-delete-icon-wrap {
+  background: var(--danger-bg);
+}
+.lt-delete-icon {
+  color: var(--danger);
+}
+.lt-delete-title {
+  color: var(--text-primary);
+}
+.lt-delete-desc {
+  color: var(--text-muted);
+}
+.lt-modal-btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.lt-modal-btn-danger:hover {
+  opacity: 0.88;
+}
+.lt-modal-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

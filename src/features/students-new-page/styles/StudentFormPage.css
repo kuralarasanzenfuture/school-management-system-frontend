@@ -1,0 +1,258 @@
+/* StudentFormPage.css
+   Styles for the full-page Add/Edit Student flow (replaces the old
+   AddStudentModal.css overlay). Same theme variables as the rest of
+   the app (app.css). Layout/spacing stays as Tailwind utilities in the JSX.
+*/
+
+.sfp-page {
+  background: var(--bg);
+}
+
+.sfp-loading {
+  color: var(--text-secondary);
+}
+
+/* ── Card ── */
+.sfp-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+
+/* ── Header ── */
+.sfp-header {
+  border-bottom: 1px solid var(--divider);
+}
+.sfp-title {
+  color: var(--text-primary);
+}
+.sfp-subtitle {
+  color: var(--text-muted);
+}
+.sfp-cancel-link {
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.sfp-cancel-link:hover {
+  color: var(--text-secondary);
+}
+
+/* ── Stepper ── */
+.sfp-step-track {
+  background: var(--input-border);
+}
+.sfp-step-fill {
+  background: var(--btn-bg);
+}
+.sfp-step-circle {
+  background: var(--panel-bg);
+  border-color: var(--input-border);
+  color: var(--text-muted);
+}
+.sfp-step-circle-active {
+  background: var(--panel-bg);
+  border-color: var(--btn-bg);
+  color: var(--btn-bg);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.sfp-step-circle-done {
+  background: var(--btn-bg);
+  border-color: var(--btn-bg);
+  color: var(--btn-text);
+}
+.sfp-step-label {
+  color: var(--text-muted);
+}
+.sfp-step-label-active {
+  color: var(--btn-bg);
+}
+.sfp-step-label-done {
+  color: var(--text-secondary);
+}
+
+/* ── Footer ── */
+.sfp-footer {
+  border-top: 1px solid var(--divider);
+}
+.sfp-btn-prev {
+  color: var(--text-secondary);
+  border: 1px solid var(--input-border);
+}
+.sfp-btn-prev:hover {
+  background: var(--input-bg);
+}
+.sfp-btn-cancel {
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.sfp-btn-cancel:hover {
+  color: var(--text-primary);
+}
+.sfp-btn-next {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.sfp-btn-next:hover {
+  background: var(--btn-hover);
+}
+.sfp-btn-submit {
+  background: var(--success);
+  color: var(--btn-text);
+}
+.sfp-btn-submit:hover {
+  opacity: 0.9;
+}
+.sfp-btn-submit:disabled {
+  opacity: 0.6;
+}
+
+/* ── Success screen ── */
+.sfp-success-circle {
+  background: var(--success-bg);
+  border: 1px solid var(--success);
+}
+.sfp-success-icon {
+  color: var(--success);
+}
+.sfp-success-title {
+  color: var(--text-primary);
+}
+.sfp-success-desc {
+  color: var(--text-secondary);
+}
+.sfp-btn-outline {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+  background: none;
+  cursor: pointer;
+}
+.sfp-btn-outline:hover {
+  background: var(--input-bg);
+}
+.sfp-btn-done {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  border: none;
+  cursor: pointer;
+}
+.sfp-btn-done:hover {
+  background: var(--btn-hover);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Form field styles (used by StudentForm.jsx — unchanged from the
+   modal version, since the class names are the same: sm-*).
+   ═══════════════════════════════════════════════════════════════ */
+
+.sm-field-label {
+  color: var(--text-secondary);
+}
+.sm-field-required {
+  color: var(--danger);
+}
+.sm-field-error {
+  color: var(--danger);
+}
+
+.sm-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.sm-input::placeholder {
+  color: var(--text-muted);
+}
+.sm-input:focus {
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.sm-input-error {
+  border-color: var(--danger) !important;
+}
+.sm-input-error:focus {
+  box-shadow: 0 0 0 4px var(--danger-ring);
+}
+.sm-input-disabled {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+
+.sm-photo-circle {
+  background: var(--input-bg);
+  border-color: var(--btn-bg);
+}
+.sm-photo-circle-error {
+  border-color: var(--danger);
+}
+.sm-photo-placeholder {
+  color: var(--btn-bg);
+}
+
+.sm-section-heading {
+  color: var(--btn-bg);
+  border-bottom: 1px solid var(--divider);
+}
+
+.sm-checkbox-label {
+  color: var(--text-secondary);
+}
+.sm-checkbox {
+  accent-color: var(--btn-bg);
+}
+
+.sm-doc-card {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+}
+.sm-doc-card-filled {
+  background: var(--success-bg);
+  border-color: var(--success);
+}
+.sm-doc-icon-empty {
+  color: var(--warning);
+}
+.sm-doc-icon-filled {
+  color: var(--success);
+}
+.sm-doc-name {
+  color: var(--text-secondary);
+}
+.sm-doc-meta {
+  color: var(--text-muted);
+}
+.sm-doc-remove {
+  color: var(--danger);
+}
+.sm-doc-remove:hover {
+  background: var(--danger-bg);
+}
+.sm-doc-upload-btn {
+  color: var(--badge-text);
+  background: var(--badge-bg);
+}
+.sm-doc-upload-btn:hover {
+  opacity: 0.8;
+}
+
+.sm-sig-label {
+  color: var(--text-secondary);
+  border: 1px solid var(--input-border);
+}
+.sm-sig-label:hover {
+  border-color: var(--input-focus);
+  background: var(--input-bg);
+}
+.sm-sig-preview {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+}
+.sm-sig-placeholder {
+  color: var(--text-muted);
+}
+.sm-sig-placeholder-error {
+  color: var(--danger);
+}

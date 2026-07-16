@@ -146,6 +146,7 @@ export default function SectionTable({
   onEdit,
   onDelete,
   deletingId,
+  showSchoolColumn = false,
   initialPageSize = 10,
   pageSizeOptions = [5, 10, 20, 50],
 }) {
@@ -158,7 +159,10 @@ export default function SectionTable({
         <table className="w-full text-left">
           <thead>
             <tr className="sp-thead text-[11.5px] uppercase tracking-wide">
-              <th className="px-5 py-3 font-semibold">Class</th>
+              {showSchoolColumn && (
+                <th className="px-5 py-3 font-semibold">School</th>
+              )}
+              <th className={`${showSchoolColumn ? "px-3" : "px-5"} py-3 font-semibold`}>Class</th>
               <th className="px-3 py-3 font-semibold">
                 <span className="inline-flex items-center gap-1">
                   Section <ArrowUpDown size={11} />
@@ -190,7 +194,12 @@ export default function SectionTable({
             ) : (
               pagedData.map((section) => (
                 <tr key={section.id} className="sp-row transition-colors">
-                  <td className="px-5 py-3.5">
+                  {showSchoolColumn && (
+                    <td className="sj-cell px-5 py-3.5 text-[13px]">
+                      {section.school_name || "—"}
+                    </td>
+                  )}
+                  <td className={`sp-cell ${showSchoolColumn ? "px-3" : "px-5"} py-3.5 text-[13.5px] font-semibold`}>
                     <span className="sp-class-chip px-2.5 py-1 rounded-full text-[11.5px] font-medium">
                       {getClassName(section)}
                     </span>
@@ -208,11 +217,10 @@ export default function SectionTable({
 
                   <td className="px-3 py-3.5">
                     <span
-                      className={`sp-status ${
-                        section.status === "active"
-                          ? "sp-status-active"
-                          : "sp-status-inactive"
-                      }`}
+                      className={`sp-status ${section.status === "active"
+                        ? "sp-status-active"
+                        : "sp-status-inactive"
+                        }`}
                     >
                       {section.status}
                     </span>

@@ -50,13 +50,22 @@ export default function DepartmentPage() {
     if (isAdmin && schools.length === 0) dispatch(fetchSchools());
   }, [dispatch, isAdmin, schools.length]);
 
+  /* ── School name lookup (id -> name), used by the grid card footer ── */
+  const schoolsById = useMemo(() => {
+    const map = {};
+    schools.forEach((school) => {
+      map[String(school.id)] = school.name;
+    });
+    return map;
+  }, [schools]);
+
   /* ── Filter ── */
   const filteredDepartments = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     return departments.filter((dept) => {
       const matchesSearch = query
         ? dept.name?.toLowerCase().includes(query) ||
-          dept.description?.toLowerCase().includes(query)
+        dept.description?.toLowerCase().includes(query)
         : true;
       const matchesSchool = isAdmin
         ? selectedSchool
@@ -149,7 +158,7 @@ export default function DepartmentPage() {
           <select
             value={selectedSchool}
             onChange={handleSchoolChange}
-            className="dp-search-input rounded-lg px-3 py-2.5 text-[13.5px] min-w-[200px]"
+            className="dp-select rounded-lg px-3 py-2.5 text-[13.5px] min-w-[200px]"
             disabled={schoolsLoading}
           >
             <option value="">All Schools</option>
@@ -212,6 +221,8 @@ export default function DepartmentPage() {
           pageSize={pageSize}
           setPage={setPage}
           setPageSize={setPageSize}
+          showSchoolColumn={isAdmin}
+          schoolsById={schoolsById}
         />
       )}
 
@@ -225,7 +236,10 @@ export default function DepartmentPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            // dp-grid uses flexbox with flex-grow (see Department.css)
+            // instead of fixed grid-cols-*, so cards in a partial last row
+            // stretch to fill the width instead of leaving empty gaps.
+            <div className="dp-grid">
               {pagedRows.map((department) => (
                 <div
                   key={department.id}
@@ -263,10 +277,10 @@ export default function DepartmentPage() {
                     style={{ borderTop: "1px solid var(--divider)" }}
                   >
                     <span className="dp-cell-muted text-[11.5px]">
-                      School ID:{" "}
+                      School:{" "}
                     </span>
                     <span className="dp-cell-secondary text-[11.5px] font-semibold">
-                      {department.school_id}
+                      {schoolsById[String(department.school_id)] || department.school_id}
                     </span>
                   </div>
                 </div>

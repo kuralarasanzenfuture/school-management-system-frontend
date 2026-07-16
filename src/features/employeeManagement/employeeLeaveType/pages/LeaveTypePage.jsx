@@ -224,7 +224,7 @@ export default function LeaveTypePage() {
                     leaveTypes={filtered}
                     onEdit={openEditModal}
                     onDelete={(lt) => setDeleteTarget(lt)}
-                    showSchoolColumn={isAdmin}
+                    showSchoolColumn={isAdmin && !selectedSchool}
                 />
             )}
 

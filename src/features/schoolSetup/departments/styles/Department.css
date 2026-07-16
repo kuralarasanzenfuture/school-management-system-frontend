@@ -102,6 +102,32 @@
   color: var(--text-muted);
 }
 
+/* ── Standalone select (School filter) — needs its own border/background
+   since, unlike dp-search-input, it isn't nested inside dp-search-wrap ── */
+.dp-select {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.dp-select:hover {
+  background: var(--input-bg);
+}
+.dp-select:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.dp-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.dp-select option {
+  background: var(--panel-bg);
+  color: var(--text-primary);
+}
+
 .dp-toggle-group {
   border: 1px solid var(--input-border);
 }

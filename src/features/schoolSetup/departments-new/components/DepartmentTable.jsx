@@ -37,6 +37,7 @@ export default function DepartmentTable({
   pageSize,
   setPage,
   setPageSize,
+  showSchoolColumn = false,
 }) {
   return (
     <div className="dp-table-card rounded-2xl overflow-hidden">
@@ -55,7 +56,10 @@ export default function DepartmentTable({
                   }
                 />
               </th>
-              <th className="px-3 py-3 font-semibold">
+              {showSchoolColumn && (
+                <th className="px-5 py-3 font-semibold">School</th>
+              )}
+              <th className={`${showSchoolColumn ? "px-3" : "px-5"} py-3 font-semibold`}>
                 Name <SortIcon />
               </th>
               <th className="px-3 py-3 font-semibold">Description</th>
@@ -88,7 +92,12 @@ export default function DepartmentTable({
                       onChange={() => toggleSelectOne(department.id)}
                     />
                   </td>
-                  <td className="px-3 py-3.5">
+                  {showSchoolColumn && (
+                    <td className="sj-cell px-5 py-3.5 text-[13px]">
+                      {department.school_name || "—"}
+                    </td>
+                  )}
+                  <td className={`dp-cell-primary ${showSchoolColumn ? "px-3" : "px-5"} py-3.5 text-[13.5px] font-semibold`}>
                     <div className="flex items-center gap-3">
                       <div className="dp-icon-primary-bg w-9 h-9 rounded-xl flex items-center justify-center shrink-0">
                         <Building2 size={16} className="dp-icon-primary" />

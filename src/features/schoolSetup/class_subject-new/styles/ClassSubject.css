@@ -44,8 +44,22 @@
 }
 .cx-search-input:focus {
   border-color: var(--btn-bg);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+/* Applies to a school/type <select> that reuses this class — without it,
+   the dropdown's option list falls back to browser/system default colors
+   in a dark theme instead of matching the app. */
+.cx-search-input option {
+  background: var(--panel-bg);
+  color: var(--text-primary);
 }
 .cx-count-text {
+  color: var(--text-muted);
+}
+/* Dedicated icon color instead of reusing cx-count-text (meant for the
+   results-count text, not an icon) — same muted color, clearer name. */
+.cx-search-icon {
   color: var(--text-muted);
 }
 
@@ -122,41 +136,16 @@
 .cx-select:focus {
   border-color: var(--btn-bg);
 }
+.cx-select option {
+  background: var(--panel-bg);
+  color: var(--text-primary);
+}
 .cx-input-error {
   border-color: var(--danger);
 }
 
 .cx-checkbox-row {
   background: var(--input-bg);
-  border: 1px solid var(--input-border);
-  color: var(--text-primary);
-}
-
-/* ── Bulk assign ── */
-.cx-bulk-divider {
-  border-top: 1px solid var(--divider);
-  margin: 0.25rem 0;
-}
-.cx-bulk-row {
-  background: var(--input-bg);
-  border: 1px solid var(--input-border);
-}
-.cx-add-row-btn {
-  background: var(--badge-bg);
-  color: var(--badge-text);
-}
-.cx-add-row-btn:hover {
-  opacity: 0.85;
-}
-.cx-remove-row-btn {
-  color: var(--text-muted);
-}
-.cx-remove-row-btn:hover:not(:disabled) {
-  background: var(--danger-bg);
-  color: var(--danger);
-}
-.cx-checkbox-row-sm {
-  background: var(--panel-bg);
   border: 1px solid var(--input-border);
   color: var(--text-primary);
 }

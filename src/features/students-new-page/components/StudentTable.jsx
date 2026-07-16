@@ -73,14 +73,14 @@ export default function StudentTable({
   return (
     <div className="sp-table-card rounded-2xl overflow-hidden">
       {/* Card header */}
-      <div className="sp-table-header flex items-center justify-between px-5 py-4">
+      {/* <div className="sp-table-header flex items-center justify-between px-5 py-4">
         <h2 className="sp-table-title text-[15px] font-bold">
           Student directory
         </h2>
         <button className="sp-export-btn inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-[12.5px] font-semibold transition-colors">
           <FileText size={14} /> Export CSV
         </button>
-      </div>
+      </div> */}
 
       <div className="overflow-x-auto">
         <table className="w-full text-left">
@@ -152,8 +152,8 @@ export default function StudentTable({
                   student.permanent_city || student.current_city || null;
                 const imageUrl =
                   student.photo_url &&
-                    student.photo_url !== "null" &&
-                    student.photo_url.trim() !== ""
+                  student.photo_url !== "null" &&
+                  student.photo_url.trim() !== ""
                     ? `${IMAGE_BASE_URL}${student.photo_url.startsWith("/") ? "" : "/"}${student.photo_url}`
                     : null;
 

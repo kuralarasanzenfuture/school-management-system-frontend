@@ -181,7 +181,7 @@ const ClassSectionPage = () => {
           onEdit={openEditModal}
           onDelete={handleDelete}
           deletingId={deletingId}
-          showSchoolColumn={isAdmin}
+          showSchoolColumn={isAdmin && !selectedSchool}
         />
       )}
 

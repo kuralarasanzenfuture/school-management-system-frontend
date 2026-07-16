@@ -102,6 +102,93 @@
   color: var(--text-muted);
 }
 
+/* ── Standalone select (School filter) — needs its own border/background
+   since, unlike dp-search-input, it isn't nested inside dp-search-wrap ── */
+.dp-select {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
+}
+.dp-select:hover {
+  background: var(--input-bg);
+}
+.dp-select:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.dp-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.dp-select option {
+  background: var(--panel-bg);
+  color: var(--text-primary);
+}
+
+/* ── Grid view — flexbox instead of a fixed-column CSS grid. With
+   flex-grow, a short last row (e.g. 2 cards left over) stretches to fill
+   the row width instead of leaving empty trailing column gaps, which a
+   grid-template-columns approach can't do (grid tracks are shared across
+   every row, so only rows with a full set of items ever look "full"). ── */
+.dp-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.dp-grid > * {
+  flex: 1 1 100%; /* 1 column by default (mobile) */
+}
+@media (min-width: 640px) {
+  .dp-grid > * {
+    flex: 1 1 calc(50% - 0.5rem); /* 2 columns, matches sm:grid-cols-2 */
+  }
+}
+@media (min-width: 1024px) {
+  .dp-grid > * {
+    flex: 1 1 calc(33.333% - 0.667rem); /* 3 columns, matches lg:grid-cols-3 */
+  }
+}
+@media (min-width: 1280px) {
+  .dp-grid > * {
+    flex: 1 1 calc(25% - 0.75rem); /* 4 columns, matches xl:grid-cols-4 */
+  }
+}
+
+/* ── Standalone select (School filter) — needs its own border/background
+   since, unlike dp-search-input, it isn't nested inside dp-search-wrap ── */
+.dp-select {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
+}
+.dp-select:hover {
+  background: var(--input-bg);
+}
+.dp-select:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.dp-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.dp-select option {
+  background: var(--panel-bg);
+  color: var(--text-primary);
+}
+
 .dp-toggle-group {
   border: 1px solid var(--input-border);
 }

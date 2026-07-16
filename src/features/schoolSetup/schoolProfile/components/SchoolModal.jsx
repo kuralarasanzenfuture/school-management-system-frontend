@@ -23,7 +23,7 @@ export default function SchoolModal({
       >
         <div className="scp-modal-header flex items-center justify-between px-6 py-4 shrink-0">
           <h2 className="scp-modal-title text-[16px] font-bold">
-            {school ? "Edit School" : "Add School"}
+            {school ? "Edit School Profile" : "Add School Profile"}
           </h2>
           <button
             onClick={onClose}

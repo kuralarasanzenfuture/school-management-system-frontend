@@ -240,6 +240,7 @@ const SectionPage = () => {
           onEdit={openEditModal}
           onDelete={handleDelete}
           deletingId={deletingId}
+          showSchoolColumn={isAdmin && !selectedSchool}
         />
       )}
 

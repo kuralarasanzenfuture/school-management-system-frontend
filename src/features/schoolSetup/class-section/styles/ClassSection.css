@@ -44,8 +44,22 @@
 }
 .cs-search-input:focus {
   border-color: var(--btn-bg);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+/* Applies to the school <select>, which reuses this class — without this,
+   the dropdown's option list falls back to browser/system default colors
+   in a dark theme instead of matching the app. */
+.cs-search-input option {
+  background: var(--panel-bg);
+  color: var(--text-primary);
 }
 .cs-count-text {
+  color: var(--text-muted);
+}
+/* Dedicated icon color instead of reusing cs-count-text (which is meant
+   for the results-count text, not an icon) — same muted color, clearer name. */
+.cs-search-icon {
   color: var(--text-muted);
 }
 
@@ -129,6 +143,10 @@
 .cs-input:focus,
 .cs-select:focus {
   border-color: var(--btn-bg);
+}
+.cs-select option {
+  background: var(--panel-bg);
+  color: var(--text-primary);
 }
 .cs-input-error {
   border-color: var(--danger);

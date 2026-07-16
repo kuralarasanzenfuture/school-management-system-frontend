@@ -530,7 +530,6 @@
 //     </div>
 //   );
 // }
-
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDepartments } from "../../../../redux/schoolSetup/department/departmentSlice.js";
@@ -587,13 +586,22 @@ export default function DepartmentPage() {
     if (isAdmin && schools.length === 0) dispatch(fetchSchools());
   }, [dispatch, isAdmin, schools.length]);
 
+  /* ── School name lookup (id -> name), for the admin-only School column ── */
+  const schoolsById = useMemo(() => {
+    const map = {};
+    schools.forEach((school) => {
+      map[String(school.id)] = school.name;
+    });
+    return map;
+  }, [schools]);
+
   /* ── Filter ── */
   const filteredDepartments = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     return departments.filter((dept) => {
       const matchesSearch = query
         ? dept.name?.toLowerCase().includes(query) ||
-          dept.description?.toLowerCase().includes(query)
+        dept.description?.toLowerCase().includes(query)
         : true;
       const matchesSchool = isAdmin
         ? selectedSchool
@@ -686,7 +694,7 @@ export default function DepartmentPage() {
           <select
             value={selectedSchool}
             onChange={handleSchoolChange}
-            className="dp-search-input rounded-lg px-3 py-2.5 text-[13.5px] min-w-[200px]"
+            className="dp-select rounded-lg px-3 py-2.5 text-[13.5px] min-w-[200px]"
             disabled={schoolsLoading}
           >
             <option value="">All Schools</option>
@@ -753,6 +761,10 @@ export default function DepartmentPage() {
                       }
                     />
                   </th>
+                  {(isAdmin && !selectedSchool) && (
+                    <th className="px-5 py-3 font-semibold">School</th>
+                  )}
+
                   <th className="px-3 py-3 font-semibold">
                     Name <SortIcon />
                   </th>
@@ -769,7 +781,7 @@ export default function DepartmentPage() {
                 {pagedRows.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={isAdmin ? 6 : 5}
                       className="dp-empty-state px-5 py-12 text-center text-[13.5px]"
                     >
                       No departments found.
@@ -789,6 +801,11 @@ export default function DepartmentPage() {
                           onChange={() => toggleSelectOne(department.id)}
                         />
                       </td>
+                      {(isAdmin && !selectedSchool) && (
+                        <td className="dp-cell-secondary px-5 py-3.5 text-[13px]">
+                          {schoolsById[String(department.school_id)] || "—"}
+                        </td>
+                      )}
                       <td className="px-3 py-3.5">
                         <div className="flex items-center gap-3">
                           <div className="dp-icon-primary-bg w-9 h-9 rounded-xl flex items-center justify-center shrink-0">
@@ -895,10 +912,10 @@ export default function DepartmentPage() {
                     style={{ borderTop: "1px solid var(--divider)" }}
                   >
                     <span className="dp-cell-muted text-[11.5px]">
-                      School ID:{" "}
+                      School:{" "}
                     </span>
                     <span className="dp-cell-secondary text-[11.5px] font-semibold">
-                      {department.school_id}
+                      {schoolsById[String(department.school_id)] || department.school_id}
                     </span>
                   </div>
                 </div>

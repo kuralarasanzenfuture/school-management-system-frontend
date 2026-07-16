@@ -161,6 +161,9 @@ import {
   FaUserCog,
   FaHistory,
   FaDatabase,
+  FaProjectDiagram,
+  FaCalculator,
+  FaFileInvoiceDollar,
 } from "react-icons/fa";
 
 // This file is unchanged from your original — just relocated into the
@@ -266,6 +269,47 @@ const sidebarMenu = [
       },
       { name: "Payroll", icon: FaMoneyCheckAlt, path: "/payroll" },
       { name: "Salary Slips", icon: FaReceipt, path: "/salary-slips" },
+    ],
+  },
+
+  {
+    label: "Payroll",
+    items: [
+      {
+        name: "Salary Components",
+        icon: FaCoins,
+        path: "/employee-salary-components",
+      },
+
+      {
+        name: "Salary Structures",
+        icon: FaProjectDiagram,
+        path: "/employee-salary-structures",
+      },
+
+      {
+        name: "Assign Salary",
+        icon: FaUserCog,
+        path: "/employee-salary-assignment",
+      },
+
+      {
+        name: "Payroll Processing",
+        icon: FaCalculator,
+        path: "/employee-payroll",
+      },
+
+      {
+        name: "Salary Slips",
+        icon: FaFileInvoiceDollar,
+        path: "/employee-salary-slips",
+      },
+
+      {
+        name: "Payroll Reports",
+        icon: FaChartBar,
+        path: "/employee-payroll-reports",
+      },
     ],
   },
 

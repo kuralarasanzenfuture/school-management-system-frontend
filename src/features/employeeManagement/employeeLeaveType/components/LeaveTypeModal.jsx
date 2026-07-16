@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, CircleCheck, FileText } from "lucide-react";
-import { useDispatch } from "react-redux";
-import { addEmployeeLeaveType, editEmployeeLeaveType } from "../../../../redux/employeeLeaveType/employeeLeaveTypeSlice.js";
+import { useDispatch, useSelector } from "react-redux";
+import {
+    addEmployeeLeaveType,
+    editEmployeeLeaveType,
+    fetchEmployeeLeaveTypes,
+} from "../../../../redux/employeeLeaveType/employeeLeaveTypeSlice.js";
+import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
 import "../styles/LeaveType.css";
 
 const INIT = {
+    school_id: "",
     name: "",
     code: "",
     description: "",
@@ -21,12 +27,13 @@ const INIT = {
     status: "active",
 };
 
-/* ── reusable field wrapper ── */
+/* ── Field wrapper ── */
 function Field({ label, required, error, hint, children }) {
     return (
         <div className="flex flex-col gap-1">
             <label className="lt-field-label">
-                {label}{required && <span className="lt-field-required ml-0.5">*</span>}
+                {label}
+                {required && <span className="lt-field-required ml-0.5">*</span>}
             </label>
             {children}
             {hint && !error && <p className="lt-cell-muted text-[11px] mt-0.5">{hint}</p>}
@@ -37,7 +44,7 @@ function Field({ label, required, error, hint, children }) {
     );
 }
 
-/* ── toggle switch ── */
+/* ── Toggle switch ── */
 function Toggle({ id, checked, onChange, label }) {
     return (
         <div className="lt-toggle-wrap">
@@ -50,26 +57,41 @@ function Toggle({ id, checked, onChange, label }) {
     );
 }
 
+/* ── Input class helper ── */
 const fi = (hasError) => `lt-form-input${hasError ? " lt-form-input-error" : ""}`;
 
 export default function LeaveTypeModal({
     isOpen,
     onClose,
     leaveType = null,
-    schoolId = null,
+    schoolId = null,   // passed from page for non-admin; ignored for admin (uses dropdown)
 }) {
     const dispatch = useDispatch();
     const isEdit = Boolean(leaveType?.id);
+
+    const { user } = useSelector((state) => state.auth);
+    const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
+    const userSchoolId = user?.school_id ?? null;
+
+    const schools = useSelector((state) => state.schoolProfile?.schools ?? []);
+    const schoolsLoading = useSelector((state) => state.schoolProfile?.loading ?? false);
 
     const [formData, setFormData] = useState(INIT);
     const [errors, setErrors] = useState({});
     const [submitting, setSubmitting] = useState(false);
 
-    /* ── Hydrate ── */
+    /* ── Fetch schools for admin dropdown ── */
+    useEffect(() => {
+        if (isAdmin && isOpen && schools.length === 0) dispatch(fetchSchools());
+    }, [dispatch, isAdmin, isOpen, schools.length]);
+
+    /* ── Hydrate form on open ── */
     useEffect(() => {
         if (!isOpen) return;
+
         if (isEdit && leaveType) {
             setFormData({
+                school_id: leaveType.school_id ?? "",
                 name: leaveType.name ?? "",
                 code: leaveType.code ?? "",
                 description: leaveType.description ?? "",
@@ -85,33 +107,57 @@ export default function LeaveTypeModal({
                 status: leaveType.status ?? "active",
             });
         } else {
-            setFormData(INIT);
+            setFormData({
+                ...INIT,
+                // Pre-fill school_id for non-admin so payload always has it
+                school_id: isAdmin ? "" : String(schoolId ?? userSchoolId ?? ""),
+            });
         }
-        setErrors({});
-    }, [isOpen, isEdit, leaveType]);
 
-    /* ── Handlers ── */
+        setErrors({});
+    }, [isOpen, isEdit, leaveType, isAdmin, schoolId, userSchoolId]);
+
+    /* ── Unified change handler ── */
     const handleChange = (fieldKey) => (event) => {
-        const value = event.target.type === "checkbox"
-            ? event.target.checked
-            : event.target.value;
+        const value =
+            event.target.type === "checkbox" ? event.target.checked : event.target.value;
         setFormData((prev) => ({ ...prev, [fieldKey]: value }));
-        setErrors((prev) => prev[fieldKey] ? { ...prev, [fieldKey]: null } : prev);
+        setErrors((prev) => (prev[fieldKey] ? { ...prev, [fieldKey]: null } : prev));
     };
 
     /* ── Validation ── */
     const validate = () => {
         const validationErrors = {};
-        if (!formData.name.trim()) validationErrors.name = "Leave type name is required";
-        if (!formData.code.trim()) validationErrors.code = "Code is required";
+
+        // Admin must pick a school
+        if (isAdmin && !formData.school_id)
+            validationErrors.school_id = "Please select a school";
+
+        if (!formData.name.trim())
+            validationErrors.name = "Leave type name is required";
+
+        if (!formData.code.trim())
+            validationErrors.code = "Code is required";
         else if (!/^[A-Z0-9_-]{1,20}$/.test(formData.code.toUpperCase()))
             validationErrors.code = "Use uppercase letters, numbers, _ or – only";
-        if (!formData.days_per_year || isNaN(Number(formData.days_per_year)) || Number(formData.days_per_year) < 0)
+
+        if (
+            !formData.days_per_year ||
+            isNaN(Number(formData.days_per_year)) ||
+            Number(formData.days_per_year) < 0
+        )
             validationErrors.days_per_year = "Enter a valid number of days";
+
         if (formData.max_days_per_request && isNaN(Number(formData.max_days_per_request)))
             validationErrors.max_days_per_request = "Must be a number";
-        if (formData.carry_forward && formData.max_carry_forward_days && isNaN(Number(formData.max_carry_forward_days)))
+
+        if (
+            formData.carry_forward &&
+            formData.max_carry_forward_days &&
+            isNaN(Number(formData.max_carry_forward_days))
+        )
             validationErrors.max_carry_forward_days = "Must be a number";
+
         setErrors(validationErrors);
         return Object.keys(validationErrors).length === 0;
     };
@@ -120,13 +166,20 @@ export default function LeaveTypeModal({
     const handleSubmit = async () => {
         if (!validate()) return;
         setSubmitting(true);
+
+        // Admin → use the dropdown value; non-admin → use prop or user's school
+        const resolvedSchoolId = isAdmin
+            ? Number(formData.school_id)
+            : Number(schoolId ?? userSchoolId);
+
         const payload = {
-            school_id: schoolId,
-            name: formData.name.trim(),
+            school_id: resolvedSchoolId,
+            name: formData.name.trim().toUpperCase(),
             code: formData.code.trim().toUpperCase(),
             description: formData.description.trim() || null,
             days_per_year: Number(formData.days_per_year),
-            max_days_per_request: formData.max_days_per_request ? Number(formData.max_days_per_request) : null,
+            max_days_per_request: formData.max_days_per_request
+                ? Number(formData.max_days_per_request) : null,
             is_paid: formData.is_paid,
             carry_forward: formData.carry_forward,
             max_carry_forward_days: formData.carry_forward && formData.max_carry_forward_days
@@ -137,12 +190,14 @@ export default function LeaveTypeModal({
             applicable_gender: formData.applicable_gender,
             status: formData.status,
         };
+
         try {
             if (isEdit) {
                 await dispatch(editEmployeeLeaveType({ id: leaveType.id, payload })).unwrap();
             } else {
                 await dispatch(addEmployeeLeaveType(payload)).unwrap();
             }
+            dispatch(fetchEmployeeLeaveTypes());
             onClose();
         } catch (submissionError) {
             alert(submissionError?.message ?? String(submissionError));
@@ -178,12 +233,17 @@ export default function LeaveTypeModal({
                                         {isEdit ? "Edit Leave Type" : "New Leave Type"}
                                     </h2>
                                     <p className="lt-cell-muted text-[12px]">
-                                        {isEdit ? "Update leave type configuration" : "Define a new leave category for employees"}
+                                        {isEdit
+                                            ? "Update leave type configuration"
+                                            : "Define a new leave category for employees"}
                                     </p>
                                 </div>
                             </div>
-                            <button type="button" onClick={onClose}
-                                className="lt-close-btn w-8 h-8 rounded-full flex items-center justify-center transition-colors">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="lt-close-btn w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                            >
                                 <X size={17} />
                             </button>
                         </div>
@@ -191,59 +251,128 @@ export default function LeaveTypeModal({
                         {/* ── Body ── */}
                         <div className="px-6 py-5 overflow-y-auto max-h-[70vh] flex flex-col gap-5">
 
+                            {/* ── School selector (admin only) ── */}
+                            {isAdmin && (
+                                <Field label="School" required error={errors.school_id}>
+                                    <select
+                                        className={fi(errors.school_id)}
+                                        value={formData.school_id}
+                                        onChange={handleChange("school_id")}
+                                        disabled={schoolsLoading}
+                                    >
+                                        <option value="">
+                                            {schoolsLoading ? "Loading schools…" : "Select a school"}
+                                        </option>
+                                        {schools.map((school) => (
+                                            <option key={school.id} value={school.id}>
+                                                {school.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </Field>
+                            )}
+
                             {/* ── Basic info ── */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1">
                                 <Field label="Leave Type Name" required error={errors.name}>
-                                    <input className={fi(errors.name)} placeholder="e.g. Casual Leave"
-                                        value={formData.name} onChange={handleChange("name")} />
+                                    <input
+                                        className={fi(errors.name)}
+                                        placeholder="e.g. CASUAL LEAVE"
+                                        value={formData.name}
+                                        onChange={handleChange("name")}
+                                        maxLength={100}
+                                        style={{ textTransform: "uppercase" }}
+                                    />
                                 </Field>
-                                <Field label="Code" required error={errors.code}
-                                    hint="Short unique identifier e.g. CL, SL, EL">
-                                    <input className={fi(errors.code)} placeholder="e.g. CL"
-                                        value={formData.code} onChange={handleChange("code")}
-                                        maxLength={20} style={{ textTransform: "uppercase" }} />
+                                <Field
+                                    label="Code"
+                                    required
+                                    error={errors.code}
+                                    hint="Short unique identifier e.g. CL, SL, EL"
+                                >
+                                    <input
+                                        className={fi(errors.code)}
+                                        placeholder="e.g. CL"
+                                        value={formData.code}
+                                        onChange={handleChange("code")}
+                                        maxLength={20}
+                                        style={{ textTransform: "uppercase" }}
+                                    />
                                 </Field>
                                 <div className="sm:col-span-2">
                                     <Field label="Description">
-                                        <textarea className={fi(false)} rows={2}
+                                        <textarea
+                                            className={fi(false)}
+                                            rows={2}
                                             placeholder="Brief description of this leave type…"
-                                            value={formData.description} onChange={handleChange("description")} />
+                                            value={formData.description}
+                                            onChange={handleChange("description")}
+                                        />
                                     </Field>
                                 </div>
                             </div>
 
-                            {/* ── Days config ── */}
+                            {/* ── Days configuration ── */}
                             <p className="lt-section-label pb-1.5">Days Configuration</p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1">
                                 <Field label="Days Per Year" required error={errors.days_per_year}>
-                                    <input type="number" min="0" step="0.5" className={fi(errors.days_per_year)}
-                                        placeholder="12" value={formData.days_per_year} onChange={handleChange("days_per_year")} />
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="0.5"
+                                        className={fi(errors.days_per_year)}
+                                        placeholder="12"
+                                        value={formData.days_per_year}
+                                        onChange={handleChange("days_per_year")}
+                                    />
                                 </Field>
-                                <Field label="Max Days Per Request" error={errors.max_days_per_request}
-                                    hint="Leave blank for no limit">
-                                    <input type="number" min="0" step="0.5" className={fi(errors.max_days_per_request)}
-                                        placeholder="Optional" value={formData.max_days_per_request}
-                                        onChange={handleChange("max_days_per_request")} />
+                                <Field
+                                    label="Max Days Per Request"
+                                    error={errors.max_days_per_request}
+                                    hint="Leave blank for no limit"
+                                >
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="0.5"
+                                        className={fi(errors.max_days_per_request)}
+                                        placeholder="Optional"
+                                        value={formData.max_days_per_request}
+                                        onChange={handleChange("max_days_per_request")}
+                                    />
                                 </Field>
                             </div>
 
                             {/* ── Carry forward ── */}
                             <div className="flex flex-col gap-3">
-                                <Toggle id="carry_forward" checked={formData.carry_forward}
-                                    onChange={handleChange("carry_forward")} label="Allow carry forward to next year" />
+                                <Toggle
+                                    id="carry_forward"
+                                    checked={formData.carry_forward}
+                                    onChange={handleChange("carry_forward")}
+                                    label="Allow carry forward to next year"
+                                />
                                 {formData.carry_forward && (
                                     <div className="pl-12 max-w-xs">
-                                        <Field label="Max Carry Forward Days" error={errors.max_carry_forward_days}
-                                            hint="Leave blank for no limit">
-                                            <input type="number" min="0" step="0.5" className={fi(errors.max_carry_forward_days)}
-                                                placeholder="e.g. 10" value={formData.max_carry_forward_days}
-                                                onChange={handleChange("max_carry_forward_days")} />
+                                        <Field
+                                            label="Max Carry Forward Days"
+                                            error={errors.max_carry_forward_days}
+                                            hint="Leave blank for no limit"
+                                        >
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                step="0.5"
+                                                className={fi(errors.max_carry_forward_days)}
+                                                placeholder="e.g. 10"
+                                                value={formData.max_carry_forward_days}
+                                                onChange={handleChange("max_carry_forward_days")}
+                                            />
                                         </Field>
                                     </div>
                                 )}
                             </div>
 
-                            {/* ── Options ── */}
+                            {/* ── Leave options ── */}
                             <p className="lt-section-label pb-1.5">Leave Options</p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <Toggle id="is_paid" checked={formData.is_paid} onChange={handleChange("is_paid")} label="Paid leave" />
@@ -252,19 +381,26 @@ export default function LeaveTypeModal({
                                 <Toggle id="requires_attachment" checked={formData.requires_attachment} onChange={handleChange("requires_attachment")} label="Requires document upload" />
                             </div>
 
-                            {/* ── Gender & status ── */}
+                            {/* ── Eligibility & Status ── */}
                             <p className="lt-section-label pb-1.5">Eligibility & Status</p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1">
                                 <Field label="Applicable Gender">
-                                    <select className={fi(false)} value={formData.applicable_gender}
-                                        onChange={handleChange("applicable_gender")}>
+                                    <select
+                                        className={fi(false)}
+                                        value={formData.applicable_gender}
+                                        onChange={handleChange("applicable_gender")}
+                                    >
                                         <option value="all">All</option>
                                         <option value="male">Male only</option>
                                         <option value="female">Female only</option>
                                     </select>
                                 </Field>
                                 <Field label="Status">
-                                    <select className={fi(false)} value={formData.status} onChange={handleChange("status")}>
+                                    <select
+                                        className={fi(false)}
+                                        value={formData.status}
+                                        onChange={handleChange("status")}
+                                    >
                                         <option value="active">Active</option>
                                         <option value="inactive">Inactive</option>
                                     </select>
@@ -274,12 +410,19 @@ export default function LeaveTypeModal({
 
                         {/* ── Footer ── */}
                         <div className="lt-modal-footer flex items-center justify-end gap-3 px-6 py-4">
-                            <button type="button" onClick={onClose}
-                                className="lt-modal-btn-cancel px-4 py-2.5 rounded-lg text-[13.5px] font-semibold transition-colors">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="lt-modal-btn-cancel px-4 py-2.5 rounded-lg text-[13.5px] font-semibold transition-colors"
+                            >
                                 Cancel
                             </button>
-                            <button type="button" disabled={submitting} onClick={handleSubmit}
-                                className="lt-modal-btn-submit inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-[13.5px] font-semibold transition-colors active:scale-[0.97]">
+                            <button
+                                type="button"
+                                disabled={submitting}
+                                onClick={handleSubmit}
+                                className="lt-modal-btn-submit inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg text-[13.5px] font-semibold transition-colors active:scale-[0.97]"
+                            >
                                 <CircleCheck size={15} />
                                 {submitting
                                     ? isEdit ? "Updating…" : "Saving…"

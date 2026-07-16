@@ -6,12 +6,15 @@ import MainLayout from "../common/layouts/MainLayout.jsx";
 
 import Dashboard from "../features/dashboard/pages/Dashboard";
 
-import StudentsPage from "../features/students/pages/StudentPage.jsx";
+// import StudentsPage from "../features/students/pages/StudentPage.jsx";
+// import StudentsPage from "../features/students-new/pages/StudentsPage.jsx";
+import StudentsPage from "../features/students-new-page/pages/StudentsPage.jsx";
 import StudentDetailsPage from "../features/students/pages/StudentDetailsPage.jsx";
 import RolePage from "../features/Administration/roles/pages/RolePage.jsx";
 import UserPage from "../features/Administration/user/pages/UserPage.jsx";
 import SchoolProfilePage from "../features/schoolSetup/schoolProfile/pages/SchoolProfilePage.jsx";
-import DepartmentPage from "../features/schoolSetup/departments/pages/DepartmentPage.jsx";
+// import DepartmentPage from "../features/schoolSetup/departments/pages/DepartmentPage.jsx";
+import DepartmentPage from "../features/schoolSetup/departments-new/pages/DepartmentPage.jsx";
 import ClassPage from "../features/schoolSetup/class/pages/ClassPage.jsx";
 import SectionPage from "../features/schoolSetup/section/pages/SectionPage.jsx";
 import AcademicYearPage from "../features/schoolSetup/academic-year/pages/AcademicYearPage.jsx";
@@ -29,6 +32,8 @@ import ClassSubjectPage from "../features/schoolSetup/class_subject-new/pages/Cl
 import EmployeeShiftPage from "../features/employeeManagement/employeeShift-new/pages/EmployeeShiftPage.jsx";
 import EmployeeAttendancePage from "../features/employeeManagement/employeeAttendance/pages/EmployeeAttendancePage.jsx";
 import LeaveTypePage from "../features/employeeManagement/employeeLeaveType/pages/LeaveTypePage.jsx";
+import StudentFormPage from "../features/students-new-page/pages/StudentFormPage.jsx";
+import SalaryComponentPage from "../features/employeeManagement/employeeSalaryComponent/pages/SalaryComponentPage.jsx";
 
 // import TeacherList from "../features/teachers/pages/TeacherList";
 
@@ -49,6 +54,11 @@ const AppRoutes = () => {
           <Route path="/dashboard" element={<Dashboard />} />
 
           <Route path="/students" element={<StudentsPage />} />
+          {/* Add Student */}
+          <Route path="/students/add" element={<StudentFormPage />} />
+
+          {/* Edit Student */}
+          <Route path="/students/:id/edit" element={<StudentFormPage />} />
           <Route path="/students/:id" element={<StudentDetailsPage />} />
 
           {/* <Route path="/teachers" element={<TeacherList />} /> */}
@@ -80,6 +90,7 @@ const AppRoutes = () => {
           <Route path="/employee-shifts" element={<EmployeeShiftPage />} />
           <Route path="/employee-attendance" element={<EmployeeAttendancePage />} />
           <Route path="/employee-leaves" element={<LeaveTypePage />} />
+          <Route path="/employee-salary-components" element={<SalaryComponentPage />} />
 
           <Route path="*" element={<div>404</div>} />
         </Route>

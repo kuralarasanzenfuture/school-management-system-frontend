@@ -44,8 +44,22 @@
 }
 .sg-search-input:focus {
   border-color: var(--btn-bg);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+/* Applies if this class is reused on a <select> (e.g. a school filter) —
+   without it, the dropdown's option list falls back to browser/system
+   default colors in a dark theme instead of matching the app. */
+.sg-search-input option {
+  background: var(--panel-bg);
+  color: var(--text-primary);
 }
 .sg-count-text {
+  color: var(--text-muted);
+}
+/* Dedicated icon color instead of reusing sg-count-text (meant for the
+   results-count text, not an icon) — same muted color, clearer name. */
+.sg-search-icon {
   color: var(--text-muted);
 }
 

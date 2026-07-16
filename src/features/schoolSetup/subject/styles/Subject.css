@@ -44,8 +44,22 @@
 }
 .sj-search-input:focus {
   border-color: var(--btn-bg);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+/* Applies to the school <select>, which reuses this class — without it,
+   the dropdown's option list falls back to browser/system default colors
+   in a dark theme instead of matching the app. */
+.sj-search-input option {
+  background: var(--panel-bg);
+  color: var(--text-primary);
 }
 .sj-count-text {
+  color: var(--text-muted);
+}
+/* Dedicated icon color instead of reusing sj-count-text (meant for the
+   results-count text, not an icon) — same muted color, clearer name. */
+.sj-search-icon {
   color: var(--text-muted);
 }
 
@@ -142,6 +156,10 @@
 .sj-input:focus,
 .sj-select:focus {
   border-color: var(--btn-bg);
+}
+.sj-select option {
+  background: var(--panel-bg);
+  color: var(--text-primary);
 }
 .sj-input-error {
   border-color: var(--danger);

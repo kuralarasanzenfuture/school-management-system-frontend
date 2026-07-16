@@ -117,6 +117,7 @@ export default function ClassTable({
   onEdit,
   onDelete,
   deletingId,
+  showSchoolColumn = false,
   initialPageSize = 10,
   pageSizeOptions = [5, 10, 20, 50],
 }) {
@@ -129,7 +130,10 @@ export default function ClassTable({
         <table className="w-full text-left">
           <thead>
             <tr className="cp-thead text-[11.5px] uppercase tracking-wide">
-              <th className="px-5 py-3 font-semibold">
+              {showSchoolColumn && (
+                <th className="px-5 py-3 font-semibold">School</th>
+              )}
+              <th className={`${showSchoolColumn ? "px-3" : "px-5"} py-3 font-semibold`}>
                 <span className="inline-flex items-center gap-1">
                   Class Name <ArrowUpDown size={11} />
                 </span>
@@ -159,17 +163,21 @@ export default function ClassTable({
             ) : (
               pagedData.map((cls) => (
                 <tr key={cls.id} className="cp-row transition-colors">
-                  <td className="cp-name px-5 py-3.5 text-[13.5px] font-semibold">
+                  {showSchoolColumn && (
+                    <td className="sj-cell px-5 py-3.5 text-[13px]">
+                      {cls.school_name || "—"}
+                    </td>
+                  )}
+                  <td className={`sj-cell ${showSchoolColumn ? "px-3" : "px-5"} py-3.5 text-[13.5px] font-semibold`}>
                     {cls.name}
                   </td>
 
                   <td className="px-3 py-3.5">
                     <span
-                      className={`cp-status ${
-                        cls.status === "active"
-                          ? "cp-status-active"
-                          : "cp-status-inactive"
-                      }`}
+                      className={`cp-status ${cls.status === "active"
+                        ? "cp-status-active"
+                        : "cp-status-inactive"
+                        }`}
                     >
                       {cls.status}
                     </span>

@@ -1,0 +1,27 @@
+/* Breadcrumb.css
+   Uses the same theme variables as the rest of the app (app.css).
+*/
+
+.bc-nav {
+  line-height: 1;
+}
+
+.bc-link {
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  padding: 2px 2px;
+  cursor: pointer;
+}
+.bc-link:hover {
+  color: var(--btn-bg);
+}
+
+.bc-sep {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.bc-current {
+  color: var(--text-primary);
+}

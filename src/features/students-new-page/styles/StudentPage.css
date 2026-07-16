@@ -1,0 +1,282 @@
+/* StudentsPage.css
+   All COLOR styling lives here as plain CSS classes, driven by the theme
+   variables in app.css. Tailwind utility classes in the JSX now only handle
+   layout, spacing, and sizing.
+
+   NOTE: fallback values (the 2nd argument to var(...)) have been added to
+   the classes that were rendering with no visible background/border/shadow
+   (stat cards, filter bar, active tab, toggle group) — this guarantees a
+   visible "card" look even if the corresponding custom property isn't
+   resolving in this component's scope. If --panel-bg / --divider /
+   --card-shadow / --badge-bg / --btn-bg ARE defined correctly in app.css,
+   nothing changes visually — a defined var() always wins over its fallback.
+*/
+
+.sp-page {
+  background: var(--bg, #eef1fb);
+}
+
+/* ── Header ── */
+.sp-title {
+  color: var(--text-primary, #0f172a);
+}
+.sp-subtitle {
+  color: var(--text-muted, #64748b);
+}
+
+.sp-btn-outline {
+  background: var(--panel-bg, #ffffff);
+  border: 1px solid var(--input-border, #e2e8f0);
+  color: var(--text-secondary, #334155);
+}
+.sp-btn-outline:hover {
+  background: var(--input-bg, #f1f5f9);
+}
+
+.sp-btn-primary {
+  background: var(--btn-bg, #1e1b4b);
+  color: var(--btn-text, #ffffff);
+}
+.sp-btn-primary:hover {
+  background: var(--btn-hover, #312e81);
+}
+
+/* ── Stat cards ── */
+.sp-stat-card {
+  background: var(--panel-bg, #ffffff);
+  border: 1px solid var(--divider, #e2e8f0);
+  box-shadow: var(--card-shadow, 0 1px 3px rgba(15, 23, 42, 0.08));
+}
+.sp-stat-value {
+  color: var(--text-primary, #0f172a);
+}
+.sp-stat-label {
+  color: var(--text-muted, #64748b);
+}
+
+.sp-stat-icon-primary-bg {
+  background: var(--badge-bg, #e0e7ff);
+}
+.sp-stat-icon-primary-color {
+  color: var(--btn-bg, #1e1b4b);
+}
+
+.sp-stat-icon-success-bg {
+  background: var(--success-bg, #dcfce7);
+}
+.sp-stat-icon-success-color {
+  color: var(--success, #16a34a);
+}
+
+.sp-stat-icon-warning-bg {
+  background: var(--warning-bg, #fef9c3);
+}
+.sp-stat-icon-warning-color {
+  color: var(--warning, #ca8a04);
+}
+
+.sp-stat-icon-danger-bg {
+  background: var(--danger-bg, #fee2e2);
+}
+.sp-stat-icon-danger-color {
+  color: var(--danger, #dc2626);
+}
+
+/* ── Filter bar ── */
+.sp-filter-bar {
+  background: var(--panel-bg, #ffffff);
+  border: 1px solid var(--divider, #e2e8f0);
+  box-shadow: var(--card-shadow, 0 1px 3px rgba(15, 23, 42, 0.08));
+}
+
+.sp-tab {
+  color: var(--text-secondary, #334155);
+}
+.sp-tab:hover {
+  background: var(--input-bg, #f1f5f9);
+}
+.sp-tab-active {
+  background: var(--badge-bg, #e0e7ff);
+  color: var(--btn-bg, #1e1b4b);
+}
+
+.sp-divider {
+  background: var(--divider, #e2e8f0);
+}
+
+.sp-select-btn {
+  background: var(--panel-bg, #ffffff);
+  border: 1px solid var(--input-border, #e2e8f0);
+  color: var(--text-secondary, #334155);
+  cursor: pointer;
+  min-width: 150px;
+  transition: all 0.2s ease;
+}
+.sp-select-btn:hover {
+  background: var(--input-bg, #f1f5f9);
+}
+.sp-select-btn:focus {
+  outline: none;
+  border-color: var(--btn-bg, #1e1b4b);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--btn-bg, #1e1b4b) 20%, transparent);
+}
+.sp-select-btn option {
+  background: var(--panel-bg, #ffffff);
+  color: var(--text-primary, #0f172a);
+}
+
+.sp-count-text {
+  color: var(--text-muted, #64748b);
+}
+
+.sp-toggle-group {
+  border: 1px solid var(--input-border, #e2e8f0);
+}
+.sp-toggle-btn {
+  color: var(--text-muted, #64748b);
+}
+.sp-toggle-btn:hover {
+  background: var(--input-bg, #f1f5f9);
+}
+.sp-toggle-btn-active {
+  background: var(--badge-bg, #e0e7ff);
+  color: var(--btn-bg, #1e1b4b);
+}
+
+/* ── Table card ── */
+.sp-table-card {
+  background: var(--panel-bg, #ffffff);
+  border: 1px solid var(--divider, #e2e8f0);
+  box-shadow: var(--card-shadow, 0 1px 3px rgba(15, 23, 42, 0.08));
+}
+.sp-table-header {
+  border-bottom: 1px solid var(--divider, #e2e8f0);
+}
+.sp-table-title {
+  color: var(--text-primary, #0f172a);
+}
+.sp-export-btn {
+  border: 1px solid var(--input-border, #e2e8f0);
+  color: var(--text-secondary, #334155);
+}
+.sp-export-btn:hover {
+  background: var(--input-bg, #f1f5f9);
+}
+
+.sp-thead {
+  background: var(--input-bg, #f1f5f9);
+  color: var(--text-muted, #64748b);
+}
+
+.sp-row {
+  border-top: 1px solid var(--divider, #e2e8f0);
+}
+.sp-row:hover {
+  background: var(--input-bg, #f1f5f9);
+}
+
+.sp-checkbox {
+  accent-color: var(--btn-bg, #1e1b4b);
+}
+
+.sp-name {
+  color: var(--text-primary, #0f172a);
+}
+.sp-email {
+  color: var(--text-muted, #64748b);
+}
+.sp-cell {
+  color: var(--text-secondary, #334155);
+}
+.sp-cell-muted {
+  color: var(--text-muted, #64748b);
+}
+
+.sp-badge-neutral {
+  background: var(--input-bg, #f1f5f9);
+  color: var(--text-secondary, #334155);
+}
+.sp-badge-fallback {
+  background: var(--input-bg, #f1f5f9);
+  color: var(--text-muted, #64748b);
+}
+
+.sp-action-btn {
+  color: var(--text-muted, #64748b);
+}
+.sp-action-btn:hover {
+  background: var(--input-bg, #f1f5f9);
+  color: var(--btn-bg, #1e1b4b);
+}
+.sp-action-btn-danger:hover {
+  background: var(--danger-bg, #fee2e2);
+  color: var(--danger, #dc2626);
+}
+
+.sp-empty-state {
+  color: var(--text-muted, #64748b);
+}
+
+/* ── Pagination ── */
+.sp-pagination-text {
+  color: var(--text-muted, #64748b);
+}
+.sp-page-btn {
+  border: 1px solid var(--input-border, #e2e8f0);
+  color: var(--text-secondary, #334155);
+}
+.sp-page-btn:hover {
+  background: var(--input-bg, #f1f5f9);
+}
+.sp-page-btn:disabled {
+  opacity: 0.4;
+}
+.sp-page-btn-active {
+  background: var(--btn-bg, #1e1b4b);
+  color: var(--btn-text, #ffffff);
+  border-color: var(--btn-bg, #1e1b4b);
+}
+
+/* ── Loading / error states ── */
+.sp-loading,
+.sp-error {
+  color: var(--text-secondary, #334155);
+}
+.sp-error {
+  color: var(--danger, #dc2626);
+}
+
+/* ── Student Status Badges ── */
+
+.sp-status {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* Active */
+.sp-status-active {
+  background: var(--success-bg, #dcfce7);
+  color: var(--success, #16a34a);
+}
+
+/* Graduated */
+.sp-status-graduated {
+  background: var(--badge-bg, #e0e7ff);
+  color: var(--btn-bg, #1e1b4b);
+}
+
+/* Transferred */
+.sp-status-transferred {
+  background: var(--warning-bg, #fef9c3);
+  color: var(--warning, #ca8a04);
+}
+
+/* Dropped */
+.sp-status-dropped {
+  background: var(--danger-bg, #fee2e2);
+  color: var(--danger, #dc2626);
+}

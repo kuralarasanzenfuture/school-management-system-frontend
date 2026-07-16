@@ -178,6 +178,7 @@ export default function AcademicYearTable({
   onEdit,
   onDelete,
   deletingId,
+  showSchoolColumn = false,
   initialPageSize = 10,
   pageSizeOptions = [5, 10, 20],
 }) {
@@ -193,7 +194,10 @@ export default function AcademicYearTable({
         <table className="w-full text-left">
           <thead>
             <tr className="ay-thead text-[11.5px] uppercase tracking-wide">
-              <th className="px-5 py-3 font-semibold">Academic Year</th>
+              {showSchoolColumn && (
+                <th className="px-5 py-3 font-semibold">School</th>
+              )}
+              <th className={`${showSchoolColumn ? "px-3" : "px-5"} py-3 font-semibold`}>Academic Year</th>
               <th className="px-3 py-3 font-semibold">Start Date</th>
               <th className="px-3 py-3 font-semibold">End Date</th>
               <th className="px-3 py-3 font-semibold">Status</th>
@@ -217,7 +221,12 @@ export default function AcademicYearTable({
               pagedData.map((year) => (
                 <tr key={year.id} className="ay-row transition-colors">
                   {/* Name + "Current" badge */}
-                  <td className="px-5 py-3.5">
+                  {showSchoolColumn && (
+                    <td className="sj-cell px-5 py-3.5 text-[13px]">
+                      {year.school_name || "—"}
+                    </td>
+                  )}
+                  <td className={`${showSchoolColumn ? "px-3" : "px-5"} py-3.5 text-[13px]`}>
                     <div className="flex items-center gap-2">
                       <span className="ay-name text-[13.5px] font-semibold">
                         {year.name}
@@ -243,11 +252,10 @@ export default function AcademicYearTable({
                   {/* Status badge */}
                   <td className="px-3 py-3.5">
                     <span
-                      className={`ay-status ${
-                        year.status === "active"
-                          ? "ay-status-active"
-                          : "ay-status-inactive"
-                      }`}
+                      className={`ay-status ${year.status === "active"
+                        ? "ay-status-active"
+                        : "ay-status-inactive"
+                        }`}
                     >
                       {year.status}
                     </span>

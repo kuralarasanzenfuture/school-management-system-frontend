@@ -218,6 +218,7 @@ const AcademicYearPage = () => {
           onEdit={openEditModal}
           onDelete={handleDelete}
           deletingId={deletingId}
+          showSchoolColumn={isAdmin && !selectedSchool}
         />
       )}
 

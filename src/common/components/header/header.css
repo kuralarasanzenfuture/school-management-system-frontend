@@ -3,10 +3,10 @@
 .hd-header {
   background: var(--panel-bg);
   border-bottom: 1px solid var(--divider);
-  height: 64px;
+  height: 58px;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 10;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 

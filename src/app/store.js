@@ -20,6 +20,7 @@ import classSubjectReducer from "../redux/schoolSetup/class_subjects/classSubjec
 import employeeShiftReducer from "../redux/employeeShift/employeeShiftSlice.js";
 import employeeAttendanceReducer from "../redux/employeeAttendance/employeeAttendanceSlice.js";
 import employeeLeaveTypeReducer from "../redux/employeeLeaveType/employeeLeaveTypeSlice.js";
+import employeeSalaryComponentReducer from "../redux/employee_salary_component/employeeSalaryComponentSlice.js";
 
 import changePasswordReducer from "../redux/changePassword/changePasswordSlice.js";
 // import teacherReducer from "../features/teachers/slice";
@@ -50,6 +51,7 @@ export const store = configureStore({
     employeeShifts: employeeShiftReducer,
     employeeAttendance: employeeAttendanceReducer,
     employeeLeaveTypes: employeeLeaveTypeReducer,
+    employeeSalaryComponents: employeeSalaryComponentReducer,
     // teachers: teacherReducer,
   },
 });

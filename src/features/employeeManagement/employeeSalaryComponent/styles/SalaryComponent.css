@@ -1,0 +1,473 @@
+/* SalaryComponent.css — all colors via CSS variables */
+
+/* ── Page ── */
+.sc-page {
+  background: var(--bg);
+}
+.sc-title {
+  color: var(--text-primary);
+}
+.sc-subtitle {
+  color: var(--text-muted);
+}
+
+/* ── Buttons ── */
+.sc-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.sc-btn-outline:hover {
+  background: var(--input-bg);
+}
+.sc-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.sc-btn-primary:hover {
+  background: var(--btn-hover);
+}
+
+/* ── Stat cards ── */
+.sc-stat-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.sc-stat-value {
+  color: var(--text-primary);
+}
+.sc-stat-label {
+  color: var(--text-muted);
+}
+
+.sc-icon-total-bg {
+  background: var(--badge-bg);
+}
+.sc-icon-total {
+  color: var(--btn-bg);
+}
+.sc-icon-earning-bg {
+  background: var(--success-bg);
+}
+.sc-icon-earning {
+  color: var(--success);
+}
+.sc-icon-deduction-bg {
+  background: var(--danger-bg);
+}
+.sc-icon-deduction {
+  color: var(--danger);
+}
+.sc-icon-active-bg {
+  background: #ecfdf5;
+}
+.sc-icon-active {
+  color: #059669;
+}
+
+/* ── Filter bar ── */
+.sc-filter-bar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.sc-search-wrap {
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.sc-search-wrap:focus-within {
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.sc-search-icon {
+  color: var(--text-muted);
+}
+.sc-search-input {
+  background: transparent;
+  color: var(--text-primary);
+  outline: none;
+  width: 100%;
+}
+.sc-search-input::placeholder {
+  color: var(--text-muted);
+}
+.sc-select {
+  border: 1px solid var(--input-border);
+  background: var(--panel-bg);
+  color: var(--text-secondary);
+  transition: border-color 0.2s;
+}
+.sc-select:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+}
+.sc-count-text {
+  color: var(--text-muted);
+}
+
+/* ── Toggle ── */
+.sc-toggle-group {
+  border: 1px solid var(--input-border);
+}
+.sc-toggle-btn {
+  color: var(--text-muted);
+}
+.sc-toggle-btn:hover {
+  background: var(--input-bg);
+}
+.sc-toggle-btn-active {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── Table card ── */
+.sc-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.sc-table-header {
+  border-bottom: 1px solid var(--divider);
+}
+.sc-table-title {
+  color: var(--text-primary);
+}
+.sc-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.sc-row {
+  border-top: 1px solid var(--divider);
+  transition: background 0.15s;
+}
+.sc-row:hover {
+  background: var(--input-bg);
+}
+
+.sc-cell-primary {
+  color: var(--text-primary);
+}
+.sc-cell-secondary {
+  color: var(--text-secondary);
+}
+.sc-cell-muted {
+  color: var(--text-muted);
+}
+
+/* ── Code chip ── */
+.sc-code {
+  background: var(--input-bg);
+  border: 1px solid var(--divider);
+  color: var(--text-secondary);
+  font-family: monospace;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+/* ── Type badges ── */
+.sc-type {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.sc-type-earning {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.sc-type-deduction {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.sc-type-benefit {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── valueType badges ── */
+
+.sc-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sc-badge-fixed {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.sc-badge-percentage {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+}
+
+/* ── Status badges ── */
+.sc-status {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.sc-status-active {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.sc-status-inactive {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* ── Calculation type chip ── */
+.sc-calc {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.sc-calc-fixed {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--divider);
+}
+.sc-calc-percentage {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── Boolean pill ── */
+.sc-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.sc-pill-yes {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.sc-pill-no {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+
+/* ── Action buttons ── */
+.sc-action-btn {
+  color: var(--text-muted);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.sc-action-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+.sc-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.sc-empty-state {
+  color: var(--text-muted);
+}
+
+/* ── Grid card ── */
+.sc-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s;
+}
+.sc-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+.sc-card-divider {
+  background: var(--divider);
+}
+
+/* ── Modal ── */
+.sc-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.sc-modal {
+  background: var(--panel-bg);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+}
+.sc-modal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.sc-modal-footer {
+  border-top: 1px solid var(--divider);
+}
+.sc-modal-title {
+  color: var(--text-primary);
+}
+.sc-close-btn {
+  color: var(--text-muted);
+}
+.sc-close-btn:hover {
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+/* ── Form fields ── */
+.sc-field-label {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+}
+.sc-field-required {
+  color: var(--danger);
+}
+.sc-field-error {
+  color: var(--danger);
+  font-size: 11px;
+}
+
+.sc-form-input {
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  width: 100%;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.sc-form-input::placeholder {
+  color: var(--text-muted);
+}
+.sc-form-input:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.sc-form-input-error {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 12%, transparent) !important;
+}
+.sc-input-disabled {
+  background: var(--input-bg);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+/* ── Toggle switch ── */
+.sc-sw-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sc-sw-label {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.sc-sw {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--input-border);
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.sc-sw input {
+  display: none;
+}
+.sc-sw-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+.sc-sw input:checked ~ .sc-sw-knob {
+  transform: translateX(18px);
+}
+.sc-sw:has(input:checked) {
+  background: var(--btn-bg);
+}
+
+/* ── Section label ── */
+.sc-section-label {
+  color: var(--btn-bg);
+  border-bottom: 1px solid var(--divider);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+/* ── Modal buttons ── */
+.sc-modal-btn-cancel {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+  background: var(--panel-bg);
+}
+.sc-modal-btn-cancel:hover {
+  background: var(--input-bg);
+}
+.sc-modal-btn-submit {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.sc-modal-btn-submit:hover {
+  background: var(--btn-hover);
+}
+.sc-modal-btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Delete modal ── */
+.sc-delete-icon-wrap {
+  background: var(--danger-bg);
+}
+.sc-delete-icon {
+  color: var(--danger);
+}
+.sc-delete-title {
+  color: var(--text-primary);
+}
+.sc-delete-desc {
+  color: var(--text-muted);
+}
+.sc-modal-btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.sc-modal-btn-danger:hover {
+  opacity: 0.88;
+}
+.sc-modal-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

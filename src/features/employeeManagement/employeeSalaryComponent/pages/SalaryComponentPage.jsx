@@ -115,8 +115,8 @@ export default function SalaryComponentPage() {
     );
 
     const totalCount = scopedComponents.length;
-    const earningCount = scopedComponents.filter((c) => c.type === "earning").length;
-    const deductionCount = scopedComponents.filter((c) => c.type === "deduction").length;
+    const earningCount = scopedComponents.filter((c) => c.component_type === "earning").length;
+    const deductionCount = scopedComponents.filter((c) => c.component_type === "deduction").length;
     const activeCount = scopedComponents.filter((c) => c.status === "active").length;
 
     /* ── Handlers ── */

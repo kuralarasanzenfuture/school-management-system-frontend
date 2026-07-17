@@ -1,0 +1,357 @@
+/* SalaryStructure.css — all colors via CSS variables */
+
+/* ── Page ── */
+.ss-page {
+  background: var(--bg);
+}
+.ss-title {
+  color: var(--text-primary);
+}
+.ss-subtitle {
+  color: var(--text-muted);
+}
+
+/* ── Buttons ── */
+.ss-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.ss-btn-outline:hover {
+  background: var(--input-bg);
+}
+.ss-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.ss-btn-primary:hover {
+  background: var(--btn-hover);
+}
+
+/* ── Stat cards ── */
+.ss-stat-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ss-stat-value {
+  color: var(--text-primary);
+}
+.ss-stat-label {
+  color: var(--text-muted);
+}
+
+.ss-icon-total-bg {
+  background: var(--badge-bg);
+}
+.ss-icon-total {
+  color: var(--btn-bg);
+}
+.ss-icon-active-bg {
+  background: var(--success-bg);
+}
+.ss-icon-active {
+  color: var(--success);
+}
+.ss-icon-inactive-bg {
+  background: var(--danger-bg);
+}
+.ss-icon-inactive {
+  color: var(--danger);
+}
+.ss-icon-school-bg {
+  background: var(--warning-bg);
+}
+.ss-icon-school {
+  color: var(--warning);
+}
+
+/* ── Filter bar ── */
+.ss-filter-bar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ss-search-wrap {
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.ss-search-wrap:focus-within {
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.ss-search-icon {
+  color: var(--text-muted);
+}
+.ss-search-input {
+  background: transparent;
+  color: var(--text-primary);
+  outline: none;
+  width: 100%;
+}
+.ss-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.ss-select {
+  border: 1px solid var(--input-border);
+  background: var(--panel-bg);
+  color: var(--text-secondary);
+  transition: border-color 0.2s;
+}
+.ss-select:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+}
+.ss-count-text {
+  color: var(--text-muted);
+}
+
+/* ── Table card ── */
+.ss-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ss-table-header {
+  border-bottom: 1px solid var(--divider);
+}
+.ss-table-title {
+  color: var(--text-primary);
+}
+.ss-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.ss-row {
+  border-top: 1px solid var(--divider);
+  transition: background 0.15s;
+}
+.ss-row:hover {
+  background: var(--input-bg);
+}
+
+.ss-cell-primary {
+  color: var(--text-primary);
+}
+.ss-cell-secondary {
+  color: var(--text-secondary);
+}
+.ss-cell-muted {
+  color: var(--text-muted);
+}
+
+/* ── Avatar ── */
+.ss-avatar {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── Structure name chip ── */
+.ss-structure-name {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 13.5px;
+}
+
+/* ── Date range display ── */
+.ss-date-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+.ss-date-chip-active {
+  color: var(--success);
+}
+.ss-date-chip-ended {
+  color: var(--text-muted);
+}
+
+/* ── Status badge ── */
+.ss-status {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.ss-status-active {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.ss-status-inactive {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* ── Designation tag ── */
+.ss-designation {
+  background: var(--input-bg);
+  border: 1px solid var(--divider);
+  color: var(--text-muted);
+  font-size: 11.5px;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+/* ── Action buttons ── */
+.ss-action-btn {
+  color: var(--text-muted);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.ss-action-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+.ss-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.ss-empty-state {
+  color: var(--text-muted);
+}
+
+/* ── Modal overlay + panel ── */
+.ss-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.ss-modal {
+  background: var(--panel-bg);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+}
+.ss-modal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.ss-modal-footer {
+  border-top: 1px solid var(--divider);
+}
+.ss-modal-title {
+  color: var(--text-primary);
+}
+.ss-close-btn {
+  color: var(--text-muted);
+}
+.ss-close-btn:hover {
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+/* ── Form fields ── */
+.ss-field-label {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+}
+.ss-field-required {
+  color: var(--danger);
+}
+.ss-field-error {
+  color: var(--danger);
+  font-size: 11px;
+}
+
+.ss-form-input {
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  width: 100%;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.ss-form-input::placeholder {
+  color: var(--text-muted);
+}
+.ss-form-input:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.ss-form-input-error {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 12%, transparent) !important;
+}
+.ss-form-input-disabled {
+  background: var(--input-bg);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* ── Read-only preview box (structure name auto) ── */
+.ss-preview-box {
+  background: color-mix(in srgb, var(--btn-bg) 8%, transparent);
+  border: 1px dashed var(--btn-bg);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--btn-bg);
+}
+
+/* ── Section label ── */
+.ss-section-label {
+  color: var(--btn-bg);
+  border-bottom: 1px solid var(--divider);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+/* ── Modal buttons ── */
+.ss-modal-btn-cancel {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+  background: var(--panel-bg);
+}
+.ss-modal-btn-cancel:hover {
+  background: var(--input-bg);
+}
+.ss-modal-btn-submit {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.ss-modal-btn-submit:hover {
+  background: var(--btn-hover);
+}
+.ss-modal-btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Delete modal ── */
+.ss-delete-icon-wrap {
+  background: var(--danger-bg);
+}
+.ss-delete-icon {
+  color: var(--danger);
+}
+.ss-delete-title {
+  color: var(--text-primary);
+}
+.ss-delete-desc {
+  color: var(--text-muted);
+}
+.ss-modal-btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.ss-modal-btn-danger:hover {
+  opacity: 0.88;
+}
+.ss-modal-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

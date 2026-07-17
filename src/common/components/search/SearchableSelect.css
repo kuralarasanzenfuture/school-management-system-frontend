@@ -1,0 +1,82 @@
+/* SearchableSelect.css
+   Same convention as the rest of the app: Tailwind classes in the JSX
+   handle layout/spacing, this file handles color, driven by the theme
+   variables in app.css (with fallbacks).
+*/
+
+.ss-trigger {
+  background: var(--input-bg, #f1f5f9);
+  border: 1px solid var(--input-border, #e2e8f0);
+  color: var(--text-primary, #0f172a);
+  cursor: pointer;
+}
+.ss-trigger:hover:not(:disabled) {
+  border-color: var(--input-focus, var(--btn-bg, #1e1b4b));
+}
+.ss-trigger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.ss-trigger-error {
+  border-color: var(--danger, #dc2626) !important;
+}
+.ss-trigger-value {
+  color: var(--text-primary, #0f172a);
+}
+.ss-trigger-placeholder {
+  color: var(--text-muted, #64748b);
+}
+.ss-trigger-icon {
+  color: var(--text-muted, #64748b);
+}
+
+.ss-panel {
+  background: var(--panel-bg, #ffffff);
+  border: 1px solid var(--input-border, #e2e8f0);
+  box-shadow: var(--shadow, 0 10px 30px rgba(15, 23, 42, 0.12));
+}
+
+.ss-search-wrap {
+  border-bottom: 1px solid var(--divider, #e2e8f0);
+}
+.ss-search-icon {
+  color: var(--text-muted, #64748b);
+}
+.ss-search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary, #0f172a);
+}
+.ss-search-input::placeholder {
+  color: var(--text-muted, #64748b);
+}
+
+.ss-empty {
+  color: var(--text-muted, #64748b);
+}
+
+.ss-option {
+  color: var(--text-primary, #0f172a);
+}
+.ss-option-active {
+  background: var(--input-bg, #f1f5f9);
+}
+.ss-option-label {
+  color: var(--text-primary, #0f172a);
+}
+.ss-option-sublabel {
+  color: var(--text-muted, #64748b);
+}
+.ss-option-check {
+  color: var(--btn-bg, #1e1b4b);
+}
+
+/* Matched-letters highlight */
+.ss-highlight {
+  background: var(--badge-bg, #e0e7ff);
+  color: var(--btn-bg, #1e1b4b);
+  border-radius: 3px;
+  padding: 0 1px;
+  font-weight: 700;
+}

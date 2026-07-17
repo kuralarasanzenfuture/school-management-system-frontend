@@ -34,6 +34,10 @@ import EmployeeAttendancePage from "../features/employeeManagement/employeeAtten
 import LeaveTypePage from "../features/employeeManagement/employeeLeaveType/pages/LeaveTypePage.jsx";
 import StudentFormPage from "../features/students-new-page/pages/StudentFormPage.jsx";
 import SalaryComponentPage from "../features/employeeManagement/employeeSalaryComponent/pages/SalaryComponentPage.jsx";
+import NotFoundPage from "../common/pages/404/NotFoundPage.jsx";
+import LoadingSpinner from "../common/components/loading/LoadingSpinner.jsx";
+import ProfilePage from "../common/pages/profile/ProfilePage.jsx";
+import SalaryStructurePage from "../features/employeeManagement/employeeSalaryStructure/pages/SalaryStructurePage.jsx";
 
 // import TeacherList from "../features/teachers/pages/TeacherList";
 
@@ -52,6 +56,7 @@ const AppRoutes = () => {
         {/* Dashboard Layout */}
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<ProfilePage />} />
 
           <Route path="/students" element={<StudentsPage />} />
           {/* Add Student */}
@@ -91,8 +96,11 @@ const AppRoutes = () => {
           <Route path="/employee-attendance" element={<EmployeeAttendancePage />} />
           <Route path="/employee-leaves" element={<LeaveTypePage />} />
           <Route path="/employee-salary-components" element={<SalaryComponentPage />} />
+          <Route path="/employee-salary-structures" element={<SalaryStructurePage />} />
 
-          <Route path="*" element={<div>404</div>} />
+          <Route path="/loading" element={<LoadingSpinner />} />
+
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Route>
     </Routes>

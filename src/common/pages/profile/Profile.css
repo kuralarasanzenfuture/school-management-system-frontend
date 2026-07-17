@@ -1,0 +1,133 @@
+/* Profile.css
+   Color styling for the My Profile page. Tailwind utility classes in the
+   JSX handle layout, spacing, and sizing.
+*/
+
+.pf-page {
+  background: var(--bg);
+}
+.pf-title {
+  color: var(--text-primary);
+}
+.pf-subtitle {
+  color: var(--text-muted);
+}
+
+/* ── Overview card ── */
+.pf-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.pf-card-title {
+  color: var(--text-primary);
+}
+.pf-avatar-ring {
+  border: 3px solid var(--panel-bg);
+  box-shadow: 0 0 0 2px var(--input-border);
+}
+.pf-avatar-upload-btn {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  border: 2px solid var(--panel-bg);
+}
+.pf-avatar-upload-btn:hover {
+  background: var(--btn-hover);
+}
+
+.pf-name {
+  color: var(--text-primary);
+}
+.pf-email {
+  color: var(--text-muted);
+}
+.pf-role-badge {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+}
+
+.pf-meta-label {
+  color: var(--text-muted);
+}
+.pf-meta-value {
+  color: var(--text-secondary);
+}
+.pf-meta-divider {
+  border-top: 1px solid var(--divider);
+}
+
+/* ── Form ── */
+.pf-field-label {
+  color: var(--text-secondary);
+}
+.pf-field-required {
+  color: var(--danger);
+}
+.pf-field-error {
+  color: var(--danger);
+}
+.pf-field-hint {
+  color: var(--text-muted);
+}
+
+.pf-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.pf-input::placeholder {
+  color: var(--text-muted);
+}
+.pf-input:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.pf-input-error {
+  border-color: var(--danger) !important;
+}
+.pf-input-disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.pf-alert-error {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.pf-alert-success {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.pf-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.pf-btn-primary:hover {
+  background: var(--btn-hover);
+}
+.pf-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.pf-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.pf-btn-outline:hover {
+  background: var(--input-bg);
+}
+
+.pf-security-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.pf-security-icon-bg {
+  background: var(--badge-bg);
+}
+.pf-security-icon {
+  color: var(--btn-bg);
+}

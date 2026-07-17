@@ -1,0 +1,74 @@
+/* NotFound.css
+   Same convention as the rest of the app: theme colors come from the
+   CSS variables in app.css (with safe fallbacks so this still looks right
+   even if a variable isn't defined), and Tailwind-style spacing isn't
+   used here since this page predates that pattern — layout stays in
+   plain CSS to match the original template it was ported from.
+*/
+
+.nf-page {
+  background: var(--bg, #ffffff);
+  font-family: "Arvo", serif;
+  min-height: 100vh;
+  padding: 40px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.nf-container {
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+}
+
+.nf-bg {
+  height: 500px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nf-code {
+  font-size: 80px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  margin-bottom: 24rem;
+}
+
+.nf-content {
+  margin-top: -30px;
+}
+
+.nf-heading {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+  margin: 0 0 8px;
+}
+
+.nf-subtext {
+  color: var(--text-muted, #64748b);
+  font-size: 15px;
+  margin: 0 0 20px;
+}
+
+.nf-link {
+  display: inline-block;
+  color: var(--btn-text, #ffffff) !important;
+  background: var(--btn-bg, #1e1b4b);
+  padding: 10px 24px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+.nf-link:hover {
+  background: var(--btn-hover, #312e81);
+  color: var(--btn-text, #ffffff) !important;
+}

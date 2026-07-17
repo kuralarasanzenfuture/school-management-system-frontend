@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowUpDown, FileText, Eye, Pencil, Trash2 } from "lucide-react";
+import { ArrowUpDown, FileText, Eye, Pencil, Trash2, Mars, Venus } from "lucide-react";
 import Pagination from "../../../common/components/table/Pagination";
 import { avatarColors } from "../../../common/utils/colors";
 
@@ -152,8 +152,8 @@ export default function StudentTable({
                   student.permanent_city || student.current_city || null;
                 const imageUrl =
                   student.photo_url &&
-                  student.photo_url !== "null" &&
-                  student.photo_url.trim() !== ""
+                    student.photo_url !== "null" &&
+                    student.photo_url.trim() !== ""
                     ? `${IMAGE_BASE_URL}${student.photo_url.startsWith("/") ? "" : "/"}${student.photo_url}`
                     : null;
 
@@ -201,8 +201,46 @@ export default function StudentTable({
                       )}
                     </td>
 
-                    <td className="sp-cell px-3 py-3.5 text-[13.5px] capitalize">
+                    {/* <td className="sp-cell px-3 py-3.5 text-[13.5px] capitalize">
                       {student.gender || (
+                        <span className="sp-cell-muted">—</span>
+                      )}
+                    </td> */}
+
+                    <td className="sp-cell px-3 py-3.5 text-[13.5px]">
+                      {student.gender ? (
+                        // <span
+                        //   className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${student.gender.toLowerCase() === "male"
+                        //     ? "bg-blue-100 text-blue-700"
+                        //     : student.gender.toLowerCase() === "female"
+                        //       ? "bg-pink-100 text-pink-700"
+                        //       : "bg-gray-100 text-gray-700"
+                        //     }`}
+                        // >
+                        //   {student.gender.toLowerCase() === "male" ? (
+                        //     <Mars size={14} />
+                        //   ) : student.gender.toLowerCase() === "female" ? (
+                        //     <Venus size={14} />
+                        //   ) : null}
+
+                        //   {student.gender}
+                        // </span>
+                        <span
+                          className={`badge ${student.gender === "male"
+                            ? "badge-male"
+                            : student.gender === "female"
+                              ? "badge-female"
+                              : "badge-other"
+                            }`}
+                        >
+                          {student.gender.toLowerCase() === "male" ? (
+                            <Mars size={14} />
+                          ) : student.gender.toLowerCase() === "female" ? (
+                            <Venus size={14} />
+                          ) : null}
+                          {student.gender}
+                        </span>
+                      ) : (
                         <span className="sp-cell-muted">—</span>
                       )}
                     </td>

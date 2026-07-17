@@ -1,0 +1,61 @@
+/* LoadingSpinner.css
+   Same convention as the rest of the app: colors come from the theme
+   variables in app.css (with fallbacks), so this spinner matches whatever
+   is currently your brand/accent color and background, instead of the
+   original's hardcoded #000 background and #fff stroke.
+
+   Note: the stroke-color fade on the top/bottom boxes was originally done
+   via an SVG <animate attributeName="stroke" values="rgba(255,255,255,1); ...">
+   — SMIL animate values are static strings and can't reference CSS
+   variables, so that piece is reimplemented as a CSS @keyframes animation
+   instead (applied via the ld-fade-out / ld-fade-in classes), which *can*
+   use var(--btn-bg). Everything else (the rotate/translate transforms)
+   stays as SMIL since those don't involve color.
+*/
+
+.ld-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg, #ffffff);
+  z-index: 50;
+}
+
+.ld-svg {
+  height: 150px;
+  width: 150px;
+}
+
+.ld-stroke {
+  stroke: var(--btn-bg, #1e1b4b);
+}
+
+.ld-fade-out {
+  animation: ld-fade-out-stroke 2s linear infinite;
+}
+@keyframes ld-fade-out-stroke {
+  0% {
+    stroke: var(--btn-bg, #1e1b4b);
+    stroke-opacity: 1;
+  }
+  100% {
+    stroke: var(--text-muted, #64748b);
+    stroke-opacity: 0;
+  }
+}
+
+.ld-fade-in {
+  animation: ld-fade-in-stroke 2s linear infinite;
+}
+@keyframes ld-fade-in-stroke {
+  0% {
+    stroke: var(--text-muted, #64748b);
+    stroke-opacity: 0;
+  }
+  100% {
+    stroke: var(--btn-bg, #1e1b4b);
+    stroke-opacity: 1;
+  }
+}

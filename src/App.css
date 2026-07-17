@@ -52,6 +52,35 @@ body {
   --danger-bg: #fff1f2;
   --warning: #d97706;
   --warning-bg: #fffbeb;
+
+  /* ==========================
+   Badge Colors
+========================== */
+
+  --badge-primary-bg: #e8ecff;
+  --badge-primary-text: #3949ab;
+
+  --badge-success-bg: #dcfce7;
+  --badge-success-text: #15803d;
+
+  --badge-danger-bg: #fee2e2;
+  --badge-danger-text: #dc2626;
+
+  --badge-warning-bg: #fef3c7;
+  --badge-warning-text: #d97706;
+
+  --badge-info-bg: #dbeafe;
+  --badge-info-text: #2563eb;
+
+  /* Gender */
+  --badge-male-bg: #dbeafe;
+  --badge-male-text: #2563eb;
+
+  --badge-female-bg: #fce7f3;
+  --badge-female-text: #db2777;
+
+  --badge-other-bg: #ede9fe;
+  --badge-other-text: #7c3aed;
 }
 [data-theme="dark"] {
   --bg: #0d0f1e;
@@ -87,6 +116,35 @@ body {
   --danger-bg: rgba(251, 113, 133, 0.1);
   --warning: #fbbf24;
   --warning-bg: rgba(251, 191, 36, 0.1);
+
+  /* ==========================
+   Badge Colors (Dark)
+========================== */
+
+  --badge-primary-bg: rgba(57, 73, 171, 0.25);
+  --badge-primary-text: #a5b4fc;
+
+  --badge-success-bg: rgba(34, 197, 94, 0.18);
+  --badge-success-text: #4ade80;
+
+  --badge-danger-bg: rgba(239, 68, 68, 0.18);
+  --badge-danger-text: #fb7185;
+
+  --badge-warning-bg: rgba(245, 158, 11, 0.18);
+  --badge-warning-text: #fbbf24;
+
+  --badge-info-bg: rgba(59, 130, 246, 0.18);
+  --badge-info-text: #60a5fa;
+
+  /* Gender */
+  --badge-male-bg: rgba(37, 99, 235, 0.18);
+  --badge-male-text: #60a5fa;
+
+  --badge-female-bg: rgba(219, 39, 119, 0.18);
+  --badge-female-text: #f472b6;
+
+  --badge-other-bg: rgba(124, 58, 237, 0.18);
+  --badge-other-text: #c4b5fd;
 }
 
 :root {
@@ -166,4 +224,56 @@ h4 {
 
 .caption {
   font-size: 12px;
+}
+
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.badge-primary {
+  background: var(--badge-primary-bg);
+  color: var(--badge-primary-text);
+}
+
+.badge-success {
+  background: var(--badge-success-bg);
+  color: var(--badge-success-text);
+}
+
+.badge-danger {
+  background: var(--badge-danger-bg);
+  color: var(--badge-danger-text);
+}
+
+.badge-warning {
+  background: var(--badge-warning-bg);
+  color: var(--badge-warning-text);
+}
+
+.badge-info {
+  background: var(--badge-info-bg);
+  color: var(--badge-info-text);
+}
+
+.badge-male {
+  background: var(--badge-male-bg);
+  color: var(--badge-male-text);
+}
+
+.badge-female {
+  background: var(--badge-female-bg);
+  color: var(--badge-female-text);
+}
+
+.badge-other {
+  background: var(--badge-other-bg);
+  color: var(--badge-other-text);
 }

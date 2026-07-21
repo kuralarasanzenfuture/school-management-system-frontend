@@ -5,6 +5,7 @@ import {
   createEmployeeSalaryStructureDetail,
   updateEmployeeSalaryStructureDetail,
   deleteEmployeeSalaryStructureDetail,
+  getEmployeeSalaryStructureDetailByEmployeeId,
 } from "./employeeSalaryStructureDetail.service.js";
 
 // ================= GET ALL =================
@@ -83,10 +84,29 @@ export const removeEmployeeSalaryStructureDetail = createAsyncThunk(
   },
 );
 
+// ================= SLICE =================
+export const fetchEmployeeSalaryStructureDetailsByEmployeeId = createAsyncThunk(
+  "employeeSalaryStructureDetails/fetchByEmployeeId",
+  async (employeeId, { rejectWithValue }) => {
+    try {
+      return await getEmployeeSalaryStructureDetailByEmployeeId(employeeId);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to fetch salary details by employee",
+      );
+    }
+  },
+);
+
 const initialState = {
   employeeSalaryStructureDetails: [],
   employeeSalaryStructureDetail: null,
+
+  employeeDetailsByEmployee: [],
+
   loading: false,
+  submitting: false,
   error: null,
 };
 
@@ -139,6 +159,29 @@ const employeeSalaryStructureDetailSlice = createSlice({
       )
       .addCase(
         fetchEmployeeSalaryStructureDetailById.rejected,
+        (state, action) => {
+          state.loading = false;
+          state.error = action.payload;
+        },
+      )
+
+      // ================= FETCH BY EMPLOYEE ID =================
+      .addCase(
+        fetchEmployeeSalaryStructureDetailsByEmployeeId.pending,
+        (state) => {
+          state.loading = true;
+        },
+      )
+      .addCase(
+        fetchEmployeeSalaryStructureDetailsByEmployeeId.fulfilled,
+        (state, action) => {
+          state.loading = false;
+          state.employeeDetailsByEmployee =
+            action.payload.data ?? action.payload;
+        },
+      )
+      .addCase(
+        fetchEmployeeSalaryStructureDetailsByEmployeeId.rejected,
         (state, action) => {
           state.loading = false;
           state.error = action.payload;

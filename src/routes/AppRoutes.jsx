@@ -102,9 +102,9 @@ const AppRoutes = () => {
           <Route path="/employee-leaves" element={<LeaveTypePage />} />
           <Route path="/employee-salary-components" element={<SalaryComponentPage />} />
           {/* <Route path="/employee-salary-structures" element={<SalaryStructurePage />} /> */}
-          {/* <Route path="/employee-salary-structures" element={<SalaryManagementV1 />} /> */}
+          <Route path="/employee-salary-structures" element={<SalaryManagementV1 />} />
           {/* <Route path="/employee-salary-structures" element={<SalaryManagementV2 />} /> */}
-          <Route path="/employee-salary-structures" element={<SalaryManagementV3 />} />
+          {/* <Route path="/employee-salary-structures" element={<SalaryManagementV3 />} /> */}
           <Route path="/employee-salary-assignment" element={<SalaryStructureDetailPage />} />
 
           <Route path="/loading" element={<LoadingSpinner />} />

@@ -224,3 +224,30 @@
 .scp-btn-cancel:hover {
   color: var(--text-primary);
 }
+
+/* ── Delete modal ──
+   
+*/
+.scp-delete-icon-wrap {
+  background: var(--danger-bg);
+}
+.scp-delete-icon {
+  color: var(--danger);
+}
+.scp-delete-title {
+  color: var(--text-primary);
+}
+.scp-delete-desc {
+  color: var(--text-muted);
+}
+.scp-modal-btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.scp-modal-btn-danger:hover {
+  opacity: 0.88;
+}
+.scp-modal-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

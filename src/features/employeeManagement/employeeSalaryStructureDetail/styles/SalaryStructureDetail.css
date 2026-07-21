@@ -1,0 +1,395 @@
+/* SalaryStructureDetail.css — all colors via CSS variables */
+
+/* ── Page ── */
+.ssd-page {
+  background: var(--bg);
+}
+.ssd-title {
+  color: var(--text-primary);
+}
+.ssd-subtitle {
+  color: var(--text-muted);
+}
+
+/* ── Buttons ── */
+.ssd-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.ssd-btn-primary:hover {
+  background: var(--btn-hover);
+}
+.ssd-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.ssd-btn-outline:hover {
+  background: var(--input-bg);
+}
+
+/* ── Stat cards ── */
+.ssd-stat-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ssd-stat-value {
+  color: var(--text-primary);
+}
+.ssd-stat-label {
+  color: var(--text-muted);
+}
+
+.ssd-icon-total-bg {
+  background: var(--badge-bg);
+}
+.ssd-icon-total {
+  color: var(--btn-bg);
+}
+.ssd-icon-earning-bg {
+  background: var(--success-bg);
+}
+.ssd-icon-earning {
+  color: var(--success);
+}
+.ssd-icon-deduction-bg {
+  background: var(--danger-bg);
+}
+.ssd-icon-deduction {
+  color: var(--danger);
+}
+.ssd-icon-fixed-bg {
+  background: var(--warning-bg);
+}
+.ssd-icon-fixed {
+  color: var(--warning);
+}
+
+/* ── Filter bar ── */
+.ssd-filter-bar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ssd-search-wrap {
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.ssd-search-wrap:focus-within {
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.ssd-search-icon {
+  color: var(--text-muted);
+}
+.ssd-search-input {
+  background: transparent;
+  color: var(--text-primary);
+  outline: none;
+  width: 100%;
+}
+.ssd-search-input::placeholder {
+  color: var(--text-muted);
+}
+.ssd-select {
+  border: 1px solid var(--input-border);
+  background: var(--panel-bg);
+  color: var(--text-secondary);
+}
+.ssd-select:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+}
+.ssd-count-text {
+  color: var(--text-muted);
+}
+
+/* ── Table card ── */
+.ssd-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ssd-table-header {
+  border-bottom: 1px solid var(--divider);
+}
+.ssd-table-title {
+  color: var(--text-primary);
+}
+.ssd-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.ssd-row {
+  border-top: 1px solid var(--divider);
+  transition: background 0.15s;
+}
+.ssd-row:hover {
+  background: var(--input-bg);
+}
+
+.ssd-cell-primary {
+  color: var(--text-primary);
+}
+.ssd-cell-secondary {
+  color: var(--text-secondary);
+}
+.ssd-cell-muted {
+  color: var(--text-muted);
+}
+
+/* ── Component type badges ── */
+.ssd-comp-type {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.ssd-comp-type-earning {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.ssd-comp-type-deduction {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.ssd-comp-type-benefit {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── Calculation type chip ── */
+.ssd-calc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.ssd-calc-fixed {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--divider);
+}
+.ssd-calc-percentage {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── Amount display ── */
+.ssd-amount {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.ssd-amount-earning {
+  color: var(--success);
+}
+.ssd-amount-deduction {
+  color: var(--danger);
+}
+
+/* ── Based-on chip ── */
+.ssd-based-on {
+  background: var(--input-bg);
+  border: 1px solid var(--divider);
+  color: var(--text-muted);
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* ── Structure name tag ── */
+.ssd-structure-tag {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--input-bg);
+  border: 1px solid var(--divider);
+  padding: 2px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Action buttons ── */
+.ssd-action-btn {
+  color: var(--text-muted);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.ssd-action-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+.ssd-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.ssd-empty-state {
+  color: var(--text-muted);
+}
+
+/* ── Modal ── */
+.ssd-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.ssd-modal {
+  background: var(--panel-bg);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+}
+.ssd-modal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.ssd-modal-footer {
+  border-top: 1px solid var(--divider);
+}
+.ssd-modal-title {
+  color: var(--text-primary);
+}
+.ssd-close-btn {
+  color: var(--text-muted);
+}
+.ssd-close-btn:hover {
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+/* ── Form fields ── */
+.ssd-field-label {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+}
+.ssd-field-required {
+  color: var(--danger);
+}
+.ssd-field-error {
+  color: var(--danger);
+  font-size: 11px;
+}
+.ssd-section-label {
+  color: var(--btn-bg);
+  border-bottom: 1px solid var(--divider);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.ssd-form-input {
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  width: 100%;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.ssd-form-input::placeholder {
+  color: var(--text-muted);
+}
+.ssd-form-input:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.ssd-form-input-error {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 12%, transparent) !important;
+}
+.ssd-form-input-disabled {
+  background: var(--input-bg);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* ── Calc type selector cards ── */
+.ssd-calc-option {
+  border: 2px solid var(--input-border);
+  background: var(--panel-bg);
+  color: var(--text-secondary);
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  font-size: 13px;
+  font-weight: 600;
+}
+.ssd-calc-option:hover {
+  border-color: var(--btn-bg);
+}
+.ssd-calc-option-fixed.ssd-selected {
+  border-color: var(--warning);
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.ssd-calc-option-percentage.ssd-selected {
+  border-color: var(--btn-bg);
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── Modal buttons ── */
+.ssd-modal-btn-cancel {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+  background: var(--panel-bg);
+}
+.ssd-modal-btn-cancel:hover {
+  background: var(--input-bg);
+}
+.ssd-modal-btn-submit {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.ssd-modal-btn-submit:hover {
+  background: var(--btn-hover);
+}
+.ssd-modal-btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Delete modal ── */
+.ssd-delete-icon-wrap {
+  background: var(--danger-bg);
+}
+.ssd-delete-icon {
+  color: var(--danger);
+}
+.ssd-delete-title {
+  color: var(--text-primary);
+}
+.ssd-delete-desc {
+  color: var(--text-muted);
+}
+.ssd-modal-btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.ssd-modal-btn-danger:hover {
+  opacity: 0.88;
+}
+.ssd-modal-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

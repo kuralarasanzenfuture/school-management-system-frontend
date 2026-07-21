@@ -1,0 +1,351 @@
+/* dashboard.css
+   Uses the app's real design tokens (app.css) — indigo/pink/purple brand,
+   .badge-* system, --card-shadow, --divider — instead of a one-off palette.
+*/
+
+.db-root {
+  background: var(--bg);
+  min-height: 100vh;
+  padding: 24px clamp(16px, 3vw, 36px) 48px;
+}
+
+/* ── Hero banner ── */
+.db-hero {
+  position: relative;
+  border-radius: 20px;
+  padding: 28px 32px;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    var(--side-accent) 0%,
+    var(--btn-bg) 55%,
+    var(--accent2) 130%
+  );
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+}
+.db-hero::after {
+  content: "";
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.14) 0%,
+    transparent 70%
+  );
+}
+.db-hero-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+.db-hero-title {
+  font-size: clamp(22px, 2.6vw, 28px);
+  font-weight: 700;
+  color: #ffffff;
+  margin-top: 4px;
+}
+.db-hero-date {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+  margin-top: 6px;
+}
+
+/* ── Stat cards ── */
+.db-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.db-tile {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  padding: 18px 20px;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+.db-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.db-tile-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.db-tile-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.db-tile-icon.tone-primary {
+  background: var(--badge-primary-bg);
+  color: var(--badge-primary-text);
+}
+.db-tile-icon.tone-success {
+  background: var(--badge-success-bg);
+  color: var(--badge-success-text);
+}
+.db-tile-icon.tone-warning {
+  background: var(--badge-warning-bg);
+  color: var(--badge-warning-text);
+}
+.db-tile-icon.tone-info {
+  background: var(--badge-info-bg);
+  color: var(--badge-info-text);
+}
+
+.db-tile-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.db-tile-trend.up {
+  color: var(--success);
+}
+.db-tile-trend.down {
+  color: var(--danger);
+}
+
+.db-tile-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 14px;
+}
+.db-tile-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+.db-tile-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ── Shared panel shell ── */
+.db-panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  padding: 22px;
+}
+.db-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.db-panel-title {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.db-panel-subtitle {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.db-panel-link {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--link);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.db-panel-link:hover {
+  text-decoration: underline;
+}
+
+.db-grid-2 {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 900px) {
+  .db-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Fee donut ── */
+.db-donut-wrap {
+  position: relative;
+  height: 200px;
+}
+.db-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.db-donut-pct {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.db-donut-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.db-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+.db-legend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  padding-top: 10px;
+  border-top: 1px solid var(--divider);
+}
+.db-legend-row:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+.db-legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+}
+.db-legend-amount {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ── Student table ── */
+.db-table-wrap {
+  overflow-x: auto;
+}
+.db-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.db-table thead th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 0 10px 10px;
+  border-bottom: 1px solid var(--divider);
+}
+.db-table tbody td {
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--divider);
+  font-size: 13.5px;
+  color: var(--text-secondary);
+}
+.db-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.db-table tbody tr {
+  transition: background 0.15s ease;
+}
+.db-table tbody tr:hover {
+  background: var(--input-bg);
+}
+
+.db-student-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.db-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.db-student-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+.db-student-email {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.db-grade {
+  font-weight: 700;
+  color: var(--accent2);
+}
+
+/* ── Quick actions ── */
+.db-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.db-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 92px;
+  border-radius: 16px;
+  border: none;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+.db-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.db-action-btn.tone-primary {
+  background: linear-gradient(135deg, var(--btn-bg), var(--side-accent));
+}
+.db-action-btn.tone-success {
+  background: linear-gradient(135deg, var(--success), #10b981);
+}
+.db-action-btn.tone-warning {
+  background: linear-gradient(135deg, var(--warning), #f59e0b);
+}
+.db-action-btn.tone-accent {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+}

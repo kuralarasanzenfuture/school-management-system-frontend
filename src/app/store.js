@@ -22,9 +22,9 @@ import employeeAttendanceReducer from "../redux/employeeAttendance/employeeAtten
 import employeeLeaveTypeReducer from "../redux/employeeLeaveType/employeeLeaveTypeSlice.js";
 import employeeSalaryComponentReducer from "../redux/employee_salary_component/employeeSalaryComponentSlice.js";
 import employeeSalaryStructureReducer from "../redux/employee_salary_structure/employeeSalaryStructureSlice.js";
+import employeeSalaryStructureDetailReducer from "../redux/employee_salary_structure_detail/employeeSalaryStructureDetailSlice.js";
 
 import changePasswordReducer from "../redux/changePassword/changePasswordSlice.js";
-// import teacherReducer from "../features/teachers/slice";
 
 export const store = configureStore({
   reducer: {
@@ -54,6 +54,6 @@ export const store = configureStore({
     employeeLeaveTypes: employeeLeaveTypeReducer,
     employeeSalaryComponents: employeeSalaryComponentReducer,
     employeeSalaryStructure: employeeSalaryStructureReducer,
-    // teachers: teacherReducer,
+    employeeSalaryStructureDetails: employeeSalaryStructureDetailReducer,
   },
 });

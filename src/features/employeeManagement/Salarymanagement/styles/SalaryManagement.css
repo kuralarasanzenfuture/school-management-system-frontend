@@ -1,0 +1,556 @@
+/* SalaryManagement.css — combined structure + details page */
+
+/* ── Page ── */
+.sm-page {
+  background: var(--bg);
+}
+.sm-title {
+  color: var(--text-primary);
+}
+.sm-subtitle {
+  color: var(--text-muted);
+}
+
+/* ── Buttons ── */
+.sm-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.sm-btn-primary:hover {
+  background: var(--btn-hover);
+}
+.sm-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.sm-btn-outline:hover {
+  background: var(--input-bg);
+}
+.sm-btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.sm-btn-danger:hover {
+  opacity: 0.88;
+}
+
+/* ── Stat cards ── */
+.sm-stat-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.sm-stat-value {
+  color: var(--text-primary);
+}
+.sm-stat-label {
+  color: var(--text-muted);
+}
+
+.sm-icon-total-bg {
+  background: var(--badge-bg);
+}
+.sm-icon-total {
+  color: var(--btn-bg);
+}
+.sm-icon-active-bg {
+  background: var(--success-bg);
+}
+.sm-icon-active {
+  color: var(--success);
+}
+.sm-icon-earning-bg {
+  background: var(--success-bg);
+}
+.sm-icon-earning {
+  color: var(--success);
+}
+.sm-icon-deduction-bg {
+  background: var(--danger-bg);
+}
+.sm-icon-deduction {
+  color: var(--danger);
+}
+
+/* ── Split layout ── */
+.sm-split {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 1024px) {
+  .sm-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Left panel: structure list ── */
+.sm-left-panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+  border-radius: 16px;
+  overflow: hidden;
+  position: sticky;
+  top: 80px;
+}
+.sm-left-header {
+  border-bottom: 1px solid var(--divider);
+}
+.sm-left-title {
+  color: var(--text-primary);
+}
+.sm-left-search-wrap {
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  transition: border-color 0.2s;
+}
+.sm-left-search-wrap:focus-within {
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.sm-left-search-icon {
+  color: var(--text-muted);
+}
+.sm-left-search-input {
+  background: transparent;
+  color: var(--text-primary);
+  outline: none;
+}
+.sm-left-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ── Structure list items ── */
+.sm-structure-item {
+  border-top: 1px solid var(--divider);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.sm-structure-item:hover {
+  background: var(--input-bg);
+}
+.sm-structure-item-selected {
+  background: color-mix(in srgb, var(--btn-bg) 8%, transparent) !important;
+  border-left: 3px solid var(--btn-bg);
+}
+.sm-structure-name {
+  color: var(--text-primary);
+}
+.sm-structure-emp {
+  color: var(--text-secondary);
+}
+.sm-structure-meta {
+  color: var(--text-muted);
+}
+.sm-structure-avatar {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── Structure status dot ── */
+.sm-dot-active {
+  background: var(--success);
+}
+.sm-dot-inactive {
+  background: var(--danger);
+}
+
+/* ── Structure date badge ── */
+.sm-date-open {
+  color: var(--success);
+}
+.sm-date-closed {
+  color: var(--text-muted);
+}
+
+/* ── Right panel: component details ── */
+.sm-right-panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.sm-right-header {
+  border-bottom: 1px solid var(--divider);
+}
+.sm-right-title {
+  color: var(--text-primary);
+}
+
+/* ── Empty placeholder ── */
+.sm-empty-placeholder {
+  color: var(--text-muted);
+  border: 2px dashed var(--divider);
+  border-radius: 12px;
+}
+
+/* ── Component rows ── */
+.sm-comp-row {
+  border-top: 1px solid var(--divider);
+  transition: background 0.15s;
+}
+.sm-comp-row:hover {
+  background: var(--input-bg);
+}
+
+.sm-comp-name {
+  color: var(--text-primary);
+}
+.sm-comp-muted {
+  color: var(--text-muted);
+}
+.sm-comp-secondary {
+  color: var(--text-secondary);
+}
+
+/* ── Component type badges ── */
+.sm-comp-type {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.sm-comp-type-earning {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.sm-comp-type-deduction {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.sm-comp-type-benefit {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── Calc type ── */
+.sm-calc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.sm-calc-fixed {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--divider);
+}
+.sm-calc-percentage {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── Amount ── */
+.sm-amount {
+  font-size: 14px;
+  font-weight: 700;
+}
+.sm-amount-earning {
+  color: var(--success);
+}
+.sm-amount-deduction {
+  color: var(--danger);
+}
+.sm-based-on {
+  background: var(--input-bg);
+  border: 1px solid var(--divider);
+  color: var(--text-muted);
+  font-size: 10.5px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+/* ── Totals bar ── */
+.sm-totals-bar {
+  background: var(--input-bg);
+  border-top: 1px solid var(--divider);
+}
+.sm-totals-label {
+  color: var(--text-muted);
+}
+.sm-totals-earning {
+  color: var(--success);
+  font-weight: 700;
+}
+.sm-totals-deduction {
+  color: var(--danger);
+  font-weight: 700;
+}
+.sm-totals-net {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* ── Action buttons ── */
+.sm-action-btn {
+  color: var(--text-muted);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.sm-action-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+.sm-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* ── Empty comp list ── */
+.sm-empty-comp {
+  color: var(--text-muted);
+}
+
+/* ── Search/filter bar ── */
+.sm-filter-bar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.sm-search-wrap {
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  transition: border-color 0.2s;
+}
+.sm-search-wrap:focus-within {
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.sm-search-icon {
+  color: var(--text-muted);
+}
+.sm-search-input {
+  background: transparent;
+  color: var(--text-primary);
+  outline: none;
+  width: 100%;
+}
+.sm-search-input::placeholder {
+  color: var(--text-muted);
+}
+.sm-select {
+  border: 1px solid var(--input-border);
+  background: var(--panel-bg);
+  color: var(--text-secondary);
+}
+.sm-select:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+}
+.sm-count-text {
+  color: var(--text-muted);
+}
+
+/* ── Modal overlay ── */
+.sm-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.sm-modal {
+  background: var(--panel-bg);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+}
+.sm-modal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.sm-modal-footer {
+  border-top: 1px solid var(--divider);
+}
+.sm-modal-title {
+  color: var(--text-primary);
+}
+.sm-close-btn {
+  color: var(--text-muted);
+}
+.sm-close-btn:hover {
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+/* ── Form fields ── */
+.sm-field-label {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+}
+.sm-field-required {
+  color: var(--danger);
+}
+.sm-field-error {
+  color: var(--danger);
+  font-size: 11px;
+}
+.sm-section-label {
+  color: var(--btn-bg);
+  border-bottom: 1px solid var(--divider);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.sm-form-input {
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  width: 100%;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.sm-form-input::placeholder {
+  color: var(--text-muted);
+}
+.sm-form-input:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.sm-form-input-error {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 12%, transparent) !important;
+}
+.sm-form-input-disabled {
+  background: var(--input-bg);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.sm-preview-box {
+  background: color-mix(in srgb, var(--btn-bg) 8%, transparent);
+  border: 1px dashed var(--btn-bg);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--btn-bg);
+}
+
+/* ── Toggle switch ── */
+.sm-sw-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sm-sw-label {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.sm-sw {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--input-border);
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.sm-sw input {
+  display: none;
+}
+.sm-sw-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+.sm-sw input:checked ~ .sm-sw-knob {
+  transform: translateX(18px);
+}
+.sm-sw:has(input:checked) {
+  background: var(--btn-bg);
+}
+
+/* ── Calc option cards ── */
+.sm-calc-option {
+  border: 2px solid var(--input-border);
+  background: var(--panel-bg);
+  color: var(--text-secondary);
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  font-size: 13px;
+  font-weight: 600;
+}
+.sm-calc-option:hover {
+  border-color: var(--btn-bg);
+}
+.sm-calc-option-fixed.sm-selected {
+  border-color: var(--warning);
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.sm-calc-option-percentage.sm-selected {
+  border-color: var(--btn-bg);
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── Modal buttons ── */
+.sm-modal-btn-cancel {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+  background: var(--panel-bg);
+}
+.sm-modal-btn-cancel:hover {
+  background: var(--input-bg);
+}
+.sm-modal-btn-submit {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.sm-modal-btn-submit:hover {
+  background: var(--btn-hover);
+}
+.sm-modal-btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Delete modal ── */
+.sm-delete-icon-wrap {
+  background: var(--danger-bg);
+}
+.sm-delete-icon {
+  color: var(--danger);
+}
+.sm-delete-title {
+  color: var(--text-primary);
+}
+.sm-delete-desc {
+  color: var(--text-muted);
+}
+.sm-modal-btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.sm-modal-btn-danger:hover {
+  opacity: 0.88;
+}
+.sm-modal-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -9,6 +9,13 @@ import {
     fetchEmployeeSalaryStructureById,
 } from "../../../../redux/employee_salary_structure/employeeSalaryStructureSlice.js";
 import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
+// ASSUMPTION: follows the same naming pattern as the other list thunks in
+// this app (fetchStudents, fetchClasses, etc). Adjust this import + export
+// name if employeeSlice.js uses a different thunk name for listing
+// employees. This is the actual fix for "employee search not working" —
+// nothing was ever dispatching a fetch, so state.employees.employees was
+// permanently empty and the search box had nothing to filter.
+import { fetchEmployees } from "../../../../redux/employee/employeeSlice.js";
 
 
 /* ── Field wrapper ── */
@@ -48,9 +55,17 @@ export default function SalaryStructureModal({
 
     /* employees from redux — assumes employeeSlice with state.employees.employees */
     const employees = useSelector((state) => state.employees?.employees ?? []);
+    // console.log(employees);
     const empLoading = useSelector((state) => state.employees?.loading ?? false);
 
     const [employeeSearch, setEmployeeSearch] = useState("");
+
+    const { user } = useSelector((state) => state.auth);
+    const schools = useSelector((state) => state.schoolProfile?.schools ?? []);
+    const schoolsLoading = useSelector((state) => state.schoolProfile?.loading ?? false);
+
+    const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
+    const schoolId = isAdmin ? null : user?.school_id;
 
     /* ── Form state ── */
     const [formData, setFormData] = useState({
@@ -60,20 +75,56 @@ export default function SalaryStructureModal({
         status: "active",
         remarks: "",
     });
+    // Admin-only: which school's employees to browse when creating a new
+    // structure. Not part of formData/the submit payload — same pattern as
+    // StudentAdmissionForm's school picker, used purely for scoping.
+    const [selectedSchool, setSelectedSchool] = useState("");
     const [errors, setErrors] = useState({});
     const [submitting, setSubmitting] = useState(false);
 
-    /* ── Filtered employee list ── */
+    const effectiveSchoolId = isAdmin ? selectedSchool : schoolId;
+    const needsSchoolFirst = !isEdit && isAdmin && !effectiveSchoolId;
+
+    /* ── Fetch schools (admin) ── */
+    useEffect(() => {
+        if (isAdmin) dispatch(fetchSchools());
+    }, [dispatch, isAdmin]);
+
+    /* ── Fetch employees, scoped to the effective school ──
+       Re-fetches whenever the effective school changes, passing it along
+       in case the thunk filters server-side (harmless if it ignores the
+       extra argument — same assumption used elsewhere in this app). */
+    useEffect(() => {
+        if (!isOpen) return;
+        if (isAdmin && !effectiveSchoolId) return;
+        dispatch(fetchEmployees(effectiveSchoolId));
+    }, [dispatch, isOpen, isAdmin, effectiveSchoolId]);
+
+    /* ── School-scoped + search-filtered employee list ──
+       Client-side school filter as a safety net even if the fetch above
+       already filtered server-side — mirrors the scopedTo() pattern used
+       in StudentAdmissionForm/ClassSectionForm. */
     const filteredEmployees = useMemo(() => {
+        let list = employees;
+
+        if (effectiveSchoolId) {
+            list = list.filter(
+                (emp) =>
+                    emp.school_id == null ||
+                    String(emp.school_id) === String(effectiveSchoolId),
+            );
+        }
+
         const query = employeeSearch.trim().toLowerCase();
-        if (!query) return employees;
-        return employees.filter(
+        if (!query) return list;
+        return list.filter(
             (emp) =>
                 `${emp.first_name} ${emp.last_name}`.toLowerCase().includes(query) ||
                 emp.employee_code?.toLowerCase().includes(query) ||
-                emp.designation?.toLowerCase().includes(query),
+                emp.designation?.toLowerCase().includes(query) ||
+                emp.mobile?.toLowerCase().includes(query),
         );
-    }, [employees, employeeSearch]);
+    }, [employees, employeeSearch, effectiveSchoolId]);
 
     /* ── Hydrate on open ── */
     useEffect(() => {
@@ -93,9 +144,20 @@ export default function SalaryStructureModal({
         } else {
             setFormData({ employee_id: "", effective_from: "", effective_to: "", status: "active", remarks: "" });
             setEmployeeSearch("");
+            setSelectedSchool(isAdmin ? "" : (schoolId ?? ""));
         }
         setErrors({});
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, isEdit, structure]);
+
+    /* ── Changing the school (admin, create mode) clears any previously
+       picked employee, since it may not belong to the new school ── */
+    const handleSchoolChange = (e) => {
+        const value = e.target.value;
+        setSelectedSchool(value);
+        setFormData((prev) => ({ ...prev, employee_id: "" }));
+        setErrors((prev) => ({ ...prev, school_id: null, employee_id: null }));
+    };
 
     /* ── Unified handler ── */
     const handleChange = (key) => (e) => {
@@ -121,6 +183,8 @@ export default function SalaryStructureModal({
     /* ── Validation ── */
     const validate = () => {
         const errs = {};
+        if (!isEdit && isAdmin && !selectedSchool)
+            errs.school_id = "Please select a school";
         if (!isEdit && !formData.employee_id)
             errs.employee_id = "Please select an employee";
         if (!formData.effective_from)
@@ -207,10 +271,31 @@ export default function SalaryStructureModal({
                         {/* Body */}
                         <div className="px-6 py-5 overflow-y-auto max-h-[70vh] flex flex-col gap-5">
 
-                            {/* ── Create mode: Employee selector ── */}
+                            {/* ── Create mode: School (admin only) + Employee selector ── */}
                             {!isEdit && (
                                 <>
                                     <p className="ss-section-label pb-1.5">Employee</p>
+
+                                    {/* School filter — ADMIN only, scopes the employee list below */}
+                                    {isAdmin && (
+                                        <Field label="School" required error={errors.school_id}>
+                                            <select
+                                                className={fi(errors.school_id)}
+                                                value={selectedSchool}
+                                                onChange={handleSchoolChange}
+                                                disabled={schoolsLoading}
+                                            >
+                                                <option value="">
+                                                    {schoolsLoading ? "Loading schools..." : "Select a school"}
+                                                </option>
+                                                {schools.map((s) => (
+                                                    <option key={s.id} value={s.id}>
+                                                        {s.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </Field>
+                                    )}
 
                                     {/* Search within dropdown */}
                                     <div className="flex flex-col gap-1">
@@ -223,9 +308,14 @@ export default function SalaryStructureModal({
                                             <Search size={14} className="ss-search-icon shrink-0" />
                                             <input
                                                 className="ss-search-input text-[13.5px]"
-                                                placeholder="Search by name, code or designation…"
+                                                placeholder={
+                                                    needsSchoolFirst
+                                                        ? "Select a school first…"
+                                                        : "Search by name, mobile, code or designation…"
+                                                }
                                                 value={employeeSearch}
                                                 onChange={(e) => setEmployeeSearch(e.target.value)}
+                                                disabled={needsSchoolFirst}
                                             />
                                         </div>
 
@@ -234,12 +324,22 @@ export default function SalaryStructureModal({
                                             size={5}
                                             value={formData.employee_id}
                                             onChange={handleChange("employee_id")}
+                                            disabled={needsSchoolFirst || empLoading}
                                         >
-                                            <option value="">— Select an employee —</option>
+                                            <option value="">
+                                                {needsSchoolFirst
+                                                    ? "Select a school first"
+                                                    : empLoading
+                                                        ? "Loading employees…"
+                                                        : filteredEmployees.length === 0
+                                                            ? "No employees found"
+                                                            : "— Select an employee —"}
+                                            </option>
                                             {filteredEmployees.map((emp) => (
                                                 <option key={emp.id} value={emp.id}>
                                                     {emp.first_name} {emp.last_name}
-                                                    {emp.employee_code ? ` (${emp.employee_code})` : ""}
+                                                    {/* {emp.employee_code ? ` (${emp.employee_code})` : ""} */}
+                                                    {emp.mobile ? ` · (${emp.mobile})` : ""}
                                                     {emp.designation ? ` · ${emp.designation}` : ""}
                                                 </option>
                                             ))}

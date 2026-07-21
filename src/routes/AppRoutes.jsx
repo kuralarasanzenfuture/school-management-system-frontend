@@ -4,7 +4,8 @@ import LoginPage from "../features/auth/pages/LoginPage";
 
 import MainLayout from "../common/layouts/MainLayout.jsx";
 
-import Dashboard from "../features/dashboard/pages/Dashboard";
+// import Dashboard from "../features/dashboard/pages/Dashboard";
+import Dashboard from "../features/dashboard copy/pages/Dashboard";
 
 // import StudentsPage from "../features/students/pages/StudentPage.jsx";
 // import StudentsPage from "../features/students-new/pages/StudentsPage.jsx";
@@ -38,6 +39,10 @@ import NotFoundPage from "../common/pages/404/NotFoundPage.jsx";
 import LoadingSpinner from "../common/components/loading/LoadingSpinner.jsx";
 import ProfilePage from "../common/pages/profile/ProfilePage.jsx";
 import SalaryStructurePage from "../features/employeeManagement/employeeSalaryStructure/pages/SalaryStructurePage.jsx";
+import SalaryStructureDetailPage from "../features/employeeManagement/employeeSalaryStructureDetail/pages/SalaryStructureDetailPage.jsx";
+import SalaryManagementV1 from "../features/employeeManagement/Salarymanagement/pages/SalaryManagementV1.jsx";
+import SalaryManagementV2 from "../features/employeeManagement/Salarymanagement/pages/SalaryManagementV2.jsx";
+import SalaryManagementV3 from "../features/employeeManagement/Salarymanagement/pages/SalaryManagementV3.jsx";
 
 // import TeacherList from "../features/teachers/pages/TeacherList";
 
@@ -96,7 +101,11 @@ const AppRoutes = () => {
           <Route path="/employee-attendance" element={<EmployeeAttendancePage />} />
           <Route path="/employee-leaves" element={<LeaveTypePage />} />
           <Route path="/employee-salary-components" element={<SalaryComponentPage />} />
-          <Route path="/employee-salary-structures" element={<SalaryStructurePage />} />
+          {/* <Route path="/employee-salary-structures" element={<SalaryStructurePage />} /> */}
+          {/* <Route path="/employee-salary-structures" element={<SalaryManagementV1 />} /> */}
+          {/* <Route path="/employee-salary-structures" element={<SalaryManagementV2 />} /> */}
+          <Route path="/employee-salary-structures" element={<SalaryManagementV3 />} />
+          <Route path="/employee-salary-assignment" element={<SalaryStructureDetailPage />} />
 
           <Route path="/loading" element={<LoadingSpinner />} />
 

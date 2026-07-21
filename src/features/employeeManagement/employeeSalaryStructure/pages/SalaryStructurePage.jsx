@@ -197,9 +197,60 @@ export default function SalaryStructurePage() {
             )}
 
             {/* ── Error ── */}
-            {!loading && error && (
+            {/* {!loading && error && (
                 <div className="ss-table-card rounded-2xl p-12 text-center">
                     <p className="ss-field-error text-[14px]">{error}</p>
+                </div>
+            )} */}
+
+            {!loading && error && (
+                <div className="ss-table-card rounded-2xl p-10 text-center flex flex-col items-center justify-center">
+                    {/* Error Icon */}
+                    <div className="w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-7 h-7 text-red-600 dark:text-red-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M12 9v2m0 4h.01M12 3l9 16H3L12 3z"
+                            />
+                        </svg>
+                    </div>
+
+                    <h3 className="text-lg font-semibold ss-text-primary mb-2">
+                        Failed to load salary structures
+                    </h3>
+
+                    <p className="ss-field-error text-sm mb-5 max-w-md">
+                        {error}
+                    </p>
+
+                    <button
+                        onClick={() => dispatch(fetchEmployeeSalaryStructures())}
+                        className="ss-btn-primary inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold shadow-sm transition-all hover:scale-[1.02] active:scale-95"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-4 h-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M4 4v6h6M20 20v-6h-6M20 9a8 8 0 00-14.9-3M4 15a8 8 0 0014.9 3"
+                            />
+                        </svg>
+                        Retry
+                    </button>
                 </div>
             )}
 

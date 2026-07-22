@@ -79,9 +79,9 @@ const EmployeePage = () => {
     return employees.filter((e) => {
       const matchesSearch = term
         ? `${e.first_name} ${e.last_name || ""}`.toLowerCase().includes(term) ||
-          e.employee_code?.toLowerCase().includes(term) ||
-          e.mobile?.toLowerCase().includes(term) ||
-          e.email?.toLowerCase().includes(term)
+        e.employee_code?.toLowerCase().includes(term) ||
+        e.mobile?.toLowerCase().includes(term) ||
+        e.email?.toLowerCase().includes(term)
         : true;
 
       const matchesStatus = statusFilter ? e.status === statusFilter : true;
@@ -102,6 +102,7 @@ const EmployeePage = () => {
   // expects a route registered like <Route path="/employees/:id" ... />.
   const openViewPage = (employee) => {
     navigate(`/employees/${employee.id}`);
+    // navigate(`/salary/employee/${employee.id}`);
   };
 
   const openAddModal = () => {

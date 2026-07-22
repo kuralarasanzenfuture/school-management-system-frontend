@@ -5,6 +5,8 @@ import {
   createEmployee,
   updateEmployee,
   deleteEmployee,
+  assignUserToEmployee,
+  unassignUserFromEmployee,
 } from "./employee.service";
 
 // ---------------- Fetch All ----------------
@@ -78,6 +80,35 @@ export const removeEmployee = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to delete employee",
+      );
+    }
+  },
+);
+
+// ---------------- Assign User To Employee ----------------
+export const assignEmployeeUser = createAsyncThunk(
+  "employees/assignUser",
+  async ({ employeeId, userId }, { rejectWithValue }) => {
+    try {
+      return await assignUserToEmployee(employeeId, userId);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to assign user",
+      );
+    }
+  },
+);
+
+// ---------------- Unassign User From Employee ----------------
+
+export const unassignEmployeeUser = createAsyncThunk(
+  "employees/unassignUser",
+  async (employeeId, { rejectWithValue }) => {
+    try {
+      return await unassignUserFromEmployee(employeeId);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to unassign user",
       );
     }
   },
@@ -183,6 +214,54 @@ const employeeSlice = createSlice({
         );
       })
       .addCase(removeEmployee.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Assign User
+      .addCase(assignEmployeeUser.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(assignEmployeeUser.fulfilled, (state, action) => {
+        state.loading = false;
+
+        const updated = action.payload.data ?? action.payload;
+
+        const index = state.employees.findIndex((emp) => emp.id === updated.id);
+
+        if (index !== -1) {
+          state.employees[index] = updated;
+        }
+
+        if (state.employee && state.employee.id === updated.id) {
+          state.employee = updated;
+        }
+      })
+      .addCase(assignEmployeeUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Unassign User
+      .addCase(unassignEmployeeUser.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(unassignEmployeeUser.fulfilled, (state, action) => {
+        state.loading = false;
+
+        const updated = action.payload.data ?? action.payload;
+
+        const index = state.employees.findIndex((emp) => emp.id === updated.id);
+
+        if (index !== -1) {
+          state.employees[index] = updated;
+        }
+
+        if (state.employee && state.employee.id === updated.id) {
+          state.employee = updated;
+        }
+      })
+      .addCase(unassignEmployeeUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

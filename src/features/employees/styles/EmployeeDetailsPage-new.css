@@ -1,0 +1,324 @@
+/* EmployeeDetailsPage.css — all colors via CSS variables */
+
+/* ── Page ── */
+.ed-page {
+  background: var(--bg);
+}
+.ed-loading {
+  color: var(--text-muted);
+}
+.ed-error {
+  color: var(--danger);
+}
+
+/* ── Buttons ── */
+.ed-back-btn {
+  color: var(--text-secondary);
+}
+.ed-back-btn:hover {
+  color: var(--btn-bg);
+}
+.ed-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.ed-btn-primary:hover {
+  background: var(--btn-hover);
+}
+.ed-btn-outline {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+  background: var(--panel-bg);
+}
+.ed-btn-outline:hover {
+  background: var(--input-bg);
+}
+
+/* ── Not found ── */
+.ed-notfound-title {
+  color: var(--text-primary);
+}
+.ed-notfound {
+  color: var(--text-muted);
+}
+
+/* ── Tab bar ── */
+.ed-tab-bar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ed-tab {
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  transition:
+    color 0.18s,
+    border-color 0.18s;
+  white-space: nowrap;
+}
+.ed-tab:hover {
+  color: var(--text-secondary);
+}
+.ed-tab-active {
+  color: var(--btn-bg);
+  border-bottom: 2px solid var(--btn-bg);
+  font-weight: 600;
+}
+.ed-tab-badge {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+.ed-tab-badge-soon {
+  background: var(--input-bg);
+  color: var(--text-muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+
+/* ── Hero card ── */
+.ed-hero-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ed-hero-name {
+  color: var(--text-primary);
+}
+.ed-hero-email {
+  color: var(--text-secondary);
+}
+.ed-hero-code {
+  color: var(--text-muted);
+}
+.ed-avatar-ring {
+  border: 3px solid var(--divider);
+  background: var(--badge-bg);
+}
+.ed-avatar-fallback {
+  color: var(--btn-bg);
+  font-size: 28px;
+}
+.ed-avatar-clickable {
+  cursor: zoom-in;
+}
+.ed-chip {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── Section cards ── */
+.ed-section-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ed-section-title {
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--divider);
+}
+.ed-field-label {
+  color: var(--text-muted);
+}
+.ed-field-value {
+  color: var(--text-primary);
+}
+.ed-field-value-empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.ed-note {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+
+/* ── Documents ── */
+.ed-doc-card {
+  background: var(--input-bg);
+  border: 1px solid var(--divider);
+}
+.ed-doc-card-filled {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+}
+.ed-doc-thumb {
+  background: var(--input-bg);
+}
+.ed-doc-name {
+  color: var(--text-primary);
+}
+.ed-doc-icon-filled {
+  color: var(--btn-bg);
+}
+.ed-doc-icon-empty {
+  color: var(--text-muted);
+}
+.ed-doc-missing {
+  color: var(--text-muted);
+}
+.ed-doc-view-btn {
+  color: var(--text-muted);
+  border: 1px solid var(--divider);
+  background: var(--panel-bg);
+}
+.ed-doc-view-btn:hover {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+  border-color: var(--btn-bg);
+}
+
+/* ── Signature thumb ── */
+.ed-sig-thumb {
+  background: var(--input-bg);
+  border: 1px solid var(--divider);
+}
+
+/* ── Lightbox ── */
+.ed-lightbox-overlay {
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+}
+.ed-lightbox-frame {
+  background: var(--panel-bg);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+}
+.ed-lightbox-label {
+  color: var(--text-primary);
+}
+.ed-lightbox-close {
+  color: var(--text-muted);
+}
+.ed-lightbox-close:hover {
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+/* ── Salary tab ── */
+.ed-salary-section-earning {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.ed-salary-section-deduction {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.ed-salary-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.ed-salary-row {
+  border-top: 1px solid var(--divider);
+  transition: background 0.15s;
+}
+.ed-salary-row:hover {
+  background: var(--input-bg);
+}
+.ed-salary-primary {
+  color: var(--text-primary);
+}
+.ed-salary-muted {
+  color: var(--text-muted);
+}
+.ed-salary-earning {
+  color: var(--success);
+  font-weight: 700;
+}
+.ed-salary-deduction {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.ed-salary-net-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ed-net-positive {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.ed-net-negative {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.ed-info-row-label {
+  color: var(--text-muted);
+}
+.ed-info-row-value {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.ed-struct-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ed-struct-name {
+  color: var(--text-primary);
+}
+.ed-struct-meta {
+  color: var(--text-muted);
+}
+.ed-status {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.ed-status-active {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.ed-status-inactive {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.ed-calc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.ed-calc-fixed {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--divider);
+}
+.ed-calc-percentage {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+.ed-based-on {
+  background: var(--input-bg);
+  border: 1px solid var(--divider);
+  color: var(--text-muted);
+  font-size: 10.5px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+/* ── Coming soon ── */
+.ed-coming-soon {
+  border: 2px dashed var(--divider);
+  border-radius: 16px;
+  background: var(--input-bg);
+}
+.ed-coming-soon-title {
+  color: var(--text-secondary);
+}
+.ed-coming-soon-icon-bg {
+  background: var(--badge-bg);
+}

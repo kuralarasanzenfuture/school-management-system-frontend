@@ -345,7 +345,7 @@ const authSlice = createSlice({
         state.loading = false;
 
         const userData = unwrapUser(action.payload);
-        console.log(userData);
+        // console.log("current user",userData);
         state.user = userData;
 
         // localStorage.setItem("user", JSON.stringify(userData));

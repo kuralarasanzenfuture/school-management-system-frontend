@@ -13,7 +13,7 @@ export const login = async (credentials) => {
 export const getMe = async () => {
   try {
     const response = await api.get("/users/me");
-    console.log("getMe response:", response.data);
+    // console.log("getMe response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching user data:", error);

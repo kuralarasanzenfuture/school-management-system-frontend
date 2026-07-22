@@ -219,3 +219,34 @@
   color: var(--danger);
   background: var(--danger-bg);
 }
+
+/* ── Delete modal ──
+   NOTE: assumes Subject.css already defines sj-modal-overlay,
+   sj-modal-panel, sj-modal-header, sj-modal-title, sj-modal-close,
+   sj-form-footer, sj-btn-cancel (same base modal chrome as every other
+   module). If any of those are missing, paste me the existing
+   Subject.css and I'll fill the gap instead of guessing.
+*/
+.sj-delete-icon-wrap {
+  background: var(--danger-bg);
+}
+.sj-delete-icon {
+  color: var(--danger);
+}
+.sj-delete-title {
+  color: var(--text-primary);
+}
+.sj-delete-desc {
+  color: var(--text-muted);
+}
+.sj-modal-btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.sj-modal-btn-danger:hover {
+  opacity: 0.88;
+}
+.sj-modal-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

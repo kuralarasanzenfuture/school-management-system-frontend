@@ -204,3 +204,28 @@
 .cp-btn-cancel:hover {
   color: var(--text-primary);
 }
+
+/* ── Delete modal ── */
+.cp-delete-icon-wrap {
+  background: var(--danger-bg);
+}
+.cp-delete-icon {
+  color: var(--danger);
+}
+.cp-delete-title {
+  color: var(--text-primary);
+}
+.cp-delete-desc {
+  color: var(--text-muted);
+}
+.cp-modal-btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.cp-modal-btn-danger:hover {
+  opacity: 0.88;
+}
+.cp-modal-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

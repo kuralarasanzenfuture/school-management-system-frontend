@@ -1,0 +1,340 @@
+/* EmployeeSalaryProfile.css — all colors via CSS variables */
+
+/* ── Page ── */
+.esp-page {
+  background: var(--bg);
+}
+.esp-title {
+  color: var(--text-primary);
+}
+.esp-subtitle {
+  color: var(--text-muted);
+}
+
+/* ── Employee header card ── */
+.esp-header-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.esp-avatar {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+.esp-emp-name {
+  color: var(--text-primary);
+}
+.esp-emp-meta {
+  color: var(--text-secondary);
+}
+.esp-emp-muted {
+  color: var(--text-muted);
+}
+.esp-emp-code-chip {
+  background: var(--input-bg);
+  border: 1px solid var(--divider);
+  color: var(--text-secondary);
+  font-family: monospace;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+/* ── Status badge ── */
+.esp-status {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.esp-status-active {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.esp-status-inactive {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* ── Tab bar ── */
+.esp-tab-bar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.esp-tab {
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  transition:
+    color 0.18s,
+    border-color 0.18s;
+  white-space: nowrap;
+}
+.esp-tab:hover {
+  color: var(--text-secondary);
+}
+.esp-tab-active {
+  color: var(--btn-bg);
+  border-bottom: 2px solid var(--btn-bg);
+  font-weight: 600;
+}
+.esp-tab-badge {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+.esp-tab-badge-muted {
+  background: var(--input-bg);
+  color: var(--text-muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+
+/* ── Generic panel ── */
+.esp-panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.esp-panel-title {
+  color: var(--text-primary);
+}
+.esp-panel-header {
+  border-bottom: 1px solid var(--divider);
+}
+
+.esp-cell-primary {
+  color: var(--text-primary);
+}
+.esp-cell-secondary {
+  color: var(--text-secondary);
+}
+.esp-cell-muted {
+  color: var(--text-muted);
+}
+
+/* ── Overview stat cards ── */
+.esp-stat-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.esp-stat-value {
+  color: var(--text-primary);
+}
+.esp-stat-label {
+  color: var(--text-muted);
+}
+
+.esp-icon-total-bg {
+  background: var(--badge-bg);
+}
+.esp-icon-total {
+  color: var(--btn-bg);
+}
+.esp-icon-earning-bg {
+  background: var(--success-bg);
+}
+.esp-icon-earning {
+  color: var(--success);
+}
+.esp-icon-deduction-bg {
+  background: var(--danger-bg);
+}
+.esp-icon-deduction {
+  color: var(--danger);
+}
+.esp-icon-active-bg {
+  background: var(--success-bg);
+}
+.esp-icon-active {
+  color: var(--success);
+}
+
+/* ── Structure list items ── */
+.esp-struct-item {
+  border: 1px solid var(--divider);
+  background: var(--panel-bg);
+  transition:
+    box-shadow 0.15s,
+    border-color 0.15s;
+}
+.esp-struct-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.esp-struct-item-active {
+  border-color: var(--btn-bg);
+  background: color-mix(in srgb, var(--btn-bg) 5%, var(--panel-bg));
+}
+.esp-struct-name {
+  color: var(--text-primary);
+}
+.esp-struct-meta {
+  color: var(--text-muted);
+}
+.esp-dot-active {
+  background: var(--success);
+}
+.esp-dot-inactive {
+  background: var(--danger);
+}
+
+/* ── Component section headers ── */
+.esp-section-earning {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.esp-section-deduction {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.esp-section-benefit {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── Table ── */
+.esp-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.esp-row {
+  border-top: 1px solid var(--divider);
+  transition: background 0.15s;
+}
+.esp-row:hover {
+  background: var(--input-bg);
+}
+
+/* ── Calc chips ── */
+.esp-calc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.esp-calc-fixed {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--divider);
+}
+.esp-calc-percentage {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+.esp-based-on {
+  background: var(--input-bg);
+  border: 1px solid var(--divider);
+  color: var(--text-muted);
+  font-size: 10.5px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+/* ── Amount ── */
+.esp-amount {
+  font-weight: 700;
+}
+.esp-amount-earning {
+  color: var(--success);
+}
+.esp-amount-deduction {
+  color: var(--danger);
+}
+
+/* ── Net salary summary ── */
+.esp-net-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.esp-net-earning {
+  color: var(--success);
+}
+.esp-net-deduction {
+  color: var(--danger);
+}
+.esp-net-positive {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.esp-net-negative {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* ── Empty & loading states ── */
+.esp-empty {
+  border: 2px dashed var(--divider);
+  border-radius: 12px;
+  color: var(--text-muted);
+}
+.esp-loading {
+  color: var(--text-muted);
+}
+
+/* ── Future tab placeholder ── */
+.esp-coming-soon {
+  border: 2px dashed var(--divider);
+  border-radius: 16px;
+  color: var(--text-muted);
+  background: var(--input-bg);
+}
+.esp-coming-soon-title {
+  color: var(--text-secondary);
+}
+
+/* ── Buttons ── */
+.esp-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.esp-btn-primary:hover {
+  background: var(--btn-hover);
+}
+.esp-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.esp-btn-outline:hover {
+  background: var(--input-bg);
+}
+
+/* ── Action buttons ── */
+.esp-action-btn {
+  color: var(--text-muted);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.esp-action-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+.esp-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* ── Info row (label : value) ── */
+.esp-info-label {
+  color: var(--text-muted);
+}
+.esp-info-value {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.esp-info-divider {
+  background: var(--divider);
+}

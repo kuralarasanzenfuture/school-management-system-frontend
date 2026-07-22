@@ -234,3 +234,28 @@
 .sp-btn-cancel:hover {
   color: var(--text-primary);
 }
+
+/* ── Delete modal ── */
+.sp-delete-icon-wrap {
+  background: var(--danger-bg);
+}
+.sp-delete-icon {
+  color: var(--danger);
+}
+.sp-delete-title {
+  color: var(--text-primary);
+}
+.sp-delete-desc {
+  color: var(--text-muted);
+}
+.sp-modal-btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.sp-modal-btn-danger:hover {
+  opacity: 0.88;
+}
+.sp-modal-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -1,0 +1,194 @@
+/* EmployeeAssign.css
+   Color styling for the Employee ↔ User assignment feature, driven by the
+   theme variables in app.css. Tailwind handles layout/spacing/sizing.
+*/
+
+.ea-page {
+  background: var(--bg);
+}
+.ea-title {
+  color: var(--text-primary);
+}
+.ea-subtitle {
+  color: var(--text-muted);
+}
+
+.ea-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.ea-btn-outline:hover {
+  background: var(--input-bg);
+}
+
+.ea-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.ea-btn-primary:hover {
+  background: var(--btn-hover);
+}
+.ea-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Toolbar ── */
+.ea-toolbar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ea-search-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.ea-search-input::placeholder {
+  color: var(--text-muted);
+}
+.ea-search-input:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.ea-count-text {
+  color: var(--text-muted);
+}
+
+/* ── Table ── */
+.ea-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ea-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.ea-row {
+  border-top: 1px solid var(--divider);
+}
+.ea-row:hover {
+  background: var(--input-bg);
+}
+.ea-avatar {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+}
+.ea-name {
+  color: var(--text-primary);
+}
+.ea-cell {
+  color: var(--text-secondary);
+}
+.ea-cell-muted {
+  color: var(--text-muted);
+}
+
+/* Linked / unlinked chip */
+.ea-link-chip {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.ea-unlinked-chip {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+
+.ea-action-btn {
+  color: var(--text-muted);
+}
+.ea-action-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+.ea-assign-btn {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+}
+.ea-assign-btn:hover {
+  opacity: 0.85;
+}
+.ea-unassign-btn {
+  color: var(--danger);
+}
+.ea-unassign-btn:hover {
+  background: var(--danger-bg);
+}
+.ea-unassign-btn:disabled,
+.ea-assign-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ea-empty-state,
+.ea-loading {
+  color: var(--text-muted);
+}
+.ea-error {
+  color: var(--danger);
+}
+
+/* ── Modal ── */
+.ea-modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.ea-modal-panel {
+  background: var(--panel-bg);
+  box-shadow: var(--shadow);
+}
+.ea-modal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.ea-modal-title {
+  color: var(--text-primary);
+}
+.ea-modal-subtitle {
+  color: var(--text-muted);
+}
+.ea-modal-close {
+  color: var(--text-muted);
+}
+.ea-modal-close:hover {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+}
+
+/* ── Form (inside modal) ── */
+.ea-field-label {
+  color: var(--text-secondary);
+}
+.ea-field-required {
+  color: var(--danger);
+}
+.ea-field-error {
+  color: var(--danger);
+}
+.ea-field-hint {
+  color: var(--text-muted);
+}
+.ea-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.ea-input:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.ea-input-error {
+  border-color: var(--danger) !important;
+}
+
+.ea-form-footer {
+  border-top: 1px solid var(--divider);
+}
+.ea-btn-cancel {
+  color: var(--text-secondary);
+}
+.ea-btn-cancel:hover {
+  color: var(--text-primary);
+}

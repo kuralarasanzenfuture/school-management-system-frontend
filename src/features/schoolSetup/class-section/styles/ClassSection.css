@@ -196,3 +196,34 @@
   color: var(--danger);
   background: var(--danger-bg);
 }
+
+/* ── Delete modal ──
+   NOTE: assumes ClassSection.css already defines cs-modal-overlay,
+   cs-modal-panel, cs-modal-header, cs-modal-title, cs-modal-close,
+   cs-form-footer, cs-btn-cancel (same base modal chrome as every other
+   module). If any of those are missing, paste me the existing
+   ClassSection.css and I'll fill the gap instead of guessing.
+*/
+.cs-delete-icon-wrap {
+  background: var(--danger-bg);
+}
+.cs-delete-icon {
+  color: var(--danger);
+}
+.cs-delete-title {
+  color: var(--text-primary);
+}
+.cs-delete-desc {
+  color: var(--text-muted);
+}
+.cs-modal-btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.cs-modal-btn-danger:hover {
+  opacity: 0.88;
+}
+.cs-modal-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

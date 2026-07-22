@@ -1,9 +1,64 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { X, CircleCheck, LayoutList, IndianRupee, Percent, Trash2, Search } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
+import {
+    addEmployeeSalaryStructure,
+    editEmployeeSalaryStructure,
+    fetchEmployeeSalaryStructures,
+    removeEmployeeSalaryStructure,
+} from "../../../../redux/employee_salary_structure/employeeSalaryStructureSlice.js";
+import {
+    addEmployeeSalaryStructureDetail,
+    editEmployeeSalaryStructureDetail,
+    fetchEmployeeSalaryStructureDetails,
+    removeEmployeeSalaryStructureDetail,
+} from "../../../../redux/employee_salary_structure_detail/employeeSalaryStructureDetailSlice.js";
+// ASSUMPTION: follows the same naming pattern as the other list thunks in
+// this app. Adjust the import path/thunk name if these slices actually
+// export something different.
+import { fetchEmployees } from "../../../../redux/employee/employeeSlice.js";
 import { fetchEmployeeSalaryComponents } from "../../../../redux/employee_salary_component/employeeSalaryComponentSlice.js";
-import { fetchEmployeeSalaryStructureDetails } from "../../../../redux/employee_salary_structure_detail/employeeSalaryStructureDetailSlice.js";
-import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
-import { SalaryDetailForm } from "./SalaryDetailForm.jsx";
+
+/* ── shared primitives ───────────────────────────────────────────── */
+function Overlay({ onClick, children }) {
+    return (
+        <motion.div
+            className="sm-overlay fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-4"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={onClick}
+        >
+            {children}
+        </motion.div>
+    );
+}
+function Panel({ children, maxWidth = "max-w-lg" }) {
+    return (
+        <motion.div
+            onClick={(e) => e.stopPropagation()}
+            initial={{ opacity: 0, scale: 0.92, y: 32 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.92, y: 32 }}
+            transition={{ duration: 0.22 }}
+            className={`sm-modal w-full ${maxWidth} rounded-2xl overflow-hidden`}
+        >
+            {children}
+        </motion.div>
+    );
+}
+function Field({ label, required, error, hint, children }) {
+    return (
+        <div className="flex flex-col gap-1">
+            <label className="sm-field-label">
+                {label}{required && <span className="sm-field-required ml-0.5">*</span>}
+            </label>
+            {children}
+            {hint && !error && <p className="sm-comp-muted text-[11px] mt-0.5">{hint}</p>}
+            <div className="h-4">{error && <p className="sm-field-error">{error}</p>}</div>
+        </div>
+    );
+}
+const fi = (err) => `sm-form-input${err ? " sm-form-input-error" : ""}`;
 
 export function SalaryDetailFormModal({ isOpen, onClose, detail = null, structureId = null, structureName = "" }) {
     const dispatch = useDispatch();

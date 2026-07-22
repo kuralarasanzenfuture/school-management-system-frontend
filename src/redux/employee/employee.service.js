@@ -51,4 +51,29 @@ export const deleteEmployee = async (id) => {
   }
 };
 
+export const assignUserToEmployee = async (employeeId, userId) => {
+  try {
+    const response = await api.post("/employees/assign-user", {
+      employee_id: employeeId,
+      user_id: userId,
+    });
 
+    return response.data;
+  } catch (error) {
+    console.error("Error assigning user to employee:", error);
+    throw error;
+  }
+};
+
+export const unassignUserFromEmployee = async (employeeId) => {
+  try {
+    const response = await api.post("/employees/unassign-user", {
+      employee_id: employeeId,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error unassigning user from employee:", error);
+    throw error;
+  }
+};

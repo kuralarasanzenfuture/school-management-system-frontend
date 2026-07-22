@@ -23,7 +23,8 @@ import EmployeePage from "../features/employees/pages/EmployeePage.jsx";
 import EmployeeDesignationPage from "../features/employeeDesignations/pages/EmployeeDesignationPage.jsx";
 import PublicRoute from "./PublicRoute.jsx";
 import ProtectedRoute from "./ProtectedRoute.jsx";
-import EmployeeDetailsPage from "../features/employees/pages/EmployeeDetailsPage.jsx";
+// import EmployeeDetailsPage from "../features/employees/pages/EmployeeDetailsPage.jsx";
+import EmployeeDetailsPage from "../features/employees/pages/EmployeeDetailsPage-new.jsx";
 import ClassSectionPage from "../features/schoolSetup/class-section/pages/ClassSectionPage.jsx";
 import StudentAdmissionPage from "../features/studentsAdmission/pages/StudentAdmissionPage.jsx";
 import SubjectPage from "../features/schoolSetup/subject/pages/SubjectPage.jsx";
@@ -43,6 +44,8 @@ import SalaryStructureDetailPage from "../features/employeeManagement/employeeSa
 import SalaryManagementV1 from "../features/employeeManagement/Salarymanagement/pages/SalaryManagementV1.jsx";
 import SalaryManagementV2 from "../features/employeeManagement/Salarymanagement/pages/SalaryManagementV2.jsx";
 import SalaryManagementV3 from "../features/employeeManagement/Salarymanagement/pages/SalaryManagementV3.jsx";
+import EmployeeSalaryProfilePage from "../features/employees/pages/EmployeeSalaryProfilePage.jsx";
+import EmployeeAssignPage from "../features/Administration/EmployeeAssign/pages/EmployeeAssignPage.jsx";
 
 // import TeacherList from "../features/teachers/pages/TeacherList";
 
@@ -78,6 +81,8 @@ const AppRoutes = () => {
           <Route path="/users" element={<UserPage />} />
           {/* <Route path="/users/:id" element={<UserPage />} /> */}
 
+          <Route path="/assign-to-employees" element={<EmployeeAssignPage />} />
+
           <Route path="/school-profile" element={<SchoolProfilePage />} />
           <Route path="/academic-years" element={<AcademicYearPage />} />
           <Route path="/departments" element={<DepartmentPage />} />
@@ -86,6 +91,7 @@ const AppRoutes = () => {
           <Route path="/class-sections" element={<ClassSectionPage />} />
           <Route path="/employees" element={<EmployeePage />} />
           <Route path="/employees/:id" element={<EmployeeDetailsPage />} />
+          <Route path="/salary/employee/:employeeId" element={<EmployeeSalaryProfilePage />} />
           <Route
             path="/employee-designations"
             element={<EmployeeDesignationPage />}

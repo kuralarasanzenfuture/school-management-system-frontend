@@ -229,3 +229,28 @@
 .ay-btn-cancel:hover {
   color: var(--text-primary);
 }
+
+/* ── Delete modal ── */
+.ay-delete-icon-wrap {
+  background: var(--danger-bg);
+}
+.ay-delete-icon {
+  color: var(--danger);
+}
+.ay-delete-title {
+  color: var(--text-primary);
+}
+.ay-delete-desc {
+  color: var(--text-muted);
+}
+.ay-modal-btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.ay-modal-btn-danger:hover {
+  opacity: 0.88;
+}
+.ay-modal-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

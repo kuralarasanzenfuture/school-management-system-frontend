@@ -192,3 +192,28 @@
 .ea-btn-cancel:hover {
   color: var(--text-primary);
 }
+
+/* ── Unassign confirm modal ── */
+.ea-unassign-icon-wrap {
+  background: var(--danger-bg);
+}
+.ea-unassign-icon {
+  color: var(--danger);
+}
+.ea-unassign-title {
+  color: var(--text-primary);
+}
+.ea-unassign-desc {
+  color: var(--text-muted);
+}
+.ea-modal-btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.ea-modal-btn-danger:hover {
+  opacity: 0.88;
+}
+.ea-modal-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

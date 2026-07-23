@@ -46,6 +46,7 @@ import SalaryManagementV2 from "../features/employeeManagement/Salarymanagement/
 import SalaryManagementV3 from "../features/employeeManagement/Salarymanagement/pages/SalaryManagementV3.jsx";
 import EmployeeSalaryProfilePage from "../features/employees/pages/EmployeeSalaryProfilePage.jsx";
 import EmployeeAssignPage from "../features/Administration/EmployeeAssign/pages/EmployeeAssignPage.jsx";
+import AttendancePage from "../features/studentAttendance/pages/AttendancePage.jsx";
 
 // import TeacherList from "../features/teachers/pages/TeacherList";
 
@@ -69,6 +70,7 @@ const AppRoutes = () => {
           <Route path="/students" element={<StudentsPage />} />
           {/* Add Student */}
           <Route path="/students/add" element={<StudentFormPage />} />
+
 
           {/* Edit Student */}
           <Route path="/students/:id/edit" element={<StudentFormPage />} />
@@ -112,6 +114,9 @@ const AppRoutes = () => {
           {/* <Route path="/employee-salary-structures" element={<SalaryManagementV2 />} /> */}
           {/* <Route path="/employee-salary-structures" element={<SalaryManagementV3 />} /> */}
           <Route path="/employee-salary-assignment" element={<SalaryStructureDetailPage />} />
+
+          <Route path="/student-attendance" element={<AttendancePage />} />
+          
 
           <Route path="/loading" element={<LoadingSpinner />} />
 

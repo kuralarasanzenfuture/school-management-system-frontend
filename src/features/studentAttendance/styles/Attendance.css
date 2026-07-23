@@ -1,0 +1,198 @@
+/* Attendance.css */
+
+.at-page {
+  background: var(--bg);
+}
+
+/* ── Header ── */
+.at-title {
+  color: var(--text-primary);
+}
+.at-subtitle {
+  color: var(--text-muted);
+}
+
+.at-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.at-btn-outline:hover:not(:disabled) {
+  background: var(--input-bg);
+}
+.at-btn-locked {
+  border-color: var(--warning);
+  color: var(--warning);
+}
+
+.at-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.at-btn-primary:hover:not(:disabled) {
+  background: var(--btn-hover);
+}
+
+/* ── Filter bar ── */
+.at-filter-bar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.at-filter-label {
+  color: var(--text-muted);
+}
+
+.at-select {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.at-select:hover:not(:disabled) {
+  background: var(--input-bg);
+}
+.at-select:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.at-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.at-select option {
+  background: var(--panel-bg);
+  color: var(--text-primary);
+}
+
+.at-count-text {
+  color: var(--text-muted);
+}
+
+.at-locked-pill {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+
+/* ── Empty / loading states ── */
+.at-empty-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.at-empty-icon {
+  color: var(--text-muted);
+}
+.at-empty-title {
+  color: var(--text-primary);
+}
+.at-empty-desc {
+  color: var(--text-muted);
+}
+
+/* ── Table ── */
+.at-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.at-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.at-row {
+  border-top: 1px solid var(--divider);
+}
+.at-row:hover {
+  background: var(--input-bg);
+}
+.at-cell-primary {
+  color: var(--text-primary);
+}
+.at-cell-muted {
+  color: var(--text-muted);
+}
+
+.at-avatar {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+.at-remarks-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.at-remarks-input::placeholder {
+  color: var(--text-muted);
+}
+.at-remarks-input:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+}
+.at-remarks-input:disabled {
+  cursor: not-allowed;
+}
+
+/* ── Status buttons ──
+   Each status gets its own resting (unselected) and active (selected)
+   look — resting is a faint tint of its color, active is a solid fill,
+   so the currently-picked status is unambiguous at a glance across a
+   long roster. */
+.at-status-btn {
+  border: 1px solid transparent;
+}
+
+.at-status-btn-present {
+  background: color-mix(in srgb, var(--success) 10%, transparent);
+  color: var(--success);
+}
+.at-status-btn-present.at-status-btn-active {
+  background: var(--success);
+  color: #fff;
+}
+
+.at-status-btn-absent {
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+  color: var(--danger);
+}
+.at-status-btn-absent.at-status-btn-active {
+  background: var(--danger);
+  color: #fff;
+}
+
+.at-status-btn-late {
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+  color: var(--warning);
+}
+.at-status-btn-late.at-status-btn-active {
+  background: var(--warning);
+  color: #fff;
+}
+
+.at-status-btn-half_day {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+.at-status-btn-half_day.at-status-btn-active {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+
+.at-status-btn-leave {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+  border-color: var(--input-border);
+}
+.at-status-btn-leave.at-status-btn-active {
+  background: var(--text-secondary);
+  color: var(--panel-bg);
+}
+
+/* ── Session remarks card ── */
+.at-remarks-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}

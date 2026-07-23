@@ -15,6 +15,7 @@ import {
 // the admissions GET response doesn't include a joined student_name.
 import { getStudents as fetchStudents } from "../../../redux/student/studentSlice.js";
 import "../styles/StudentAdmission.css";
+import { fetchSchools } from "../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
 
 const StudentAdmissionPage = () => {
   const dispatch = useDispatch();
@@ -30,6 +31,27 @@ const StudentAdmissionPage = () => {
   const [editingItem, setEditingItem] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [selectedSchool, setSelectedSchool] = useState("");
+
+  const { user, loading: authLoading } = useSelector((state) => state.auth);
+
+  const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
+
+  const schoolId = isAdmin ? null : user?.school_id;
+
+  const schools = useSelector((state) => state.schoolProfile?.schools || []);
+  const schoolsLoading = useSelector(
+    (state) => state.schoolProfile?.loading || false,
+  );
+
+  const effectiveSchoolId = isAdmin ? selectedSchool : schoolId;
+
+  // Admin picks from a list — fetch it once.
+  useEffect(() => {
+    if (isAdmin && schools.length === 0) {
+      dispatch(fetchSchools());
+    }
+  }, [dispatch, isAdmin, schools.length]);
 
   useEffect(() => {
     dispatch(fetchStudentAdmissions());
@@ -41,26 +63,61 @@ const StudentAdmissionPage = () => {
     [students],
   );
 
+  // const filtered = useMemo(() => {
+  //   const term = search.trim().toLowerCase();
+
+  //   return studentAdmissions.filter((a) => {
+  //     const student = studentsById[a.student_id];
+  //     const studentName = student
+  //       ? `${student.first_name} ${student.last_name || ""}`
+  //       : "";
+
+  //     const matchesSearch = term
+  //       ? `${studentName} ${a.admission_number || ""} ${a.class_name || ""}`
+  //         .toLowerCase()
+  //         .includes(term)
+  //       : true;
+
+  //     const matchesStatus = statusFilter.includes(a.status);
+
+  //     return matchesSearch && matchesStatus;
+  //   });
+  // }, [studentAdmissions, search, statusFilter, studentsById]);
+
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
 
     return studentAdmissions.filter((a) => {
       const student = studentsById[a.student_id];
+
       const studentName = student
-        ? `${student.first_name} ${student.last_name || ""}`
+        ? `${student.first_name || ""} ${student.last_name || ""}`
         : "";
 
       const matchesSearch = term
         ? `${studentName} ${a.admission_number || ""} ${a.class_name || ""}`
-            .toLowerCase()
-            .includes(term)
+          .toLowerCase()
+          .includes(term)
         : true;
 
       const matchesStatus = statusFilter.includes(a.status);
 
-      return matchesSearch && matchesStatus;
+      // School filter
+      const matchesSchool = effectiveSchoolId
+        ? String(a.school_id) === String(effectiveSchoolId)
+        : true;
+
+      return matchesSearch && matchesStatus && matchesSchool;
     });
-  }, [studentAdmissions, search, statusFilter, studentsById]);
+  }, [
+    studentAdmissions,
+    studentsById,
+    search,
+    statusFilter,
+    effectiveSchoolId,
+  ]);
+
+  // console.log("filtered:", filtered);
 
   const openAddModal = () => {
     setEditingItem(null);
@@ -145,6 +202,22 @@ const StudentAdmissionPage = () => {
             className="sa-search-input w-full rounded-lg pl-9 pr-3 py-2 text-[13.5px] transition-all"
           />
         </div>
+        {/* School Filter — admin only */}
+        {isAdmin && (
+          <select
+            value={selectedSchool}
+            onChange={(e) => setSelectedSchool(e.target.value)}
+            className="up-search-input rounded-lg px-3 py-2 text-[13.5px] min-w-[220px]"
+            disabled={schoolsLoading}
+          >
+            <option value="">All Schools</option>
+            {schools.map((school) => (
+              <option key={school.id} value={school.id}>
+                {school.name}
+              </option>
+            ))}
+          </select>
+        )}
 
         <StatusFilterDropdown
           selected={statusFilter}

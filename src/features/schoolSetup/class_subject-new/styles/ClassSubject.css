@@ -175,3 +175,34 @@
   color: var(--danger);
   background: var(--danger-bg);
 }
+
+/* ── Delete modal ──
+   NOTE: assumes ClassSubject.css already defines cx-modal-overlay,
+   cx-modal-panel, cx-modal-header, cx-modal-title, cx-modal-close,
+   cx-form-footer, cx-btn-cancel (same base modal chrome as every other
+   module). If any of those are missing, paste me the existing
+   ClassSubject.css and I'll fill the gap instead of guessing.
+*/
+.cx-delete-icon-wrap {
+  background: var(--danger-bg);
+}
+.cx-delete-icon {
+  color: var(--danger);
+}
+.cx-delete-title {
+  color: var(--text-primary);
+}
+.cx-delete-desc {
+  color: var(--text-muted);
+}
+.cx-modal-btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.cx-modal-btn-danger:hover {
+  opacity: 0.88;
+}
+.cx-modal-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

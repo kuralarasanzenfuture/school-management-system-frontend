@@ -5,6 +5,7 @@ import {
   createStudentAdmission,
   updateStudentAdmission,
   deleteStudentAdmission,
+  getClassStudentSummaryByToken,
 } from "./studentAdmission.service";
 
 // Fetch All
@@ -15,10 +16,10 @@ export const fetchStudentAdmissions = createAsyncThunk(
       return await getStudentAdmissions();
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch student admissions"
+        error.response?.data?.message || "Failed to fetch student admissions",
       );
     }
-  }
+  },
 );
 
 // Fetch By Id
@@ -29,10 +30,10 @@ export const fetchStudentAdmissionById = createAsyncThunk(
       return await getStudentAdmissionById(id);
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch student admission"
+        error.response?.data?.message || "Failed to fetch student admission",
       );
     }
-  }
+  },
 );
 
 // Create
@@ -43,10 +44,10 @@ export const createStudentAdmissionThunk = createAsyncThunk(
       return await createStudentAdmission(studentData);
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to create student admission"
+        error.response?.data?.message || "Failed to create student admission",
       );
     }
-  }
+  },
 );
 
 // Update
@@ -57,10 +58,10 @@ export const updateStudentAdmissionThunk = createAsyncThunk(
       return await updateStudentAdmission(id, studentData);
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to update student admission"
+        error.response?.data?.message || "Failed to update student admission",
       );
     }
-  }
+  },
 );
 
 // Delete
@@ -72,10 +73,23 @@ export const deleteStudentAdmissionThunk = createAsyncThunk(
       return id;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to delete student admission"
+        error.response?.data?.message || "Failed to delete student admission",
       );
     }
-  }
+  },
+);
+
+export const fetchClassStudentSummaryByToken = createAsyncThunk(
+  "studentAdmissions/fetchClassStudentSummaryByToken",
+  async (filters, { rejectWithValue }) => {
+    try {
+      return await getClassStudentSummaryByToken(filters);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch student admissions",
+      );
+    }
+  },
 );
 
 const unwrap = (payload) => payload?.data ?? payload;
@@ -84,6 +98,7 @@ const studentAdmissionSlice = createSlice({
   name: "studentAdmissions",
   initialState: {
     studentAdmissions: [],
+    classStudentSummary: [],
     studentAdmission: null,
     loading: false,
     error: null,
@@ -146,7 +161,7 @@ const studentAdmissionSlice = createSlice({
         const updated = unwrap(action.payload);
 
         const index = state.studentAdmissions.findIndex(
-          (item) => item.id === updated.id
+          (item) => item.id === updated.id,
         );
 
         if (index !== -1) {
@@ -167,10 +182,25 @@ const studentAdmissionSlice = createSlice({
       .addCase(deleteStudentAdmissionThunk.fulfilled, (state, action) => {
         state.loading = false;
         state.studentAdmissions = state.studentAdmissions.filter(
-          (item) => item.id !== action.payload
+          (item) => item.id !== action.payload,
         );
       })
       .addCase(deleteStudentAdmissionThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Fetch By Token ClassStudentSummary
+
+      .addCase(fetchClassStudentSummaryByToken.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchClassStudentSummaryByToken.fulfilled, (state, action) => {
+        state.loading = false;
+        state.classStudentSummary = unwrap(action.payload);
+      })
+      .addCase(fetchClassStudentSummaryByToken.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

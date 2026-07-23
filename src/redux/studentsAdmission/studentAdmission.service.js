@@ -2,7 +2,7 @@ import api from "../../common/services/api";
 
 export const getStudentAdmissions = async () => {
   try {
-    const response = await api.get(`/student-admissions`);
+    const response = await api.get(`/student-admissions/token`);
     return response.data;
   } catch (error) {
     console.error("Error fetching sections:", error);
@@ -46,6 +46,18 @@ export const deleteStudentAdmission = async (id) => {
     return response.data;
   } catch (error) {
     console.error("Error deleting section:", error);
+    throw error;
+  }
+};
+
+export const getClassStudentSummaryByToken = async (filters) => {
+  try {
+    const response = await api.get(`/student-admissions/token`, {
+      params: filters,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching sections:", error);
     throw error;
   }
 };

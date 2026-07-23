@@ -29,10 +29,10 @@ export default function RoleForm({
     setData(
       initialData
         ? {
-            name: initialData.name || "",
-            description: initialData.description || "",
-            status: initialData.status || "active",
-          }
+          name: initialData.name || "",
+          description: initialData.description || "",
+          status: initialData.status || "active",
+        }
         : EMPTY,
     );
     setErrors({});
@@ -69,11 +69,12 @@ export default function RoleForm({
         </label>
         <input
           autoFocus
-          className={`rp-input w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200 ${errors.name ? "rp-input-error" : ""}`}
+          className={`rp-input w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200 ${errors.name ? "rp-input-error" : ""} uppercase`}
           placeholder="e.g. Class Teacher"
           value={data.name}
           onChange={set("name")}
           maxLength={100}
+          style={{ textTransform: "uppercase" }}
         />
         <div className="h-4">
           {errors.name && (
@@ -103,13 +104,12 @@ export default function RoleForm({
               key={s}
               type="button"
               onClick={() => setData((d) => ({ ...d, status: s }))}
-              className={`rp-status-toggle flex-1 rounded-lg px-3 py-2 text-[13px] font-semibold capitalize transition-colors ${
-                data.status === s
+              className={`rp-status-toggle flex-1 rounded-lg px-3 py-2 text-[13px] font-semibold capitalize transition-colors ${data.status === s
                   ? s === "active"
                     ? "rp-status-toggle-active"
                     : "rp-status-toggle-inactive"
                   : ""
-              }`}
+                }`}
             >
               {s}
             </button>

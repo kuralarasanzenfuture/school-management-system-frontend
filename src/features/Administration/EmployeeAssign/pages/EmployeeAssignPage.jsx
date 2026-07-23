@@ -10,6 +10,7 @@ import {
 } from "../../../../redux/employee/employeeSlice.js"; // adjust to your actual path
 import { fetchUsers } from "../../../../redux/Administration/users/userSlice.js";
 import "../styles/EmployeeAssign.css";
+import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
 
 const EmployeeAssignPage = () => {
     const dispatch = useDispatch();
@@ -22,26 +23,68 @@ const EmployeeAssignPage = () => {
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [submitting, setSubmitting] = useState(false);
     const [unassigningId, setUnassigningId] = useState(null);
+    const [selectedSchool, setSelectedSchool] = useState("");
+
+    const { user, loading: authLoading } = useSelector((state) => state.auth);
+
+    const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
+
+    const schoolId = isAdmin ? null : user?.school_id;
+
+    const schools = useSelector((state) => state.schoolProfile?.schools || []);
+    const schoolsLoading = useSelector(
+        (state) => state.schoolProfile?.loading || false,
+    );
+
+    // Admin picks from a list — fetch it once.
+    useEffect(() => {
+        if (isAdmin && schools.length === 0) {
+            dispatch(fetchSchools());
+        }
+    }, [dispatch, isAdmin, schools.length]);
 
     useEffect(() => {
         dispatch(fetchEmployees());
         dispatch(fetchUsers());
     }, [dispatch]);
 
+    // const filteredEmployees = useMemo(() => {
+    //     const term = search.trim().toLowerCase();
+    //     const list = employees || [];
+    //     if (!term) return list;
+
+    //     return list.filter((emp) => {
+    //         const name = `${emp.first_name || ""} ${emp.last_name || ""}`.toLowerCase();
+    //         return (
+    //             name.includes(term) ||
+    //             emp.name?.toLowerCase().includes(term) ||
+    //             emp.email?.toLowerCase().includes(term)
+    //         );
+    //     });
+    // }, [employees, search]);
+
     const filteredEmployees = useMemo(() => {
         const term = search.trim().toLowerCase();
-        const list = employees || [];
-        if (!term) return list;
 
-        return list.filter((emp) => {
-            const name = `${emp.first_name || ""} ${emp.last_name || ""}`.toLowerCase();
-            return (
-                name.includes(term) ||
-                emp.name?.toLowerCase().includes(term) ||
-                emp.email?.toLowerCase().includes(term)
-            );
+        return (employees || []).filter((emp) => {
+            const fullName =
+                `${emp.first_name || ""} ${emp.last_name || ""}`.toLowerCase();
+
+            const matchesSearch =
+                !term ||
+                fullName.includes(term) ||
+                emp.employee_code?.toLowerCase().includes(term) ||
+                emp.email?.toLowerCase().includes(term);
+
+            const matchesSchool = isAdmin
+                ? selectedSchool
+                    ? String(emp.school_id) === String(selectedSchool)
+                    : true
+                : String(emp.school_id) === String(schoolId);
+
+            return matchesSearch && matchesSchool;
         });
-    }, [employees, search]);
+    }, [employees, search, selectedSchool, isAdmin, schoolId]);
 
     const openAssignModal = (employee) => {
         setSelectedEmployee(employee);
@@ -103,6 +146,22 @@ const EmployeeAssignPage = () => {
                         className="ea-search-input w-full rounded-lg pl-9 pr-3 py-2 text-[13.5px] transition-all"
                     />
                 </div>
+                {/* School Filter — admin only */}
+                {isAdmin && (
+                    <select
+                        value={selectedSchool}
+                        onChange={(e) => setSelectedSchool(e.target.value)}
+                        className="up-search-input rounded-lg px-3 py-2 text-[13.5px] min-w-[220px]"
+                        disabled={schoolsLoading}
+                    >
+                        <option value="">All Schools</option>
+                        {schools.map((school) => (
+                            <option key={school.id} value={school.id}>
+                                {school.name}
+                            </option>
+                        ))}
+                    </select>
+                )}
                 <span className="ea-count-text text-[12.5px] ml-auto">
                     {filteredEmployees.length} employee{filteredEmployees.length === 1 ? "" : "s"}
                 </span>

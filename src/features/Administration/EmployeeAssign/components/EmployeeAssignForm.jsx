@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
+import SearchableSelect from "../../../../common/components/search/SearchableSelect";
 
 
 function userLabel(u) {
@@ -29,16 +30,41 @@ export default function EmployeeAssignForm({
     const [selectedUserId, setSelectedUserId] = useState(currentUserId ? String(currentUserId) : "");
     const [error, setError] = useState("");
 
+    // const availableUsers = useMemo(() => {
+    //     const takenIds = new Set(
+    //         employees
+    //             .filter((e) => e.id !== employee?.id) // exclude the employee we're assigning right now
+    //             .map((e) => e.user_id ?? e.user?.id)
+    //             .filter(Boolean)
+    //             .map(String),
+    //     );
+    //     return users.filter((u) => !takenIds.has(String(u.id)));
+    // }, [users, employees, employee]);
+
     const availableUsers = useMemo(() => {
-        const takenIds = new Set(
+        // Users already assigned to other employees
+        const assignedUserIds = new Set(
             employees
-                .filter((e) => e.id !== employee?.id) // exclude the employee we're assigning right now
+                .filter((e) => e.id !== employee?.id)
                 .map((e) => e.user_id ?? e.user?.id)
                 .filter(Boolean)
-                .map(String),
+                .map(String)
         );
-        return users.filter((u) => !takenIds.has(String(u.id)));
-    }, [users, employees, employee]);
+
+        return users.filter((user) => {
+            const sameSchool =
+                String(user.school_id) === String(employee?.school_id);
+
+            const notAssigned =
+                !assignedUserIds.has(String(user.id));
+
+            // Keep currently assigned user visible while editing
+            const isCurrentUser =
+                String(user.id) === String(currentUserId);
+
+            return sameSchool && (notAssigned || isCurrentUser);
+        });
+    }, [users, employees, employee, currentUserId]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -49,13 +75,23 @@ export default function EmployeeAssignForm({
         onSubmit(Number(selectedUserId));
     };
 
+    const userOptions = useMemo(
+        () =>
+            availableUsers.map((u) => ({
+                value: u.id,
+                label: userLabel(u), // e.g. "John Doe (john@example.com)"
+                data: u,
+            })),
+        [availableUsers]
+    );
+
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
                 <label className="ea-field-label text-[13px] font-medium">
                     User Account <span className="ea-field-required">*</span>
                 </label>
-                <select
+                {/* <select
                     className={`ea-input w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200 ${error ? "ea-input-error" : ""}`}
                     value={selectedUserId}
                     onChange={(e) => {
@@ -69,7 +105,21 @@ export default function EmployeeAssignForm({
                             {userLabel(u)}
                         </option>
                     ))}
-                </select>
+                </select> */}
+
+                <div className="relative z-[9999]">
+                    <SearchableSelect
+                        options={userOptions}
+                        value={selectedUserId}
+                        onChange={(value) => {
+                            setSelectedUserId(value);
+                            setError("");
+                        }}
+                        placeholder="Select User"
+                        disabled={submitting}
+                        hasError={Boolean(error)}
+                    />
+                </div>
                 <div className="h-4">
                     {error ? (
                         <p className="ea-field-error text-[11px]">{error}</p>

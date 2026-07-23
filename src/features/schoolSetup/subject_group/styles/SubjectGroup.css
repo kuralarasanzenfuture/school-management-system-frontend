@@ -190,3 +190,34 @@
   color: var(--danger);
   background: var(--danger-bg);
 }
+
+/* ── Delete modal ──
+   NOTE: assumes SubjectGroup.css already defines sg-modal-overlay,
+   sg-modal-panel, sg-modal-header, sg-modal-title, sg-modal-close,
+   sg-form-footer, sg-btn-cancel (same base modal chrome as every other
+   module). If any of those are missing, paste me the existing
+   SubjectGroup.css and I'll fill the gap instead of guessing.
+*/
+.sg-delete-icon-wrap {
+  background: var(--danger-bg);
+}
+.sg-delete-icon {
+  color: var(--danger);
+}
+.sg-delete-title {
+  color: var(--text-primary);
+}
+.sg-delete-desc {
+  color: var(--text-muted);
+}
+.sg-modal-btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.sg-modal-btn-danger:hover {
+  opacity: 0.88;
+}
+.sg-modal-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

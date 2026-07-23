@@ -1,5 +1,7 @@
 import React from "react";
 import { Link2, Unlink, Loader2 } from "lucide-react";
+import usePagination from "../../../../common/components/table/usePagination";
+import Pagination from "../../../../common/components/table/Pagination";
 
 
 function employeeLabel(emp) {
@@ -36,7 +38,11 @@ export default function EmployeeAssignTable({
     onAssign,
     onUnassign,
     unassigningId,
+    initialPageSize = 10,
+    pageSizeOptions = [5, 10, 20, 50],
 }) {
+    const { pagedData, currentPage, pageSize, totalItems, setPage, setPageSize } =
+        usePagination({ data: employees, initialSize: initialPageSize });
     return (
         <div className="ea-table-card rounded-2xl overflow-hidden">
             <div className="overflow-x-auto">
@@ -56,7 +62,7 @@ export default function EmployeeAssignTable({
                                 </td>
                             </tr>
                         ) : (
-                            employees.map((emp) => {
+                            pagedData.map((emp) => {
                                 const assignedUser = getAssignedUser(emp, users);
                                 const name = employeeLabel(emp);
                                 const isUnassigning = unassigningId === emp.id;
@@ -127,6 +133,14 @@ export default function EmployeeAssignTable({
                     </tbody>
                 </table>
             </div>
+            <Pagination
+                currentPage={currentPage}
+                totalItems={totalItems}
+                pageSize={pageSize}
+                pageSizeOptions={pageSizeOptions}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+            />
         </div>
     );
 }

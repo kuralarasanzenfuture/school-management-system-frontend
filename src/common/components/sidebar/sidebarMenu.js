@@ -456,13 +456,13 @@ const sidebarMenu = [
   {
     label: "Administration",
     items: [
+      { name: "Roles", icon: FaUserShield, path: "/roles" },
       { name: "Users", icon: FaUsersCog, path: "/users" },
       {
         name: "AssignToEmployees",
         icon: FaUsers,
         path: "/assign-to-employees",
       },
-      { name: "Roles", icon: FaUserShield, path: "/roles" },
       { name: "Permissions", icon: FaKey, path: "/permissions" },
       { name: "User Roles", icon: FaUserCog, path: "/user-roles" },
       { name: "Audit Logs", icon: FaHistory, path: "/audit-logs" },

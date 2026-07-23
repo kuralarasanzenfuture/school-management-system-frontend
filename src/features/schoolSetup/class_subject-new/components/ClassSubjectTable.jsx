@@ -27,6 +27,8 @@ export default function ClassSubjectTable({
 }) {
   const { pagedData, currentPage, pageSize, totalItems, setPage, setPageSize } =
     usePagination({ data: classSubjects, initialSize: initialPageSize });
+
+    console.log(classSubjects);
   return (
     <div className="cx-table-card rounded-2xl overflow-hidden">
       <div className="overflow-x-auto">
@@ -67,7 +69,7 @@ export default function ClassSubjectTable({
                   {cx.section_name ? ` - ${cx.section_name}` : ""}
                 </td>
                 <td className="cx-cell px-3 py-3.5 text-[13px]">
-                  {cx.academic_year}
+                  {cx.academic_year_name || "—" }
                 </td>
                 <td className="cx-cell px-3 py-3.5 text-[13px]">
                   {cx.subject_name}

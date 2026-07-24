@@ -74,6 +74,28 @@
   background: var(--warning-bg);
   color: var(--warning);
 }
+.at-unmarked-pill {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.at-save-error {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+/* ── Save-success toast ── */
+.at-toast {
+  background: var(--panel-bg);
+  border: 1px solid var(--success);
+  color: var(--text-primary);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+.at-toast-icon {
+  color: var(--success);
+}
+
 
 /* ── Empty / loading states ── */
 .at-empty-card {
@@ -103,6 +125,12 @@
 }
 .at-row {
   border-top: 1px solid var(--divider);
+}
+.at-row-unmarked {
+  background: color-mix(in srgb, var(--danger) 4%, transparent);
+}
+.at-unmarked-tag {
+  color: var(--danger);
 }
 .at-row:hover {
   background: var(--input-bg);

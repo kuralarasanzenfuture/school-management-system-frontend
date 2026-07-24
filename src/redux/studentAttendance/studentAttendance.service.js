@@ -30,7 +30,7 @@ export const getAllAttendanceByToken = async (filters = {}) => {
 // ================= MARK ATTENDANCE =================
 export const markAttendance = async (payload) => {
   try {
-    const response = await api.post("/students-attendance", payload);
+    const response = await api.post("/students-attendance/mark", payload);
     return response.data;
   } catch (error) {
     console.error("Error marking attendance:", error);

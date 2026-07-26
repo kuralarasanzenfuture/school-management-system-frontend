@@ -61,9 +61,9 @@ export const fetchAttendanceBySession = createAsyncThunk(
 
 export const fetchAttendanceByStudent = createAsyncThunk(
   "attendance/fetchStudent",
-  async (id, { rejectWithValue }) => {
+  async ({ studentId, filters = {} }, { rejectWithValue }) => {
     try {
-      return await getAttendanceByStudentId(id);
+      return await getAttendanceByStudentId(studentId, filters);
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message || "Failed to fetch student attendance",
@@ -229,8 +229,17 @@ const attendanceSlice = createSlice({
 
       // ================= STUDENT =================
 
+      .addCase(fetchAttendanceByStudent.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(fetchAttendanceByStudent.fulfilled, (state, action) => {
+        state.loading = false;
         state.attendanceByStudent = action.payload.data ?? action.payload;
+      })
+      .addCase(fetchAttendanceByStudent.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       })
 
       // ================= SINGLE =================

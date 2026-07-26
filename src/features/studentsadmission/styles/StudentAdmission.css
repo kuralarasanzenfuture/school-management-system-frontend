@@ -187,3 +187,34 @@
   color: var(--danger);
   background: var(--danger-bg);
 }
+
+/* ── Delete modal ──
+   NOTE: assumes StudentAdmission.css already defines sa-modal-overlay,
+   sa-modal-panel, sa-modal-header, sa-modal-title, sa-modal-close,
+   sa-form-footer, sa-btn-cancel (same base modal chrome as every other
+   module). If any of those are missing, paste me the existing
+   StudentAdmission.css and I'll fill the gap instead of guessing.
+*/
+.sa-delete-icon-wrap {
+  background: var(--danger-bg);
+}
+.sa-delete-icon {
+  color: var(--danger);
+}
+.sa-delete-title {
+  color: var(--text-primary);
+}
+.sa-delete-desc {
+  color: var(--text-muted);
+}
+.sa-modal-btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.sa-modal-btn-danger:hover {
+  opacity: 0.88;
+}
+.sa-modal-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

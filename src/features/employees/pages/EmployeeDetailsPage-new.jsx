@@ -25,10 +25,10 @@ import {
 import * as XLSX from "xlsx";
 
 import { fetchEmployeeById } from "../../../redux/employee/employeeSlice";
+import api from "../../../common/services/api.js";
 import "../styles/EmployeeDetailsPage-new.css";
 
 const BASE_URL = "http://localhost:5000";
-const SALARY_API = `${BASE_URL}/api/employee-salary-structures-details/full-salary-by-employee`;
 
 /* ══════════════════════════════════════════════════════
    TAB REGISTRY  — add future tabs here, nothing else changes
@@ -314,10 +314,9 @@ function SalaryTab({ employeeId }) {
     if (!employeeId) return;
     setLoading(true);
     setError(null);
-    fetch(`${SALARY_API}/${employeeId}`)
-      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-      .then((json) => setData(json))
-      .catch((err) => setError(err.message))
+    api.get(`/employee-salary-structures-details/full-salary-by-employee/${employeeId}`)
+      .then((res) => setData(res.data))
+      .catch((err) => setError(err.response?.data?.message || err.message))
       .finally(() => setLoading(false));
   }, [employeeId]);
 

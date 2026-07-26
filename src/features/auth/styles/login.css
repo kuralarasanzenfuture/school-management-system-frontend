@@ -115,7 +115,7 @@ body .login-page {
 
 /* Background blobs */
 body::before,
-body::after .login-page {
+body::after {
   content: "";
   position: fixed;
   border-radius: 50%;

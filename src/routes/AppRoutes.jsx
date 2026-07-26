@@ -47,6 +47,8 @@ import SalaryManagementV3 from "../features/employeeManagement/Salarymanagement/
 import EmployeeSalaryProfilePage from "../features/employees/pages/EmployeeSalaryProfilePage.jsx";
 import EmployeeAssignPage from "../features/Administration/EmployeeAssign/pages/EmployeeAssignPage.jsx";
 import AttendancePage from "../features/studentAttendance/pages/AttendancePage.jsx";
+// import StudentDetailsPageNew from "../features/students/pages/StudentDetailsPageNew.jsx";
+import StudentDetailsPageNew from "../features/students-new-attendance/pages/StudentDetailsPageNew.jsx";
 
 // import TeacherList from "../features/teachers/pages/TeacherList";
 
@@ -74,7 +76,8 @@ const AppRoutes = () => {
 
           {/* Edit Student */}
           <Route path="/students/:id/edit" element={<StudentFormPage />} />
-          <Route path="/students/:id" element={<StudentDetailsPage />} />
+          {/* <Route path="/students/:id" element={<StudentDetailsPage />} /> */}
+          <Route path="/students/:id" element={<StudentDetailsPageNew />} />
 
           {/* <Route path="/teachers" element={<TeacherList />} /> */}
 

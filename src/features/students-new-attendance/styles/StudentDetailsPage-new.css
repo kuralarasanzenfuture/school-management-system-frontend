@@ -1,0 +1,328 @@
+/* StudentDetailsPage.css — all colors via CSS variables */
+
+/* ── Page ── */
+.sd-page {
+  background: var(--bg);
+}
+.sd-loading {
+  color: var(--text-muted);
+}
+.sd-error {
+  color: var(--danger);
+}
+
+/* ── Buttons ── */
+.sd-back-btn {
+  color: var(--text-secondary);
+}
+.sd-back-btn:hover {
+  color: var(--btn-bg);
+}
+.sd-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.sd-btn-primary:hover {
+  background: var(--btn-hover);
+}
+.sd-btn-outline {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+  background: var(--panel-bg);
+}
+.sd-btn-outline:hover {
+  background: var(--input-bg);
+}
+
+/* ── Not found ── */
+.sd-notfound-title {
+  color: var(--text-primary);
+}
+.sd-notfound {
+  color: var(--text-muted);
+}
+
+/* ── Tab bar ── */
+.sd-tab-bar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.sd-tab {
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  transition:
+    color 0.18s,
+    border-color 0.18s;
+  white-space: nowrap;
+}
+.sd-tab:hover {
+  color: var(--text-secondary);
+}
+.sd-tab-active {
+  color: var(--btn-bg);
+  border-bottom: 2px solid var(--btn-bg);
+  font-weight: 600;
+}
+.sd-tab-badge {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+.sd-tab-badge-soon {
+  background: var(--input-bg);
+  color: var(--text-muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+
+/* ── Hero card ── */
+.sd-hero-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.sd-hero-name {
+  color: var(--text-primary);
+}
+.sd-hero-email {
+  color: var(--text-secondary);
+}
+.sd-avatar-ring {
+  border: 3px solid var(--divider);
+  background: var(--badge-bg);
+}
+.sd-avatar-fallback {
+  color: var(--btn-bg);
+}
+.sd-avatar-clickable {
+  cursor: zoom-in;
+}
+.sd-chip {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── Section cards ── */
+.sd-section-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.sd-section-title {
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--divider);
+}
+.sd-field-label {
+  color: var(--text-muted);
+}
+.sd-field-value {
+  color: var(--text-primary);
+}
+.sd-field-value-empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.sd-note {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+
+/* ── Documents ── */
+.sd-doc-card {
+  background: var(--input-bg);
+  border: 1px solid var(--divider);
+}
+.sd-doc-card-filled {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+}
+.sd-doc-thumb {
+  background: var(--input-bg);
+}
+.sd-doc-name {
+  color: var(--text-primary);
+}
+.sd-doc-icon-filled {
+  color: var(--btn-bg);
+}
+.sd-doc-icon-empty {
+  color: var(--text-muted);
+}
+.sd-doc-missing {
+  color: var(--text-muted);
+}
+.sd-doc-view-btn {
+  color: var(--text-muted);
+  border: 1px solid var(--divider);
+  background: var(--panel-bg);
+}
+.sd-doc-view-btn:hover {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+  border-color: var(--btn-bg);
+}
+
+/* ── Signature ── */
+.sd-sig-thumb {
+  background: var(--input-bg);
+  border: 1px solid var(--divider);
+}
+
+/* ── Lightbox ── */
+.sd-lightbox-overlay {
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+}
+.sd-lightbox-frame {
+  background: var(--panel-bg);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+}
+.sd-lightbox-label {
+  color: var(--text-primary);
+}
+.sd-lightbox-close {
+  color: var(--text-muted);
+}
+.sd-lightbox-close:hover {
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+/* ── Attendance tab ── */
+.sd-att-stat-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.sd-att-stat-value {
+  color: var(--text-primary);
+}
+.sd-att-stat-label {
+  color: var(--text-muted);
+}
+
+.sd-att-present-bg {
+  background: var(--success-bg);
+}
+.sd-att-present {
+  color: var(--success);
+}
+.sd-att-absent-bg {
+  background: var(--danger-bg);
+}
+.sd-att-absent {
+  color: var(--danger);
+}
+.sd-att-late-bg {
+  background: var(--warning-bg);
+}
+.sd-att-late {
+  color: var(--warning);
+}
+.sd-att-leave-bg {
+  background: var(--badge-bg);
+}
+.sd-att-leave {
+  color: var(--btn-bg);
+}
+
+.sd-att-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.sd-att-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.sd-att-row {
+  border-top: 1px solid var(--divider);
+  transition: background 0.15s;
+}
+.sd-att-row:hover {
+  background: var(--input-bg);
+}
+.sd-att-cell {
+  color: var(--text-secondary);
+}
+.sd-att-muted {
+  color: var(--text-muted);
+}
+
+.sd-att-status {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.sd-att-status-present {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.sd-att-status-absent {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.sd-att-status-late {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.sd-att-status-half_day {
+  background: #fdf4ff;
+  color: #a855f7;
+}
+.sd-att-status-leave {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+.sd-att-status-holiday {
+  background: #ecfeff;
+  color: #06b6d4;
+}
+
+.sd-att-pct-bar-bg {
+  background: var(--input-bg);
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+}
+.sd-att-pct-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--success);
+  transition: width 0.5s ease;
+}
+
+/* ── Fees tab ── */
+.sd-fees-stat-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+
+/* ── Coming soon ── */
+.sd-coming-soon {
+  border: 2px dashed var(--divider);
+  border-radius: 16px;
+  background: var(--input-bg);
+}
+.sd-coming-soon-title {
+  color: var(--text-secondary);
+}
+.sd-coming-icon-bg {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── Progress ring ── */
+.sd-progress-ring {
+  transform: rotate(-90deg);
+}

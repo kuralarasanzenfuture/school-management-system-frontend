@@ -85,7 +85,7 @@ export const deleteAttendance = async (id) => {
 // ================= LOCK =================
 export const lockAttendanceSession = async (id) => {
   try {
-    const response = await api.put(`/students-attendance/${id}/lock`);
+    const response = await api.patch(`/students-attendance/session/${id}/lock`);
     return response.data;
   } catch (error) {
     console.error("Error locking attendance session:", error);
@@ -96,7 +96,9 @@ export const lockAttendanceSession = async (id) => {
 // ================= UNLOCK =================
 export const unlockAttendanceSession = async (id) => {
   try {
-    const response = await api.put(`/students-attendance/${id}/unlock`);
+    const response = await api.patch(
+      `/students-attendance/session/${id}/unlock`,
+    );
     return response.data;
   } catch (error) {
     console.error("Error unlocking attendance session:", error);
@@ -105,13 +107,38 @@ export const unlockAttendanceSession = async (id) => {
 };
 
 // ================= STUDENT ATTENDANCE =================
-export const getAttendanceByStudentId = async (id) => {
+export const getAttendanceByStudentId = async (studentId, filters = {}) => {
   try {
-    const response = await api.get(`/students-attendance/student/${id}`);
+    const params = {};
+
+    if (filters.from_date) {
+      params.from_date = filters.from_date;
+    }
+
+    if (filters.to_date) {
+      params.to_date = filters.to_date;
+    }
+
+    if (filters.academic_year_id) {
+      params.academic_year_id = filters.academic_year_id;
+    }
+
+    if (filters.attendance_type) {
+      params.attendance_type = Array.isArray(filters.attendance_type)
+        ? filters.attendance_type.join(",")
+        : filters.attendance_type;
+    }
+
+    const response = await api.get(
+      `/students-attendance/student/${studentId}`,
+      {
+        params,
+      },
+    );
+
     return response.data;
   } catch (error) {
     console.error("Error fetching student attendance:", error);
     throw error;
   }
 };
-

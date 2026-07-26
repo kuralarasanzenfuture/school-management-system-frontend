@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, Clock, CalendarCheck, CircleCheck, AlarmClock } from "lucide-react";
 import { useDispatch } from "react-redux";
-import { markAttendance, editAttendance } from "../../../../redux/employeeAttendance/employeeAttendanceSlice";
+import { markAttendance, editAttendance, getAttendanceRecords } from "../../../../redux/employeeAttendance/employeeAttendanceSlice";
 import "../styles/EmployeeAttendance.css";
 
 const STATUSES = [
@@ -136,6 +136,7 @@ export default function MarkAttendanceModal({
                 await dispatch(markAttendance(payload)).unwrap();
             }
             onClose();
+            await dispatch(getAttendanceRecords()).unwrap();
         } catch (submissionError) {
             alert(submissionError?.message ?? String(submissionError));
         } finally {

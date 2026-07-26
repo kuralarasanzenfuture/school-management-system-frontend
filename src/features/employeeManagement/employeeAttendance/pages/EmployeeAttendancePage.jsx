@@ -2,16 +2,16 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
     getAttendanceRecords,
-    getAttendanceSummary,
     removeAttendance,
 } from "../../../../redux/employeeAttendance/employeeAttendanceSlice.js";
+import { fetchEmployees } from "../../../../redux/employee/employeeSlice.js";
 import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
 import AttendanceTable from "../components/AttendanceTable.jsx";
 import MarkAttendanceModal from "../components/MarkAttendanceModal.jsx";
 import "../styles/EmployeeAttendance.css";
 import {
     UserCheck, UserX, Clock, CalendarOff,
-    CalendarCheck2, Umbrella, Coffee,
+    Umbrella, Coffee,
     Plus, Download, Search, RefreshCw,
 } from "lucide-react";
 
@@ -36,11 +36,15 @@ function StatCard({ icon: Icon, iconBgClass, iconColorClass, value, label }) {
 export default function EmployeeAttendancePage() {
     const dispatch = useDispatch();
 
-    const { records, summary, loading, summaryLoading, error } =
+    const { records, loading, error } =
         useSelector((state) => state.employeeAttendance);
     const { user } = useSelector((state) => state.auth);
     const schools = useSelector((state) => state.schoolProfile?.schools ?? []);
     const schoolsLoading = useSelector((state) => state.schoolProfile?.loading ?? false);
+
+    /* ── Employees (for the selector) ── */
+    const { employees: allEmployees, loading: employeesLoading } =
+        useSelector((state) => state.employees);
 
     const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
     const schoolId = isAdmin ? null : user?.school_id;
@@ -48,21 +52,9 @@ export default function EmployeeAttendancePage() {
     /* ── Filters ── */
     const [selectedDate, setSelectedDate] = useState(todayString());
     const [selectedSchool, setSelectedSchool] = useState(isAdmin ? "" : String(schoolId ?? ""));
+    const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [statusFilter, setStatusFilter] = useState("All");
     const [searchQuery, setSearchQuery] = useState("");
-
-    const today = new Date();
-
-    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1)
-        .toISOString()
-        .split("T")[0];
-
-    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0)
-        .toISOString()
-        .split("T")[0];
-
-    const [startDate, setStartDate] = useState(firstDay);
-    const [endDate, setEndDate] = useState(lastDay);
 
     /* ── Modal ── */
     const [showModal, setShowModal] = useState(false);
@@ -74,27 +66,61 @@ export default function EmployeeAttendancePage() {
         if (isAdmin && schools.length === 0) dispatch(fetchSchools());
     }, [dispatch, isAdmin, schools.length]);
 
-    /* ── Fetch records + summary when filters change ── */
+    /* ── Fetch employees (needed for the selector) ── */
     useEffect(() => {
-        const summaryParams = {
-            start_date: selectedDate,
-            end_date: selectedDate,
-            school_id: isAdmin ? (selectedSchool || undefined) : schoolId,
-        };
+        if (allEmployees.length === 0) dispatch(fetchEmployees());
+    }, [dispatch, allEmployees.length]);
 
-        dispatch(getAttendanceSummary(summaryParams));
-    }, [dispatch, selectedDate, selectedSchool, isAdmin, schoolId]);
+    /* ── Fetch all attendance records (token endpoint returns
+          records with employee/school names via JOINs; date
+          and employee filtering is done client-side) ── */
+    useEffect(() => {
+        dispatch(getAttendanceRecords());
+    }, [dispatch]);
 
-    /* ── Client-side filter (status + search) ── */
+    /* ── Employees scoped to the current school (non-admin only) ── */
+    const scopedEmployees = useMemo(() => {
+        if (isAdmin) return allEmployees;
+        return allEmployees.filter(
+            (emp) => Number(emp.school_id) === Number(schoolId),
+        );
+    }, [allEmployees, isAdmin, schoolId]);
+
+    /* ── Client-side filter (date, employee, school, status, search) ── */
     const filteredRecords = useMemo(() => {
-        let result = summary ?? [];
+        let result = records ?? [];
 
+        // Filter by date
+        if (selectedDate) {
+            result = result.filter(
+                (record) =>
+                    record.attendance_date &&
+                    new Date(record.attendance_date).toISOString().split("T")[0] === selectedDate,
+            );
+        }
+
+        // Filter by employee
+        if (selectedEmployee) {
+            result = result.filter(
+                (record) => Number(record.employee_id) === Number(selectedEmployee.id),
+            );
+        }
+
+        // Filter by school (admin only)
+        if (isAdmin && selectedSchool) {
+            result = result.filter(
+                (record) => Number(record.school_id) === Number(selectedSchool),
+            );
+        }
+
+        // Filter by status
         if (statusFilter !== "All") {
             result = result.filter(
                 (record) => record.status === statusFilter,
             );
         }
 
+        // Filter by search query
         if (searchQuery.trim()) {
             const query = searchQuery.trim().toLowerCase();
             result = result.filter(
@@ -105,32 +131,57 @@ export default function EmployeeAttendancePage() {
         }
 
         return result;
-    }, [records, statusFilter, searchQuery]);
+    }, [records, selectedDate, selectedEmployee, selectedSchool, isAdmin, statusFilter, searchQuery]);
+
+    /* ── Compute summary from filtered records ── */
+    const computedSummary = useMemo(() => {
+        const summary = {
+            present: 0,
+            absent: 0,
+            late: 0,
+            half_day: 0,
+            leave: 0,
+            holiday: 0,
+            week_off: 0,
+            total: filteredRecords.length,
+        };
+
+        filteredRecords.forEach((record) => {
+            if (record.status && summary.hasOwnProperty(record.status)) {
+                summary[record.status]++;
+            }
+        });
+
+        return summary;
+    }, [filteredRecords]);
 
     /* ── Handlers ── */
     const handleDateChange = (event) => setSelectedDate(event.target.value);
-    const handleSchoolChange = (event) => setSelectedSchool(event.target.value);
+    const handleSchoolChange = (event) => {
+        setSelectedSchool(event.target.value);
+        setSelectedEmployee(null);
+    };
+    const handleEmployeeChange = (event) => {
+        const emp = scopedEmployees.find(
+            (e) => String(e.id) === event.target.value,
+        );
+        setSelectedEmployee(emp ?? null);
+    };
     const handleStatusChange = (event) => setStatusFilter(event.target.value);
     const handleSearch = (event) => setSearchQuery(event.target.value);
 
     const handleRefresh = () => {
-        const params = {
-            date: selectedDate,
-            school_id: isAdmin ? (selectedSchool || undefined) : schoolId,
-        };
-        dispatch(getAttendanceRecords(params));
-        dispatch(
-            getAttendanceSummary({
-                start_date: selectedDate,
-                end_date: selectedDate,
-                school_id: isAdmin ? (selectedSchool || undefined) : schoolId,
-            })
-        );
+        dispatch(getAttendanceRecords());
     };
 
-    console.log(records , summary);
-
-    const openMarkModal = () => { setEditTarget(null); setShowModal(true); };
+    const openMarkModal = () => {
+        if (!selectedEmployee) {
+            alert("Please select an employee before marking attendance.");
+            return;
+        }
+        setEditTarget(null);
+        setShowModal(true);
+    };
     const openEditModal = (record) => { setEditTarget(record); setShowModal(true); };
     const closeModal = () => { setShowModal(false); setEditTarget(null); };
 
@@ -180,12 +231,12 @@ export default function EmployeeAttendancePage() {
 
             {/* ── Summary stat cards ── */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-                <StatCard icon={UserCheck} iconBgClass="ea-icon-present-bg" iconColorClass="ea-icon-present" value={summary?.present} label="Present" />
-                <StatCard icon={UserX} iconBgClass="ea-icon-absent-bg" iconColorClass="ea-icon-absent" value={summary?.absent} label="Absent" />
-                <StatCard icon={Clock} iconBgClass="ea-icon-late-bg" iconColorClass="ea-icon-late" value={summary?.late} label="Late" />
-                <StatCard icon={Coffee} iconBgClass="ea-icon-halfday-bg" iconColorClass="ea-icon-halfday" value={summary?.half_day} label="Half Day" />
-                <StatCard icon={Umbrella} iconBgClass="ea-icon-leave-bg" iconColorClass="ea-icon-leave" value={summary?.leave} label="On Leave" />
-                <StatCard icon={CalendarOff} iconBgClass="ea-icon-holiday-bg" iconColorClass="ea-icon-holiday" value={summary?.holiday} label="Holiday" />
+                <StatCard icon={UserCheck} iconBgClass="ea-icon-present-bg" iconColorClass="ea-icon-present" value={computedSummary.present} label="Present" />
+                <StatCard icon={UserX} iconBgClass="ea-icon-absent-bg" iconColorClass="ea-icon-absent" value={computedSummary.absent} label="Absent" />
+                <StatCard icon={Clock} iconBgClass="ea-icon-late-bg" iconColorClass="ea-icon-late" value={computedSummary.late} label="Late" />
+                <StatCard icon={Coffee} iconBgClass="ea-icon-halfday-bg" iconColorClass="ea-icon-halfday" value={computedSummary.half_day} label="Half Day" />
+                <StatCard icon={Umbrella} iconBgClass="ea-icon-leave-bg" iconColorClass="ea-icon-leave" value={computedSummary.leave} label="On Leave" />
+                <StatCard icon={CalendarOff} iconBgClass="ea-icon-holiday-bg" iconColorClass="ea-icon-holiday" value={computedSummary.holiday} label="Holiday" />
             </div>
 
             {/* ── Filter bar ── */}
@@ -213,6 +264,30 @@ export default function EmployeeAttendancePage() {
                         ))}
                     </select>
                 )}
+
+                {/* Employee filter */}
+                <div className="flex flex-col gap-1">
+                    {/* <label className="ea-filter-label text-[11.5px] font-semibold">Employee</label> */}
+                    <select
+                        value={selectedEmployee?.id ?? ""}
+                        onChange={handleEmployeeChange}
+                        disabled={employeesLoading || scopedEmployees.length === 0}
+                        className="ea-input rounded-lg px-3.5 py-2.5 text-[13.5px] min-w-[220px]"
+                    >
+                        <option value="">
+                            {employeesLoading
+                                ? "Loading employees…"
+                                : scopedEmployees.length === 0
+                                    ? "No employees"
+                                    : "Select employee"}
+                        </option>
+                        {scopedEmployees.map((emp) => (
+                            <option key={emp.id} value={emp.id}>
+                                {emp.first_name} {emp.last_name} — {emp.employee_code}
+                            </option>
+                        ))}
+                    </select>
+                </div>
 
                 {/* Status filter */}
                 <select
@@ -279,6 +354,7 @@ export default function EmployeeAttendancePage() {
                 isOpen={showModal}
                 onClose={closeModal}
                 attendance={editTarget}
+                employee={selectedEmployee}
                 date={selectedDate}
                 schoolId={isAdmin ? (selectedSchool || null) : schoolId}
             />

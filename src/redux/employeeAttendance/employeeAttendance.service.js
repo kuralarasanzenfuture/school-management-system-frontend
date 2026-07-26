@@ -1,8 +1,8 @@
 import api from "../../common/services/api";
 
-export const getAllEmployeeAttendances = async () => {
+export const getAllEmployeeAttendances = async (params = {}) => {
   try {
-    const response = await api.get("/employee_attendances/token");
+    const response = await api.get("/employee-attendance/token", { params });
     return response.data;
   } catch (error) {
     console.error("Error fetching employee attendances:", error);
@@ -12,7 +12,7 @@ export const getAllEmployeeAttendances = async () => {
 
 export const getEmployeeAttendanceById = async (id) => {
   try {
-    const response = await api.get(`/employee_attendances/${id}`);
+    const response = await api.get(`/employee-attendance/${id}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching employee attendance:", error);
@@ -32,7 +32,7 @@ export const createAttendance = async (data) => {
 
 export const updateAttendance = async (id, data) => {
   try {
-    const response = await api.put(`/employee_attendances/${id}`, data);
+    const response = await api.put(`/employee-attendance/${id}`, data);
     return response.data;
   } catch (error) {
     console.error("Error updating employee attendance:", error);
@@ -42,7 +42,7 @@ export const updateAttendance = async (id, data) => {
 
 export const deleteAttendance = async (id) => {
   try {
-    const response = await api.delete(`/employee_attendances/${id}`);
+    const response = await api.delete(`/employee-attendance/${id}`);
     return response.data;
   } catch (error) {
     console.error("Error deleting employee attendance:", error);

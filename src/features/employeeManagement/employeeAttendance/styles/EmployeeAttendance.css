@@ -82,6 +82,11 @@
   color: #06b6d4;
 }
 
+/* ── Filter label ── */
+.ea-filter-label {
+  color: var(--text-secondary);
+}
+
 /* ── Filter bar ── */
 .ea-filter-bar {
   background: var(--panel-bg);

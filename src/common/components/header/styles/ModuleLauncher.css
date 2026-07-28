@@ -1,0 +1,80 @@
+/* ModuleLauncher.css
+   Color styling for the header's module/page launcher — an anchored
+   dropdown (not a modal), same visual language as the profile dropdown.
+*/
+
+.ml-trigger {
+  color: var(--text-secondary);
+}
+.ml-trigger:hover,
+.ml-trigger-active {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+
+.ml-panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--shadow);
+  width: min(640px, 92vw);
+  max-height: 75vh;
+}
+
+.ml-search-row {
+  border-bottom: 1px solid var(--divider);
+}
+.ml-search-icon {
+  color: var(--text-muted);
+}
+.ml-search-input {
+  color: var(--text-primary);
+  background: transparent;
+}
+.ml-search-input::placeholder {
+  color: var(--text-muted);
+}
+.ml-clear-btn {
+  color: var(--text-muted);
+}
+.ml-clear-btn:hover {
+  color: var(--text-secondary);
+}
+
+.ml-section-title {
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--divider);
+}
+.ml-section-icon {
+  color: var(--text-muted);
+}
+.ml-section-title-active {
+  color: var(--btn-bg);
+    border-bottom: 2px solid var(--btn-bg) !important;
+
+}
+.ml-section-icon-active {
+  color: var(--btn-bg);
+}
+
+.ml-item {
+  color: var(--text-secondary);
+}
+.ml-item:hover {
+  color: var(--btn-bg);
+}
+.ml-item-active {
+  color: var(--btn-bg);
+}
+.ml-item-active:hover {
+  opacity: 0.85;
+}
+.ml-item-current {
+  font-weight: 600;
+}
+.ml-item-current-dot {
+  background: currentColor;
+}
+
+.ml-empty-state {
+  color: var(--text-muted);
+}

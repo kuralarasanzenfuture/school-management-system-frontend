@@ -9,7 +9,8 @@ import Dashboard from "../features/dashboard copy/pages/Dashboard";
 
 // import StudentsPage from "../features/students/pages/StudentPage.jsx";
 // import StudentsPage from "../features/students-new/pages/StudentsPage.jsx";
-import StudentsPage from "../features/students-new-page/pages/StudentsPage.jsx";
+// import StudentsPage from "../features/students-new-page/pages/StudentsPage.jsx";
+import StudentsPage from "../features/students-new-attendance/pages/StudentPage.jsx";
 import StudentDetailsPage from "../features/students/pages/StudentDetailsPage.jsx";
 import RolePage from "../features/Administration/roles/pages/RolePage.jsx";
 import UserPage from "../features/Administration/user/pages/UserPage.jsx";

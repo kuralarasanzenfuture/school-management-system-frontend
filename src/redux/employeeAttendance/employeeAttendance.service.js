@@ -59,3 +59,22 @@ export const fetchAttendanceRange = async (params) => {
     throw error;
   }
 };
+
+export const getEmployeeAttendanceByEmployeeId = async (
+  employeeId,
+  filters = {},
+) => {
+  try {
+    const response = await api.get(
+      `/employee-attendance/employee/${employeeId}`,
+      {
+        params: filters,
+      },
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching employee attendance:", error);
+    throw error;
+  }
+};

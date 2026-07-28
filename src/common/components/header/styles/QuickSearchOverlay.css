@@ -1,0 +1,91 @@
+/* QuickSearchOverlay.css
+   Color styling for the global "search modules & pages" mega-menu, driven
+   by the theme variables in app.css. Tailwind handles layout/spacing/sizing.
+*/
+
+.ql-backdrop {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.ql-panel {
+  background: var(--panel-bg);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--divider);
+}
+
+/* ── Search field inside the panel ── */
+.ql-search-row {
+  border-bottom: 1px solid var(--divider);
+}
+.ql-search-icon {
+  color: var(--text-muted);
+}
+.ql-search-input {
+  color: var(--text-primary);
+  background: transparent;
+}
+.ql-search-input::placeholder {
+  color: var(--text-muted);
+}
+.ql-kbd {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-muted);
+}
+.ql-close-btn {
+  color: var(--text-muted);
+}
+.ql-close-btn:hover {
+  background: var(--input-bg);
+  color: var(--text-secondary);
+}
+
+/* ── Section columns ── */
+.ql-section-title {
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--divider);
+}
+.ql-section-icon {
+  color: var(--text-muted);
+}
+
+/* Section containing the current route gets an accent treatment,
+   matching the highlighted "Finance & Fees" style in the reference. */
+.ql-section-title-active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.ql-section-icon-active {
+  color: var(--accent);
+}
+
+.ql-item {
+  color: var(--text-secondary);
+}
+.ql-item:hover {
+  color: var(--btn-bg);
+}
+.ql-item-active {
+  color: var(--accent);
+}
+.ql-item-active:hover {
+  color: var(--accent);
+  opacity: 0.85;
+}
+
+/* Current-page item gets a small dot + bold weight */
+.ql-item-current {
+  font-weight: 600;
+}
+.ql-item-current-dot {
+  background: currentColor;
+}
+
+.ql-empty-state {
+  color: var(--text-muted);
+}
+
+.ql-footer {
+  border-top: 1px solid var(--divider);
+  color: var(--text-muted);
+}

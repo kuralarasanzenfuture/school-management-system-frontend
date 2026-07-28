@@ -3,6 +3,7 @@ import {
   getAllEmployeeAttendances as fetchAttendanceRecords,
   fetchAttendanceRange,
   getEmployeeAttendanceById as fetchAttendanceById,
+  getEmployeeAttendanceByEmployeeId as fetchAttendanceByEmployeeId,
   createAttendance,
   updateAttendance,
   deleteAttendance,
@@ -83,12 +84,25 @@ export const removeAttendance = createAsyncThunk(
   },
 );
 
+// Fetch records for a specific employee
+export const getEmployeeAttendanceByEmployeeId = createAsyncThunk(
+  "employeeAttendance/getEmployeeAttendanceByEmployeeId",
+  async ({ employeeId, filters }, { rejectWithValue }) => {
+    try {
+      return await fetchAttendanceByEmployeeId(employeeId, filters);
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  },
+);
+
 // ─────────────────────────── Initial State ────────────────────────────
 
 const initialState = {
   records: [], // attendance rows for the selected date / filters
   summary: null, // { present, absent, late, half_day, leave, holiday, week_off, total }
   record: null, // single record being viewed / edited
+  employeeAttendance: [],
   loading: false,
   summaryLoading: false,
   error: null,
@@ -213,6 +227,23 @@ const employeeAttendanceSlice = createSlice({
       .addCase(removeAttendance.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload ?? "Failed to delete record";
+      })
+
+      // ── Fetch by employee id ──────────────────────────────────────
+      .addCase(getEmployeeAttendanceByEmployeeId.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getEmployeeAttendanceByEmployeeId.fulfilled, (state, action) => {
+        state.loading = false;
+        const payload = action.payload?.data ?? action.payload;
+        state.records = payload;
+        state.employeeAttendance = payload;
+        if (payload?.summary) state.summary = payload.summary;
+      })
+      .addCase(getEmployeeAttendanceByEmployeeId.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

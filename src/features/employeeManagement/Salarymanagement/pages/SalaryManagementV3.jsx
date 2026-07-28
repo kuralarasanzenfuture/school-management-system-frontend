@@ -50,6 +50,13 @@ function isActive(s) {
     if (!s.effective_to) return true;
     return today <= new Date(s.effective_to);
 }
+function getStatusDisplay(s) {
+    if (s.status !== "active") return s.status.charAt(0).toUpperCase() + s.status.slice(1);
+    const today = new Date(), from = new Date(s.effective_from);
+    if (today < from) return "Upcoming";
+    if (s.effective_to && today > new Date(s.effective_to)) return "Expired";
+    return "Active";
+}
 function fmtMoney(n) {
     return Number(n ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 });
 }
@@ -445,9 +452,15 @@ export default function SalaryManagementV3() {
                                     {/* Right: structure meta + actions */}
                                     <div className="flex flex-col items-end gap-2">
                                         <div className="flex items-center gap-2">
-                                            <span className={`inline-flex items-center gap-1 text-[12px] font-semibold px-2.5 py-1 rounded-full ${isActive(selectedStructure) ? "sm-icon-active-bg sm-icon-active" : "sm-icon-deduction-bg sm-icon-deduction"}`}>
-                                                {isActive(selectedStructure) ? "Active" : selectedStructure.status}
-                                            </span>
+                                            {(() => {
+                                                const sd = getStatusDisplay(selectedStructure);
+                                                const cls = sd === "Active" ? "sm-icon-active-bg sm-icon-active" : sd === "Upcoming" ? "sm-icon-total-bg sm-icon-total" : "sm-icon-deduction-bg sm-icon-deduction";
+                                                return (
+                                                    <span className={`inline-flex items-center gap-1 text-[12px] font-semibold px-2.5 py-1 rounded-full ${cls}`}>
+                                                        {sd}
+                                                    </span>
+                                                );
+                                            })()}
                                             <button onClick={() => openEditStructure(selectedStructure)}
                                                 className="sm-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors" title="Edit structure">
                                                 <Pencil size={15} />

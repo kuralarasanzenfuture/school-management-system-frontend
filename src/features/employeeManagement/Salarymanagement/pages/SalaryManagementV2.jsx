@@ -37,6 +37,13 @@ function isActive(s) {
     if (!s.effective_to) return true;
     return today <= new Date(s.effective_to);
 }
+function getStatusDisplay(s) {
+    if (s.status !== "active") return s.status.charAt(0).toUpperCase() + s.status.slice(1);
+    const today = new Date(), from = new Date(s.effective_from);
+    if (today < from) return "Upcoming";
+    if (s.effective_to && today > new Date(s.effective_to)) return "Expired";
+    return "Active";
+}
 
 /* ── Stat card ── */
 function StatCard({ icon: Icon, bg, color, value, label }) {
@@ -366,9 +373,15 @@ export default function SalaryManagementV2() {
 
                                                 {/* Status */}
                                                 <td className="px-3 py-3.5 text-center">
-                                                    <span className={`inline-flex items-center gap-1 text-[11.5px] font-semibold px-2.5 py-1 rounded-full ${active ? "sm-icon-active-bg sm-icon-active" : "sm-icon-deduction-bg sm-icon-deduction"}`}>
-                                                        {active ? "Active" : s.status}
-                                                    </span>
+                                                    {(() => {
+                                                        const sd = getStatusDisplay(s);
+                                                        const cls = sd === "Active" ? "sm-icon-active-bg sm-icon-active" : sd === "Upcoming" ? "sm-icon-total-bg sm-icon-total" : "sm-icon-deduction-bg sm-icon-deduction";
+                                                        return (
+                                                            <span className={`inline-flex items-center gap-1 text-[11.5px] font-semibold px-2.5 py-1 rounded-full ${cls}`}>
+                                                                {sd}
+                                                            </span>
+                                                        );
+                                                    })()}
                                                 </td>
 
                                                 {/* Actions */}

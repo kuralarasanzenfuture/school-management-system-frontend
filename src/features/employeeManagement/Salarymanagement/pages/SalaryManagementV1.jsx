@@ -36,6 +36,13 @@ function isActive(s) {
     if (!s.effective_to) return true;
     return today <= new Date(s.effective_to);
 }
+function getStatusDisplay(s) {
+    if (s.status !== "active") return s.status.charAt(0).toUpperCase() + s.status.slice(1);
+    const today = new Date(), from = new Date(s.effective_from);
+    if (today < from) return "Upcoming";
+    if (s.effective_to && today > new Date(s.effective_to)) return "Expired";
+    return "Active";
+}
 
 /* ── Stat card ── */
 function StatCard({ icon: Icon, bg, color, value, label }) {
@@ -257,9 +264,15 @@ export default function SalaryManagementV1() {
                                             {selectedStructure.first_name} {selectedStructure.last_name}
                                             {selectedStructure.designation ? ` · ${selectedStructure.designation}` : ""}
                                         </p>
-                                        <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full ${isActive(selectedStructure) ? "sm-icon-active-bg sm-icon-active" : "sm-icon-deduction-bg sm-icon-deduction"}`}>
-                                            {isActive(selectedStructure) ? "Active" : selectedStructure.status}
-                                        </span>
+                                        {(() => {
+                                            const sd = getStatusDisplay(selectedStructure);
+                                            const isActuallyActive = sd === "Active";
+                                            return (
+                                                <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full ${isActuallyActive ? "sm-icon-active-bg sm-icon-active" : sd === "Upcoming" ? "sm-icon-total-bg sm-icon-total" : "sm-icon-deduction-bg sm-icon-deduction"}`}>
+                                                    {sd}
+                                                </span>
+                                            );
+                                        })()}
                                     </div>
                                     <div className="flex items-center gap-3 mt-1.5 flex-wrap">
                                         <span className="sm-structure-meta text-[11.5px] flex items-center gap-1">

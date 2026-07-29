@@ -74,12 +74,15 @@ export default function AttendanceTable({
                             </tr>
                         ) : (
                             pagedData.map((record) => {
+                                // console.log(record)
                                 const checkInTime = formatTime(record.check_in);
                                 const checkOutTime = formatTime(record.check_out);
                                 const isLate = record.late_minutes > 0;
                                 const photoUrl = record.photo_url
                                     ? `${API_URL}${record.photo_url.startsWith("/") ? "" : "/"}${record.photo_url}`
                                     : null;
+
+                                // console.log(photoUrl);    
 
                                 return (
                                     <tr key={record.id} className="ea-row">
@@ -103,7 +106,7 @@ export default function AttendanceTable({
                                                         {record.first_name} {record.last_name ?? ""}
                                                     </p>
                                                     <p className="ea-cell-muted text-[12px] truncate">
-                                                        {record.employee_code ?? ""}
+                                                        {record.employee_mobile ?? ""}
                                                     </p>
                                                 </div>
                                             </div>

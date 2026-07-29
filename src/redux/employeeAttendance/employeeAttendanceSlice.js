@@ -7,6 +7,9 @@ import {
   createAttendance,
   updateAttendance,
   deleteAttendance,
+  getTodayAttendance,
+  checkOutAttendance,
+  checkInAttendance,
 } from "./employeeAttendance.service.js";
 
 // ─────────────────────────── Async Thunks ────────────────────────────
@@ -96,6 +99,39 @@ export const getEmployeeAttendanceByEmployeeId = createAsyncThunk(
   },
 );
 
+export const employeeCheckIn = createAsyncThunk(
+  "employeeAttendance/checkIn",
+  async (payload, { rejectWithValue }) => {
+    try {
+      return await checkInAttendance(payload);
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  },
+);
+
+export const employeeCheckOut = createAsyncThunk(
+  "employeeAttendance/checkOut",
+  async (payload, { rejectWithValue }) => {
+    try {
+      return await checkOutAttendance(payload);
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  },
+);
+
+export const fetchTodayAttendance = createAsyncThunk(
+  "employeeAttendance/today",
+  async (_, { rejectWithValue }) => {
+    try {
+      return await getTodayAttendance();
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  },
+);
+
 // ─────────────────────────── Initial State ────────────────────────────
 
 const initialState = {
@@ -103,10 +139,22 @@ const initialState = {
   summary: null, // { present, absent, late, half_day, leave, holiday, week_off, total }
   record: null, // single record being viewed / edited
   employeeAttendance: [],
+  todayAttendance: null,
   loading: false,
   summaryLoading: false,
   error: null,
 };
+
+// const initialState = {
+//   records: [],          // Daily attendance list
+//   record: null,         // Single attendance record
+//   employeeHistory: null,// Employee-wise attendance history
+//   todayAttendance: null,// Today's attendance
+//   summary: null,        // Attendance summary
+//   loading: false,
+//   summaryLoading: false,
+//   error: null,
+// };
 
 // ─────────────────────────── Slice ────────────────────────────────────
 
@@ -242,6 +290,42 @@ const employeeAttendanceSlice = createSlice({
         if (payload?.summary) state.summary = payload.summary;
       })
       .addCase(getEmployeeAttendanceByEmployeeId.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // ── Check in ──────────────────────────────────────
+      .addCase(employeeCheckIn.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(employeeCheckIn.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(employeeCheckIn.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // ── Check out ──────────────────────────────────────
+      .addCase(employeeCheckOut.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(employeeCheckOut.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(employeeCheckOut.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(fetchTodayAttendance.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchTodayAttendance.fulfilled, (state, action) => {
+        state.loading = false;
+        state.todayAttendance = action.payload;
+      })
+      .addCase(fetchTodayAttendance.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

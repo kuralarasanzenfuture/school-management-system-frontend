@@ -1,0 +1,272 @@
+/* ServerHealth.css
+   Shared color styling for all Server & Health pages (Server Health,
+   Storage, Backups, Software Updates, Server Settings). Tailwind handles
+   layout/spacing/sizing; this file handles every color.
+*/
+
+.sh-page {
+  background: var(--bg);
+}
+.sh-title-row {
+  color: var(--text-primary);
+}
+.sh-title-icon-wrap {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.sh-subtitle {
+  color: var(--text-muted);
+}
+
+.sh-btn-primary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.sh-btn-primary:hover {
+  background: var(--btn-hover);
+}
+.sh-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.sh-btn-outline {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.sh-btn-outline:hover {
+  background: var(--input-bg);
+}
+.sh-btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.sh-btn-danger:hover {
+  opacity: 0.88;
+}
+.sh-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Stat cards (top row) ── */
+.sh-stat-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.sh-stat-label {
+  color: var(--text-muted);
+}
+.sh-stat-value {
+  color: var(--text-primary);
+}
+.sh-stat-sub {
+  color: var(--text-muted);
+}
+
+/* Decorative stat-icon tones — fixed palette (not semantic status), same
+   role as the avatar-color palette used elsewhere: visually distinguishing
+   cards, not encoding meaning. */
+.sh-tone-cyan-bg {
+  background: rgba(6, 182, 212, 0.14);
+}
+.sh-tone-cyan-fg {
+  color: #06b6d4;
+}
+.sh-tone-rose-bg {
+  background: rgba(244, 63, 94, 0.14);
+}
+.sh-tone-rose-fg {
+  color: #f43f5e;
+}
+.sh-tone-amber-bg {
+  background: rgba(217, 119, 6, 0.14);
+}
+.sh-tone-amber-fg {
+  color: #d97706;
+}
+.sh-tone-blue-bg {
+  background: rgba(37, 99, 235, 0.14);
+}
+.sh-tone-blue-fg {
+  color: #2563eb;
+}
+.sh-tone-violet-bg {
+  background: rgba(124, 58, 237, 0.14);
+}
+.sh-tone-violet-fg {
+  color: #7c3aed;
+}
+.sh-tone-emerald-bg {
+  background: rgba(5, 150, 105, 0.14);
+}
+.sh-tone-emerald-fg {
+  color: #059669;
+}
+
+/* ── Mini info cards ── */
+.sh-mini-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+}
+.sh-mini-label {
+  color: var(--text-muted);
+}
+.sh-mini-value {
+  color: var(--text-primary);
+}
+
+/* ── Tabs ── */
+.sh-tabs {
+  border-bottom: 1px solid var(--divider);
+}
+.sh-tab {
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+}
+.sh-tab:hover {
+  color: var(--text-secondary);
+}
+.sh-tab-active {
+  color: var(--btn-bg);
+  border-bottom-color: var(--btn-bg);
+}
+
+/* ── Section cards ── */
+.sh-section-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.sh-section-title {
+  color: var(--text-secondary);
+}
+.sh-section-icon {
+  color: var(--btn-bg);
+}
+
+.sh-row {
+  border-bottom: 1px solid var(--divider);
+}
+.sh-row:last-child {
+  border-bottom: none;
+}
+.sh-row-label {
+  color: var(--text-muted);
+}
+.sh-row-value {
+  color: var(--text-primary);
+}
+
+/* ── Status pills ── */
+.sh-pill {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.sh-pill-success {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.sh-pill-warning {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.sh-pill-danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.sh-pill-neutral {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.sh-pill-info {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+}
+
+/* ── Progress bars ── */
+.sh-progress-track {
+  background: var(--input-bg);
+}
+.sh-progress-fill-success {
+  background: var(--success);
+}
+.sh-progress-fill-warning {
+  background: var(--warning);
+}
+.sh-progress-fill-danger {
+  background: var(--danger);
+}
+.sh-progress-fill-info {
+  background: var(--btn-bg);
+}
+.sh-progress-label {
+  color: #fff;
+}
+.sh-progress-caption {
+  color: var(--text-muted);
+}
+
+/* ── Chips (extensions, tags) ── */
+.sh-chip {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+
+/* ── Tables ── */
+.sh-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.sh-row-hover:hover {
+  background: var(--input-bg);
+}
+.sh-cell {
+  color: var(--text-secondary);
+}
+.sh-cell-muted {
+  color: var(--text-muted);
+}
+.sh-cell-strong {
+  color: var(--text-primary);
+}
+
+.sh-empty-state {
+  color: var(--text-muted);
+}
+
+/* ── Toggle switch (Server Settings) ── */
+.sh-switch-track {
+  background: var(--input-border);
+}
+.sh-switch-track-on {
+  background: var(--btn-bg);
+}
+.sh-switch-thumb {
+  background: #fff;
+}
+
+.sh-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+.sh-input:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.sh-field-label {
+  color: var(--text-secondary);
+}
+.sh-field-hint {
+  color: var(--text-muted);
+}
+
+.sh-divider {
+  border-top: 1px solid var(--divider);
+}

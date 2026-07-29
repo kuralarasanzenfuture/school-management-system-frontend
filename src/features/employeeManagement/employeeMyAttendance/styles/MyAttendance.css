@@ -1,0 +1,512 @@
+/* MyAttendance.css — all colors via CSS variables */
+
+/* ── Page ── */
+.ma-page {
+  background: var(--bg);
+}
+.ma-title {
+  color: var(--text-primary);
+}
+.ma-subtitle {
+  color: var(--text-muted);
+}
+
+/* ── Today card ── */
+.ma-today-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ma-today-label {
+  color: var(--text-muted);
+}
+.ma-today-date {
+  color: var(--text-primary);
+}
+.ma-today-status {
+  color: var(--text-secondary);
+}
+
+/* Check-in / Check-out buttons */
+.ma-checkin-btn {
+  background: var(--success);
+  color: #fff;
+}
+.ma-checkin-btn:hover {
+  opacity: 0.88;
+}
+.ma-checkout-btn {
+  background: var(--danger);
+  color: #fff;
+}
+.ma-checkout-btn:hover {
+  opacity: 0.88;
+}
+.ma-manual-btn {
+  background: var(--panel-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+}
+.ma-manual-btn:hover {
+  background: var(--input-bg);
+}
+
+/* ── Stat cards ── */
+.ma-stat-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ma-stat-value {
+  color: var(--text-primary);
+}
+.ma-stat-label {
+  color: var(--text-muted);
+}
+
+.ma-icon-present-bg {
+  background: var(--success-bg);
+}
+.ma-icon-present {
+  color: var(--success);
+}
+.ma-icon-absent-bg {
+  background: var(--danger-bg);
+}
+.ma-icon-absent {
+  color: var(--danger);
+}
+.ma-icon-late-bg {
+  background: var(--warning-bg);
+}
+.ma-icon-late {
+  color: var(--warning);
+}
+.ma-icon-leave-bg {
+  background: var(--badge-bg);
+}
+.ma-icon-leave {
+  color: var(--btn-bg);
+}
+.ma-icon-work-bg {
+  background: #ecfdf5;
+}
+.ma-icon-work {
+  color: #059669;
+}
+.ma-icon-ot-bg {
+  background: var(--badge-bg);
+}
+.ma-icon-ot {
+  color: var(--btn-bg);
+}
+
+/* ── Filter bar ── */
+.ma-filter-bar {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ma-search-wrap {
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.ma-search-wrap:focus-within {
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.ma-search-icon {
+  color: var(--text-muted);
+}
+.ma-search-input {
+  background: transparent;
+  color: var(--text-primary);
+  outline: none;
+  width: 100%;
+}
+.ma-search-input::placeholder {
+  color: var(--text-muted);
+}
+.ma-select {
+  border: 1px solid var(--input-border);
+  background: var(--panel-bg);
+  color: var(--text-secondary);
+}
+.ma-select:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+}
+
+/* View toggle */
+.ma-view-toggle {
+  border: 1px solid var(--input-border);
+}
+.ma-view-btn {
+  color: var(--text-muted);
+  transition: background 0.15s;
+}
+.ma-view-btn:hover {
+  background: var(--input-bg);
+}
+.ma-view-btn-active {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+.ma-count-text {
+  color: var(--text-muted);
+}
+
+/* ── Calendar ── */
+.ma-calendar-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ma-cal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.ma-cal-day-hdr {
+  color: var(--text-muted);
+}
+
+/* Day cell states */
+.ma-day-present {
+  background: var(--success-bg);
+}
+.ma-day-absent {
+  background: var(--danger-bg);
+}
+.ma-day-late {
+  background: var(--warning-bg);
+}
+.ma-day-half_day {
+  background: #fdf4ff;
+}
+.ma-day-leave {
+  background: var(--badge-bg);
+}
+.ma-day-holiday {
+  background: #ecfeff;
+}
+.ma-day-week_off {
+  background: var(--input-bg);
+}
+.ma-day-empty {
+  background: var(--input-bg);
+}
+.ma-day-today {
+  border: 2px solid var(--btn-bg) !important;
+}
+
+.ma-day-text-present {
+  color: var(--success);
+}
+.ma-day-text-absent {
+  color: var(--danger);
+}
+.ma-day-text-late {
+  color: var(--warning);
+}
+.ma-day-text-half_day {
+  color: #a855f7;
+}
+.ma-day-text-leave {
+  color: var(--btn-bg);
+}
+.ma-day-text-holiday {
+  color: #06b6d4;
+}
+.ma-day-text-week_off {
+  color: var(--text-muted);
+}
+.ma-day-text-empty {
+  color: var(--text-muted);
+}
+
+/* ── Table ── */
+.ma-table-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+}
+.ma-thead {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+.ma-row {
+  border-top: 1px solid var(--divider);
+  transition: background 0.15s;
+}
+.ma-row:hover {
+  background: var(--input-bg);
+}
+.ma-cell {
+  color: var(--text-secondary);
+}
+.ma-cell-primary {
+  color: var(--text-primary);
+}
+.ma-cell-muted {
+  color: var(--text-muted);
+}
+
+/* Status badges */
+.ma-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.ma-status-present {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.ma-status-absent {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.ma-status-late {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.ma-status-half_day {
+  background: #fdf4ff;
+  color: #a855f7;
+}
+.ma-status-leave {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+.ma-status-holiday {
+  background: #ecfeff;
+  color: #06b6d4;
+}
+.ma-status-week_off {
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+
+/* Time chips */
+.ma-time-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--input-bg);
+  border: 1px solid var(--divider);
+  color: var(--text-secondary);
+}
+.ma-time-chip-late {
+  background: var(--warning-bg);
+  color: var(--warning);
+  border-color: transparent;
+}
+
+/* Action buttons */
+.ma-action-btn {
+  color: var(--text-muted);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.ma-action-btn:hover {
+  background: var(--input-bg);
+  color: var(--btn-bg);
+}
+.ma-action-btn-danger:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.ma-empty-state {
+  color: var(--text-muted);
+}
+
+/* ── Progress ring ── */
+.ma-ring-track {
+  stroke: var(--input-bg);
+}
+
+/* ── Modal ── */
+.ma-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.ma-modal {
+  background: var(--panel-bg);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+}
+.ma-modal-header {
+  border-bottom: 1px solid var(--divider);
+}
+.ma-modal-footer {
+  border-top: 1px solid var(--divider);
+}
+.ma-modal-title {
+  color: var(--text-primary);
+}
+.ma-close-btn {
+  color: var(--text-muted);
+}
+.ma-close-btn:hover {
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+/* Form */
+.ma-field-label {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+}
+.ma-field-required {
+  color: var(--danger);
+}
+.ma-field-error {
+  color: var(--danger);
+  font-size: 11px;
+}
+.ma-section-label {
+  color: var(--btn-bg);
+  border-bottom: 1px solid var(--divider);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.ma-form-input {
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  width: 100%;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.ma-form-input::placeholder {
+  color: var(--text-muted);
+}
+.ma-form-input:focus {
+  outline: none;
+  border-color: var(--btn-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-bg) 15%, transparent);
+}
+.ma-form-input-error {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 12%, transparent) !important;
+}
+
+/* Status selector grid */
+.ma-status-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.ma-status-option {
+  border: 2px solid var(--input-border);
+  background: var(--panel-bg);
+  color: var(--text-secondary);
+  border-radius: 10px;
+  padding: 10px 6px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  font-size: 12px;
+  font-weight: 600;
+}
+.ma-status-option:hover {
+  border-color: var(--btn-bg);
+}
+.ma-status-option-present.ma-sel {
+  border-color: var(--success);
+  background: var(--success-bg);
+  color: var(--success);
+}
+.ma-status-option-absent.ma-sel {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.ma-status-option-late.ma-sel {
+  border-color: var(--warning);
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.ma-status-option-half_day.ma-sel {
+  border-color: #a855f7;
+  background: #fdf4ff;
+  color: #a855f7;
+}
+.ma-status-option-leave.ma-sel {
+  border-color: var(--btn-bg);
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+.ma-status-option-holiday.ma-sel {
+  border-color: #06b6d4;
+  background: #ecfeff;
+  color: #06b6d4;
+}
+.ma-status-option-week_off.ma-sel {
+  border-color: var(--text-muted);
+  background: var(--input-bg);
+  color: var(--text-muted);
+}
+
+/* Modal buttons */
+.ma-btn-cancel {
+  border: 1px solid var(--input-border);
+  color: var(--text-secondary);
+  background: var(--panel-bg);
+}
+.ma-btn-cancel:hover {
+  background: var(--input-bg);
+}
+.ma-btn-submit {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+}
+.ma-btn-submit:hover {
+  background: var(--btn-hover);
+}
+.ma-btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.ma-btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.ma-btn-danger:hover {
+  opacity: 0.88;
+}
+.ma-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Delete modal */
+.ma-delete-icon-wrap {
+  background: var(--danger-bg);
+}
+.ma-delete-icon {
+  color: var(--danger);
+}
+.ma-delete-title {
+  color: var(--text-primary);
+}
+.ma-delete-desc {
+  color: var(--text-muted);
+}

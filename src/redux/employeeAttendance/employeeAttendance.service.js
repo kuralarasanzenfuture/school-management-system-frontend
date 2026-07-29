@@ -78,3 +78,33 @@ export const getEmployeeAttendanceByEmployeeId = async (
     throw error;
   }
 };
+
+export const checkInAttendance = async (data) => {
+  try {
+    const response = await api.post("/employee-attendance/check-in", data);
+    return response.data;
+  } catch (error) {
+    console.error("Error checking in employee attendance:", error);
+    throw error;
+  }
+};
+
+export const checkOutAttendance = async (data) => {
+  try {
+    const response = await api.post("/employee-attendance/check-out", data);
+    return response.data;
+  } catch (error) {
+    console.error("Error checking out employee attendance:", error);
+    throw error;
+  }
+};
+
+export const getTodayAttendance = async () => {
+  try {
+    const response = await api.get("/employee-attendance/today");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching today's employee attendance:", error);
+    throw error;
+  }
+};

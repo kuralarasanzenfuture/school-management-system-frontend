@@ -2,18 +2,18 @@ import axiosInstance from "./axios";
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    console.log("Interceptor Executed");
+    // console.log("Interceptor Executed");
     console.log("URL:", config.url);
 
     const token = localStorage.getItem("accessToken");
 
-    console.log("TOKEN:", token);
+    // console.log("TOKEN:", token);
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    console.log("Headers:", config.headers);
+    // console.log("Headers:", config.headers);
 
     return config;
   },

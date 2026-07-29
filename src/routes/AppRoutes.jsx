@@ -50,6 +50,12 @@ import EmployeeAssignPage from "../features/Administration/EmployeeAssign/pages/
 import AttendancePage from "../features/studentAttendance/pages/AttendancePage.jsx";
 // import StudentDetailsPageNew from "../features/students/pages/StudentDetailsPageNew.jsx";
 import StudentDetailsPageNew from "../features/students-new-attendance/pages/StudentDetailsPageNew.jsx";
+import MyEmployeeAttendancePage from "../features/employeeManagement/employeeMyAttendance/pages/EmployeeMyAttendancePage.jsx";
+import ServerHealthPage from "../features/health/pages/ServerHealthPage.jsx";
+import ServerSettingsPage from "../features/health/pages/ServerSettingsPage.jsx";
+import BackupsPage from "../features/health/pages/BackupsPage.jsx";
+import SoftwareUpdatesPage from "../features/health/pages/SoftwareUpdatesPage.jsx";
+import StoragePage from "../features/health/pages/StoragePage.jsx";
 
 // import TeacherList from "../features/teachers/pages/TeacherList";
 
@@ -111,6 +117,7 @@ const AppRoutes = () => {
           <Route path="/class-subjects" element={<ClassSubjectPage />} />
           <Route path="/employee-shifts" element={<EmployeeShiftPage />} />
           <Route path="/employee-attendance" element={<EmployeeAttendancePage />} />
+          <Route path="/my-employee-attendance" element={<MyEmployeeAttendancePage />} />
           <Route path="/employee-leaves" element={<LeaveTypePage />} />
           <Route path="/employee-salary-components" element={<SalaryComponentPage />} />
           {/* <Route path="/employee-salary-structures" element={<SalaryStructurePage />} /> */}
@@ -120,7 +127,16 @@ const AppRoutes = () => {
           <Route path="/employee-salary-assignment" element={<SalaryStructureDetailPage />} />
 
           <Route path="/student-attendance" element={<AttendancePage />} />
-          
+
+
+
+
+          <Route path="/server-health" element={<ServerHealthPage />} />
+          <Route path="/server-settings" element={<ServerSettingsPage />} />
+          <Route path="/backups" element={<BackupsPage />} />
+          <Route path="/software-updates" element={<SoftwareUpdatesPage />} />
+          <Route path="/storage" element={<StoragePage />} />
+
 
           <Route path="/loading" element={<LoadingSpinner />} />
 

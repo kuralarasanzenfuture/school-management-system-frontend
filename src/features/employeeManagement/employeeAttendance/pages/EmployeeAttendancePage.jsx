@@ -14,6 +14,8 @@ import {
     Umbrella, Coffee,
     Plus, Download, Search, RefreshCw,
 } from "lucide-react";
+import SearchableSelect from "../components/SearchableSelect.jsx";
+import { getImageUrl } from "../../../../common/utils/imageUrl.js";
 
 /* ── today as YYYY-MM-DD ── */
 const todayString = () => new Date().toISOString().split("T")[0];
@@ -162,8 +164,9 @@ export default function EmployeeAttendancePage() {
         setSelectedEmployee(null);
     };
     const handleEmployeeChange = (event) => {
+        const id = event.target.value;
         const emp = scopedEmployees.find(
-            (e) => String(e.id) === event.target.value,
+            (e) => String(e.id) === String(id),
         );
         setSelectedEmployee(emp ?? null);
     };
@@ -196,6 +199,39 @@ export default function EmployeeAttendancePage() {
             setDeletingId(null);
         }
     };
+
+    // const IMAGE_BASE_URL = "http://localhost:5000";
+
+    // console.log(scopedEmployees);
+
+    // // ── Employee options: photo if the employee has one, initials otherwise ──
+    // const employeeOptions = scopedEmployees.map((emp) => ({
+    //     value: emp.id,
+    //     label: `${emp.first_name} ${emp.last_name}`,
+    //     sublabel: emp.mobile || "",
+    //     avatarUrl:
+    //         emp.photo_url && emp.photo_url !== "null"
+    //             ? `${IMAGE_BASE_URL}${emp.photo_url}`
+    //             : null,
+    //     initials: `${emp.first_name?.[0] ?? ""}${emp.last_name?.[0] ?? ""}`.toUpperCase(),
+    // }));
+
+    // ── Employee options: photo if the employee has one, initials otherwise ──
+    // Keep the bold label to just the name — cramming the phone number in
+    // there too is what caused truncation mid-digit ("98000...") in a narrow
+    // trigger. Phone + employee code both fit fine as the smaller sublabel.
+    const employeeOptions = scopedEmployees.map((emp) => ({
+        value: emp.id,
+        label: `${emp.first_name} ${emp.last_name}`,
+        sublabel: [emp.mobile, emp.employee_code].filter(Boolean).join(" · "),
+        avatarUrl:
+            emp.photo_url && emp.photo_url !== "null" ? getImageUrl(emp.photo_url) : null,
+        initials: `${emp.first_name?.[0] ?? ""}${emp.last_name?.[0] ?? ""}`.toUpperCase(),
+    }));
+
+    console.log(employeeOptions);
+
+    console.log(selectedEmployee)
 
     return (
         <div className="ea-page min-h-screen p-5 sm:p-6">
@@ -266,9 +302,9 @@ export default function EmployeeAttendancePage() {
                 )}
 
                 {/* Employee filter */}
-                <div className="flex flex-col gap-1">
-                    {/* <label className="ea-filter-label text-[11.5px] font-semibold">Employee</label> */}
-                    <select
+                {/* <div className="flex flex-col gap-1"> */}
+                {/* <label className="ea-filter-label text-[11.5px] font-semibold">Employee</label> */}
+                {/* <select
                         value={selectedEmployee?.id ?? ""}
                         onChange={handleEmployeeChange}
                         disabled={employeesLoading || scopedEmployees.length === 0}
@@ -287,6 +323,23 @@ export default function EmployeeAttendancePage() {
                             </option>
                         ))}
                     </select>
+                </div> */}
+
+                {/* Employee filter */}
+                <div className="flex flex-col gap-1 w-full sm:w-auto">
+                    <SearchableSelect
+                        options={employeeOptions}
+                        value={selectedEmployee?.id ?? ""}
+                        onChange={(id) => handleEmployeeChange({ target: { value: id } })}
+                        // handleEmployeeChange was written for a native <select>'s onChange
+                        // event (reads e.target.value) — this shim keeps that signature so
+                        // nothing else about handleEmployeeChange needs to change.
+                        placeholder="Select employee"
+                        loading={employeesLoading}
+                        loadingText="Loading employees…"
+                        disabled={employeesLoading || scopedEmployees.length === 0}
+                        showAvatars
+                    />
                 </div>
 
                 {/* Status filter */}

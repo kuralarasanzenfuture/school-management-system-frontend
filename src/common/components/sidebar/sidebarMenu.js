@@ -164,7 +164,11 @@ import {
   FaProjectDiagram,
   FaCalculator,
   FaFileInvoiceDollar,
+  FaServer,
+  FaHdd,
 } from "react-icons/fa";
+import { FaDownload } from "react-icons/fa6";
+import { FcDataBackup } from "react-icons/fc";
 
 // This file is unchanged from your original — just relocated into the
 // Sidebar/ folder so everything the sidebar needs lives together.
@@ -336,7 +340,7 @@ const sidebarMenu = [
       {
         name: "Employee Attendance",
         icon: FaUserCheck,
-        path: "/employee-attendance",
+        path: "/my-employee-attendance",
       },
       {
         name: "Attendance Reports",
@@ -470,6 +474,18 @@ const sidebarMenu = [
       { name: "Backup & Restore", icon: FaDatabase, path: "/backup" },
     ],
   },
+
+  {
+    label: "server",
+    items: [
+      { name: "Server Health", icon: FaServer, path: "/server-health" },
+      { name: "Storage", icon: FaHdd, path: "/storage" },
+      { name: "Backups", icon: FcDataBackup, path: "/backups" },
+      { name: "Software Updates", icon: FaDownload, path: "/software-updates" },
+      { name: "Server Settings", icon: FaCog, path: "/server-settings" },
+    ],
+  }
+
 ];
 
 export default sidebarMenu;

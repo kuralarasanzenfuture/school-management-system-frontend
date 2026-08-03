@@ -56,6 +56,7 @@ import ServerSettingsPage from "../features/health/pages/ServerSettingsPage.jsx"
 import BackupsPage from "../features/health/pages/BackupsPage.jsx";
 import SoftwareUpdatesPage from "../features/health/pages/SoftwareUpdatesPage.jsx";
 import StoragePage from "../features/health/pages/StoragePage.jsx";
+import SchoolViewPage from "../features/schoolSetup/schoolProfile/pages/SchoolViewPage.jsx";
 
 // import TeacherList from "../features/teachers/pages/TeacherList";
 
@@ -96,6 +97,7 @@ const AppRoutes = () => {
           <Route path="/assign-to-employees" element={<EmployeeAssignPage />} />
 
           <Route path="/school-profile" element={<SchoolProfilePage />} />
+          <Route path="/school-profile/:id" element={<SchoolViewPage />} />
           <Route path="/academic-years" element={<AcademicYearPage />} />
           <Route path="/departments" element={<DepartmentPage />} />
           <Route path="/classes" element={<ClassPage />} />

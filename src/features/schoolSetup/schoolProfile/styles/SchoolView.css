@@ -1,0 +1,134 @@
+/* SchoolView.css */
+
+.scv-page {
+    background: var(--bg);
+}
+
+.scv-loading,
+.scv-error {
+    color: var(--text-secondary);
+}
+
+.scv-error {
+    color: var(--danger);
+}
+
+
+/* ── Back link ── */
+
+.scv-back-link {
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.scv-back-link:hover {
+    color: var(--btn-bg);
+}
+
+
+/* ── Hero card ── */
+
+.scv-hero {
+    background: var(--panel-bg);
+    border: 1px solid var(--divider);
+    box-shadow: var(--card-shadow);
+}
+
+.scv-logo {
+    background: var(--badge-bg);
+    color: var(--btn-bg);
+}
+
+.scv-name {
+    color: var(--text-primary);
+}
+
+.scv-code {
+    color: var(--text-muted);
+}
+
+.scv-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.scv-status-active {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+.scv-status-inactive {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+.scv-btn-primary {
+    background: var(--btn-bg);
+    color: var(--btn-text);
+}
+
+.scv-btn-primary:hover {
+    background: var(--btn-hover);
+}
+
+.scv-btn-outline {
+    background: var(--panel-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-secondary);
+}
+
+.scv-btn-outline:hover {
+    background: var(--input-bg);
+}
+
+
+/* ── Detail cards ── */
+
+.scv-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--divider);
+    box-shadow: var(--card-shadow);
+}
+
+.scv-section-title {
+    color: var(--btn-bg);
+    border-bottom: 1px solid var(--divider);
+    padding-bottom: 10px;
+}
+
+
+/* ── Info rows ── */
+
+.scv-row-icon {
+    background: var(--badge-bg);
+    color: var(--btn-bg);
+}
+
+.scv-row-label {
+    color: var(--text-muted);
+}
+
+.scv-row-value {
+    color: var(--text-primary);
+}
+
+.scv-row-link {
+    color: var(--btn-bg);
+    text-decoration: none;
+}
+
+.scv-row-link:hover {
+    text-decoration: underline;
+}
+
+.scv-row-empty {
+    color: var(--text-muted);
+    font-style: italic;
+}

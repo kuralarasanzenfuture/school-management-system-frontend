@@ -2,10 +2,10 @@
  * EmployeeAttendanceTab.jsx
  *
  * Dispatch: getEmployeeAttendanceByEmployeeId({ employeeId, filters })
- * State:    state.employeeAttendance.records  (logs[])
- *           state.employeeAttendance.summary  (summary object)
- *           state.employeeAttendance.loading
- *           state.employeeAttendance.error
+ * State:    state.employeeAttendance.myRecords  (logs[])
+ *           state.employeeAttendance.mySummary  (summary object)
+ *           state.employeeAttendance.myLoading
+ *           state.employeeAttendance.myError
  *
  * Response normalised:
  *   Shape A: { success, data: [] }              → logs = data
@@ -81,8 +81,11 @@ export default function EmployeeAttendanceTab({ employeeId }) {
     const dispatch = useDispatch();
     const now = new Date();
 
-    /* ── Redux ── */
-    const { records, summary: reduxSummary, loading, error } =
+    /* ── Redux (employee-specific namespace) ──
+       myRecords / myLoading / myError / mySummary are kept separate
+       from the admin-wide records so that loading one employee's
+       attendance never overwrites another employee's data. ── */
+    const { myRecords: records, mySummary: reduxSummary, myLoading: loading, myError: error } =
         useSelector((s) => s.employeeAttendance);
 
     /* ── UI state ── */
@@ -92,18 +95,35 @@ export default function EmployeeAttendanceTab({ employeeId }) {
     const [viewMode, setViewMode] = useState("calendar"); // "calendar" | "table"
 
     /* ── Dispatch ── */
+    // const load = useCallback(() => {
+    //     if (!employeeId) return;
+    //     dispatch(getEmployeeAttendanceByEmployeeId({
+    //         employeeId: Number(employeeId),
+    //         filters: {
+    //             from_date: ymFirst(year, month),
+    //             to_date: ymLast(year, month),
+    //             month: month + 1,
+    //             year,
+    //             ...(statusFilter ? { status: statusFilter.toUpperCase() } : {}),
+    //         },
+    //     }));
+    // }, [dispatch, employeeId, year, month, statusFilter]);
+
+    /* ── Dispatch ── */
     const load = useCallback(() => {
         if (!employeeId) return;
-        dispatch(getEmployeeAttendanceByEmployeeId({
-            employeeId: Number(employeeId),
-            filters: {
-                from_date: ymFirst(year, month),
-                to_date: ymLast(year, month),
-                month: month + 1,
-                year,
-                ...(statusFilter ? { status: statusFilter.toUpperCase() } : {}),
-            },
-        }));
+        dispatch(
+            getEmployeeAttendanceByEmployeeId({
+                employeeId: Number(employeeId),
+                filters: {
+                    from_date: ymFirst(year, month),
+                    to_date: ymLast(year, month),
+                    month: month + 1,
+                    year,
+                    ...(statusFilter ? { status: statusFilter } : {}), // Removed .toUpperCase()
+                },
+            })
+        );
     }, [dispatch, employeeId, year, month, statusFilter]);
 
     useEffect(() => { load(); }, [load]);
@@ -117,6 +137,8 @@ export default function EmployeeAttendanceTab({ employeeId }) {
         if (Array.isArray(records.logs)) return records.logs;         // Shape B nested
         return [];
     }, [records]);
+
+    console.log("logs:", logs);
 
     const summary = useMemo(() => {
         // prefer slice's dedicated summary field (from Shape B response)

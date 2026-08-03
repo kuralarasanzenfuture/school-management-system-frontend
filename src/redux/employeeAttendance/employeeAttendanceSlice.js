@@ -88,6 +88,9 @@ export const removeAttendance = createAsyncThunk(
 );
 
 // Fetch records for a specific employee
+// NOTE: This thunk writes to the *myAttendance* namespace (myRecords,
+// myLoading, myError, mySummary) so that it never collides with the
+// admin-wide records loaded by getAttendanceRecords.
 export const getEmployeeAttendanceByEmployeeId = createAsyncThunk(
   "employeeAttendance/getEmployeeAttendanceByEmployeeId",
   async ({ employeeId, filters }, { rejectWithValue }) => {
@@ -135,9 +138,20 @@ export const fetchTodayAttendance = createAsyncThunk(
 // ─────────────────────────── Initial State ────────────────────────────
 
 const initialState = {
+  // Admin-wide records (loaded by getAttendanceRecords)
   records: [], // attendance rows for the selected date / filters
   summary: null, // { present, absent, late, half_day, leave, holiday, week_off, total }
   record: null, // single record being viewed / edited
+
+  // Employee-specific records (loaded by getEmployeeAttendanceByEmployeeId)
+  // Kept separate so that loading one employee's attendance never
+  // overwrites another employee's (or the admin's) data.
+  myRecords: [],
+  mySummary: null,
+  myLoading: false,
+  myError: null,
+
+  // Legacy / misc
   employeeAttendance: [],
   todayAttendance: null,
   loading: false,
@@ -145,16 +159,27 @@ const initialState = {
   error: null,
 };
 
-// const initialState = {
-//   records: [],          // Daily attendance list
-//   record: null,         // Single attendance record
-//   employeeHistory: null,// Employee-wise attendance history
-//   todayAttendance: null,// Today's attendance
-//   summary: null,        // Attendance summary
-//   loading: false,
-//   summaryLoading: false,
-//   error: null,
-// };
+// ─────────────────────────── Helpers ──────────────────────────────────
+
+/**
+ * Upsert a single record into an array (by id).
+ * Mutates the array in place (Immer handles immutability).
+ */
+function upsertRecord(arr, newRecord) {
+  const idx = arr.findIndex((r) => r.id === newRecord.id);
+  if (idx !== -1) {
+    arr[idx] = newRecord;
+  } else {
+    arr.push(newRecord);
+  }
+}
+
+/**
+ * Remove a record (by id) from an array.
+ */
+function removeRecordById(arr, id) {
+  return arr.filter((r) => r.id !== id);
+}
 
 // ─────────────────────────── Slice ────────────────────────────────────
 
@@ -174,7 +199,7 @@ const employeeAttendanceSlice = createSlice({
   extraReducers: (builder) => {
     builder
 
-      // ── Fetch records ──────────────────────────────────────────────
+      // ── Fetch records (admin-wide) ────────────────────────────────
       .addCase(getAttendanceRecords.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -188,7 +213,7 @@ const employeeAttendanceSlice = createSlice({
         state.error = action.payload ?? "Failed to fetch attendance";
       })
 
-      // ── Fetch summary ──────────────────────────────────────────────
+      // ── Fetch summary ────────────────────────────────────────────
       .addCase(getAttendanceSummary.pending, (state) => {
         state.summaryLoading = true;
       })
@@ -201,7 +226,7 @@ const employeeAttendanceSlice = createSlice({
         state.error = action.payload ?? "Failed to fetch summary";
       })
 
-      // ── Fetch by id ────────────────────────────────────────────────
+      // ── Fetch by id ──────────────────────────────────────────────
       .addCase(getAttendanceById.pending, (state) => {
         state.loading = true;
       })
@@ -214,7 +239,7 @@ const employeeAttendanceSlice = createSlice({
         state.error = action.payload ?? "Failed to fetch record";
       })
 
-      // ── Mark attendance ────────────────────────────────────────────
+      // ── Mark attendance ──────────────────────────────────────────
       .addCase(markAttendance.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -226,14 +251,10 @@ const employeeAttendanceSlice = createSlice({
         const newRecords = Array.isArray(incoming) ? incoming : [incoming];
 
         newRecords.forEach((newRecord) => {
-          const existingIndex = state.records.findIndex(
-            (existingRecord) => existingRecord.id === newRecord.id,
-          );
-          if (existingIndex !== -1) {
-            state.records[existingIndex] = newRecord;
-          } else {
-            state.records.push(newRecord);
-          }
+          // Update admin-wide records
+          upsertRecord(state.records, newRecord);
+          // Also update employee-specific records so both views stay in sync
+          upsertRecord(state.myRecords, newRecord);
         });
       })
       .addCase(markAttendance.rejected, (state, action) => {
@@ -241,7 +262,7 @@ const employeeAttendanceSlice = createSlice({
         state.error = action.payload ?? "Failed to mark attendance";
       })
 
-      // ── Edit attendance ────────────────────────────────────────────
+      // ── Edit attendance ──────────────────────────────────────────
       .addCase(editAttendance.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -249,12 +270,23 @@ const employeeAttendanceSlice = createSlice({
       .addCase(editAttendance.fulfilled, (state, action) => {
         state.loading = false;
         const updatedRecord = action.payload.record ?? action.payload;
+
+        // Update admin-wide records
         const existingIndex = state.records.findIndex(
           (existingRecord) => existingRecord.id === updatedRecord.id,
         );
         if (existingIndex !== -1) {
           state.records[existingIndex] = updatedRecord;
         }
+
+        // Also update employee-specific records
+        const myExistingIndex = state.myRecords.findIndex(
+          (existingRecord) => existingRecord.id === updatedRecord.id,
+        );
+        if (myExistingIndex !== -1) {
+          state.myRecords[myExistingIndex] = updatedRecord;
+        }
+
         state.record = updatedRecord;
       })
       .addCase(editAttendance.rejected, (state, action) => {
@@ -262,36 +294,83 @@ const employeeAttendanceSlice = createSlice({
         state.error = action.payload ?? "Failed to update attendance";
       })
 
-      // ── Remove attendance ──────────────────────────────────────────
+      // ── Remove attendance ────────────────────────────────────────
       .addCase(removeAttendance.pending, (state) => {
         state.loading = true;
       })
       .addCase(removeAttendance.fulfilled, (state, action) => {
         state.loading = false;
-        state.records = state.records.filter(
-          (existingRecord) => existingRecord.id !== action.payload,
-        );
+        // Remove from admin-wide records
+        state.records = removeRecordById(state.records, action.payload);
+        // Also remove from employee-specific records
+        state.myRecords = removeRecordById(state.myRecords, action.payload);
       })
       .addCase(removeAttendance.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload ?? "Failed to delete record";
       })
 
-      // ── Fetch by employee id ──────────────────────────────────────
+      // ── Fetch by employee id (employee-specific) ─────────────────
+      // Writes to myRecords / myLoading / myError / mySummary so it
+      // never collides with the admin-wide records state.
       .addCase(getEmployeeAttendanceByEmployeeId.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+        state.myLoading = true;
+        state.myError = null;
       })
+      // .addCase(getEmployeeAttendanceByEmployeeId.fulfilled, (state, action) => {
+      //   state.myLoading = false;
+      //   state.myError = null;
+
+      //   const rawPayload = action.payload;
+
+      //   // Handle multiple response shapes:
+      //   //   Shape A: { data: [...], summary: {...} }
+      //   //   Shape B: { logs: [...], summary: {...} }
+      //   //   Shape C: [...]  (plain array)
+      //   const records = rawPayload?.data ?? rawPayload?.logs ?? rawPayload;
+      //   state.myRecords = Array.isArray(records) ? records : [];
+      //   state.employeeAttendance = state.myRecords;
+
+      //   // Extract summary from the *raw* payload (before extracting data),
+      //   // so it is captured regardless of the response shape.
+      //   if (rawPayload?.summary) state.mySummary = rawPayload.summary;
+      // })
       .addCase(getEmployeeAttendanceByEmployeeId.fulfilled, (state, action) => {
-        state.loading = false;
-        const payload = action.payload?.data ?? action.payload;
-        state.records = payload;
-        state.employeeAttendance = payload;
-        if (payload?.summary) state.summary = payload.summary;
+        state.myLoading = false;
+        state.myError = null;
+
+        const rawPayload = action.payload;
+
+        // Unpack nested payload structures correctly
+        let records = [];
+        let summary = null;
+
+        if (Array.isArray(rawPayload)) {
+          // Plain array response
+          records = rawPayload;
+        } else if (rawPayload && typeof rawPayload === "object") {
+          // Check if logs are nested under rawPayload.data.logs or rawPayload.logs
+          if (Array.isArray(rawPayload.data)) {
+            records = rawPayload.data;
+          } else if (rawPayload.data && Array.isArray(rawPayload.data.logs)) {
+            records = rawPayload.data.logs;
+            summary = rawPayload.data.summary;
+          } else if (Array.isArray(rawPayload.logs)) {
+            records = rawPayload.logs;
+          }
+
+          // Capture summary if present at root or inside data
+          summary =
+            summary || rawPayload.summary || rawPayload.data?.summary || null;
+        }
+
+        state.myRecords = records;
+        state.employeeAttendance = records;
+        state.mySummary = summary;
       })
       .addCase(getEmployeeAttendanceByEmployeeId.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+        state.myLoading = false;
+        state.myError = action.payload;
       })
 
       // ── Check in ──────────────────────────────────────

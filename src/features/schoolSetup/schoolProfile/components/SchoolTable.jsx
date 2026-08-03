@@ -4,7 +4,9 @@ import {
   Trash2,
   School as SchoolIcon,
   ArrowUpDown,
+  Eye,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 
 const BASE_URL = "http://localhost:5000";
@@ -27,6 +29,13 @@ function formatDate(value) {
 }
 
 export default function SchoolTable({ schools, onEdit, onDelete, deletingId }) {
+
+  const navigate = useNavigate();
+
+  const onView = (school) => {
+    navigate(`/school-profile/${school.id}`);
+  };
+
   return (
     <div className="scp-table-card rounded-2xl overflow-hidden">
       <div className="overflow-x-auto">
@@ -61,7 +70,9 @@ export default function SchoolTable({ schools, onEdit, onDelete, deletingId }) {
               return (
                 <tr key={school.id} className="scp-row transition-colors">
                   <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 hover:cursor-pointer"
+                    onClick={() => onView(school)}
+                    >
                       <div className="scp-logo w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center shrink-0">
                         {logo ? (
                           <img
@@ -100,11 +111,10 @@ export default function SchoolTable({ schools, onEdit, onDelete, deletingId }) {
                   </td>
                   <td className="px-3 py-3.5">
                     <span
-                      className={`scp-status ${
-                        school.status === "active"
+                      className={`scp-status ${school.status === "active"
                           ? "scp-status-active"
                           : "scp-status-inactive"
-                      }`}
+                        }`}
                     >
                       {school.status}
                     </span>
@@ -114,6 +124,13 @@ export default function SchoolTable({ schools, onEdit, onDelete, deletingId }) {
                   </td>
                   <td className="px-3 py-3.5">
                     <div className="flex items-center justify-end gap-1 pr-2">
+                      <button
+                        onClick={() => onView(school)}
+                        className="scp-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+                        title="View"
+                      >
+                        <Eye size={15} />
+                      </button>
                       <button
                         onClick={() => onEdit(school)}
                         className="scp-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"

@@ -282,3 +282,28 @@
   background: var(--danger-bg);
   color: var(--danger);
 }
+
+/* ── Delete modal ── */
+.sm-delete-icon-wrap {
+  background: var(--danger-bg);
+}
+.sm-delete-icon {
+  color: var(--danger);
+}
+.sm-delete-title {
+  color: var(--text-primary);
+}
+.sm-delete-desc {
+  color: var(--text-muted);
+}
+.sm-btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.sm-btn-danger:hover {
+  opacity: 0.88;
+}
+.sm-btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

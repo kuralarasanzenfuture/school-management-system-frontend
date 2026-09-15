@@ -1,0 +1,67 @@
+/* EmptyState.css
+   Same convention as NoResultsState.css. Matches the reference's soft
+   cloud-and-plant illustration with two simple decorative blobs behind
+   the icon rather than literal cloud shapes, kept abstract so it works
+   with any icon passed in, not just the box.
+*/
+
+.es-wrap {
+  background: var(--panel-bg, #ffffff);
+  border: 1px solid var(--divider, #e2e8f0);
+  box-shadow: var(--card-shadow, 0 1px 3px rgba(15, 23, 42, 0.08));
+}
+
+/* ── Icon + decorative blobs ── */
+.es-icon-wrap {
+  width: clamp(110px, 28vw, 140px);
+  height: clamp(110px, 28vw, 140px);
+}
+
+.es-cloud {
+  position: absolute;
+  border-radius: 9999px;
+  background: var(--input-bg, #f1f5f9);
+}
+.es-cloud-1 {
+  width: 42%;
+  height: 42%;
+  top: 2%;
+  left: 2%;
+}
+.es-cloud-2 {
+  width: 30%;
+  height: 30%;
+  bottom: 6%;
+  right: 4%;
+}
+
+.es-circle {
+  width: clamp(80px, 22vw, 100px);
+  height: clamp(80px, 22vw, 100px);
+  background: var(--badge-bg, #e0e7ff);
+}
+
+.es-icon {
+  width: 46%;
+  height: 46%;
+  color: var(--btn-bg, #1e1b4b);
+}
+
+/* ── Text ── */
+.es-title {
+  color: var(--text-primary, #0f172a);
+}
+.es-desc {
+  color: var(--text-muted, #64748b);
+}
+
+/* ── Button ── */
+.es-btn-add {
+  background: var(--btn-bg, #1e1b4b);
+  color: var(--btn-text, #ffffff);
+  border: none;
+  cursor: pointer;
+}
+.es-btn-add:hover {
+  background: var(--btn-hover, #312e81);
+}

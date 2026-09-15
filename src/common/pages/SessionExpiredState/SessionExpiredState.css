@@ -1,0 +1,75 @@
+/* SessionExpiredState.css
+   Same convention as SuccessState.css — theme variables with fallbacks,
+   clamp()-based sizing instead of fixed breakpoints. Uses the warning
+   tone (orange) rather than danger (red), since an expired session is a
+   routine security measure, not an error condition.
+*/
+
+.sxp-overlay {
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.sxp-back {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+}
+.sxp-back:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.sxp-card {
+  background: var(--panel-bg, #ffffff);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.28);
+}
+
+/* ── Icon cluster ── */
+.sxp-icon-wrap {
+  width: clamp(120px, 32vw, 150px);
+  height: clamp(120px, 32vw, 150px);
+}
+
+.sxp-halo {
+  background: var(--warning-bg, #fef9c3);
+}
+
+.sxp-circle {
+  width: clamp(76px, 22vw, 96px);
+  height: clamp(76px, 22vw, 96px);
+  background: var(--warning-bg, #fef3e2);
+  border: 3px solid var(--warning, #ea580c);
+}
+
+.sxp-clock-icon {
+  width: 46%;
+  height: 46%;
+  color: var(--warning, #ea580c);
+}
+
+/* ── Text ── */
+.sxp-title {
+  color: var(--text-primary, #0f172a);
+}
+.sxp-desc {
+  color: var(--text-secondary, #475569);
+}
+
+/* ── Button ── */
+.sxp-btn-primary {
+  background: var(--warning, #ea580c);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+}
+.sxp-btn-primary:hover {
+  opacity: 0.92;
+}
+
+@media (max-width: 380px) {
+  .sxp-card {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}

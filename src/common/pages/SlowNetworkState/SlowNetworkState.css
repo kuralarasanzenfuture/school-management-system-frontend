@@ -1,0 +1,65 @@
+/* SlowNetworkState.css
+   Same convention as the rest of the state family. Teal/success-toned
+   to match the reference's green snail.
+*/
+
+.sns-overlay {
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.sns-card {
+  background: var(--panel-bg, #ffffff);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.28);
+}
+
+.sns-circle {
+  width: clamp(88px, 24vw, 108px);
+  height: clamp(88px, 24vw, 108px);
+  background: var(--success-bg, #dcfce7);
+}
+
+.sns-icon {
+  width: clamp(44px, 12vw, 54px);
+  height: clamp(44px, 12vw, 54px);
+  color: var(--success, #16a34a);
+}
+
+.sns-title {
+  color: var(--text-primary, #0f172a);
+}
+.sns-desc {
+  color: var(--text-secondary, #475569);
+}
+
+/* ── Progress bar ── */
+.sns-track {
+  height: 8px;
+  background: var(--input-bg, #f1f5f9);
+  position: relative;
+}
+
+.sns-fill {
+  background: var(--success, #16a34a);
+}
+
+.sns-fill-determinate {
+  transition: width 0.3s ease;
+}
+
+.sns-fill-indeterminate {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40%;
+  animation: sns-sweep 1.3s ease-in-out infinite;
+}
+
+@keyframes sns-sweep {
+  0% {
+    left: -40%;
+  }
+  100% {
+    left: 100%;
+  }
+}

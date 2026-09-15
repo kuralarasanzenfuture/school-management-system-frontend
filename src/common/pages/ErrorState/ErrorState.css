@@ -1,0 +1,93 @@
+/* ErrorState.css
+   Same convention as SuccessState.css / SessionExpiredState.css /
+   PermissionDeniedState.css / NoInternetState.css — theme variables with
+   fallbacks, clamp()-based sizing. Danger tone throughout, matching the
+   reference's red.
+*/
+
+.ers-overlay {
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.ers-back {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+}
+.ers-back:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.ers-card {
+  background: var(--panel-bg, #ffffff);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.28);
+}
+
+/* ── Icon cluster ── */
+.ers-icon-wrap {
+  width: clamp(120px, 32vw, 150px);
+  height: clamp(120px, 32vw, 150px);
+}
+
+.ers-halo {
+  background: var(--danger-bg, #fee2e2);
+}
+
+.ers-circle {
+  width: clamp(76px, 22vw, 96px);
+  height: clamp(76px, 22vw, 96px);
+  background: var(--danger, #dc2626);
+  box-shadow: 0 10px 24px
+    color-mix(in srgb, var(--danger, #dc2626) 40%, transparent);
+}
+
+.ers-x-icon {
+  width: 42%;
+  height: 42%;
+  color: #ffffff;
+}
+
+/* Radiating dash marks — positioned at icon-wrap center, pushed outward
+   and rotated via the inline transform set in JSX. */
+.ers-dash {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 3px;
+  height: 16px;
+  margin: -8px 0 0 -1.5px;
+  border-radius: 2px;
+  background: var(--danger, #dc2626);
+  transform-origin: center;
+}
+
+/* ── Text ── */
+.ers-title {
+  color: var(--text-primary, #0f172a);
+}
+.ers-desc {
+  color: var(--text-secondary, #475569);
+}
+
+/* ── Button ── */
+.ers-btn-primary {
+  background: var(--danger, #dc2626);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+}
+.ers-btn-primary:hover {
+  opacity: 0.92;
+}
+
+@media (max-width: 380px) {
+  .ers-card {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  .ers-dash {
+    height: 12px;
+  }
+}

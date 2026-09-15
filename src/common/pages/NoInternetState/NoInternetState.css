@@ -1,0 +1,76 @@
+/* NoInternetState.css
+   Same convention as SuccessState.css / SessionExpiredState.css /
+   PermissionDeniedState.css — theme variables with fallbacks,
+   clamp()-based sizing. Icon/halo stay neutral gray (text-muted /
+   input-bg) since a dropped connection isn't a warning or an error, just
+   a fact — the Retry button still uses the brand accent so it's clearly
+   the actionable element.
+*/
+
+.nis-overlay {
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.nis-back {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+}
+.nis-back:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.nis-card {
+  background: var(--panel-bg, #ffffff);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.28);
+}
+
+/* ── Icon cluster ── */
+.nis-icon-wrap {
+  width: clamp(120px, 32vw, 150px);
+  height: clamp(120px, 32vw, 150px);
+}
+
+.nis-halo {
+  background: var(--input-bg, #f1f5f9);
+}
+
+.nis-circle {
+  width: clamp(96px, 26vw, 116px);
+  height: clamp(96px, 26vw, 116px);
+  background: var(--input-bg, #f1f5f9);
+}
+
+.nis-icon {
+  width: 42%;
+  height: 42%;
+  color: var(--text-muted, #64748b);
+}
+
+/* ── Text ── */
+.nis-title {
+  color: var(--text-primary, #0f172a);
+}
+.nis-desc {
+  color: var(--text-secondary, #475569);
+}
+
+/* ── Button ── */
+.nis-btn-primary {
+  background: var(--btn-bg, #1e1b4b);
+  color: var(--btn-text, #ffffff);
+  border: none;
+  cursor: pointer;
+}
+.nis-btn-primary:hover {
+  background: var(--btn-hover, #312e81);
+}
+
+@media (max-width: 380px) {
+  .nis-card {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}

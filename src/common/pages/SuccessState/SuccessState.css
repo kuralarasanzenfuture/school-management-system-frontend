@@ -1,0 +1,99 @@
+/* SuccessState.css
+   Global success overlay. Colors driven by theme variables (with
+   fallbacks) so it matches whatever's currently your accent/success
+   color. Sizing uses clamp()/media queries instead of fixed breakpoints
+   so it scales smoothly from a small phone up to desktop.
+*/
+
+.ssx-overlay {
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.ssx-card {
+  background: var(--panel-bg, #ffffff);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.28);
+}
+
+/* ── Icon cluster ── */
+.ssx-icon-wrap {
+  width: clamp(120px, 32vw, 150px);
+  height: clamp(120px, 32vw, 150px);
+}
+
+.ssx-halo {
+  background: var(--success-bg, #dcfce7);
+}
+
+.ssx-circle {
+  width: clamp(76px, 22vw, 96px);
+  height: clamp(76px, 22vw, 96px);
+  background: var(--success, #16a34a);
+  box-shadow: 0 10px 24px
+    color-mix(in srgb, var(--success, #16a34a) 40%, transparent);
+}
+
+.ssx-check {
+  width: 46%;
+  height: 46%;
+}
+.ssx-check path {
+  stroke: #ffffff;
+}
+
+.ssx-particle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
+  margin: -4px 0 0 -4px;
+}
+.ssx-particle-success {
+  background: var(--success, #16a34a);
+}
+.ssx-particle-warning {
+  background: var(--warning, #ca8a04);
+}
+
+/* ── Text ── */
+.ssx-title {
+  color: var(--text-primary, #0f172a);
+}
+.ssx-desc {
+  color: var(--text-secondary, #475569);
+}
+
+/* ── Buttons ── */
+.ssx-btn-primary {
+  background: var(--success, #16a34a);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+}
+.ssx-btn-primary:hover {
+  opacity: 0.92;
+}
+
+.ssx-btn-secondary {
+  background: var(--input-bg, #f1f5f9);
+  color: var(--text-secondary, #475569);
+  border: 1px solid var(--input-border, #e2e8f0);
+  cursor: pointer;
+}
+.ssx-btn-secondary:hover {
+  background: var(--panel-bg, #ffffff);
+}
+
+/* Extra headroom shrink for very small phones (< ~360px wide) */
+@media (max-width: 380px) {
+  .ssx-card {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  .ssx-particle {
+    width: 6px;
+    height: 6px;
+  }
+}

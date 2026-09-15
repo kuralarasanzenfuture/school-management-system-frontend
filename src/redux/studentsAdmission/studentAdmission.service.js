@@ -61,3 +61,13 @@ export const getClassStudentSummaryByToken = async (filters) => {
     throw error;
   }
 };
+
+export const getAllStudentAdmissionsReport = async (token) => {
+  try {
+    const response = await api.get(`/student-admissions/token/${token}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching sections:", error);
+    throw error;
+  }
+};

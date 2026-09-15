@@ -1,0 +1,76 @@
+/* PermissionDeniedState.css
+   Same convention as SuccessState.css / SessionExpiredState.css — theme
+   variables with fallbacks, clamp()-based sizing. Uses the app's own
+   brand accent (--btn-bg / --badge-bg, the indigo/purple used for
+   primary buttons and active states elsewhere) rather than introducing
+   a separate purple, since that's what the reference's lock icon color
+   already matches.
+*/
+
+.pds-overlay {
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.pds-back {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+}
+.pds-back:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.pds-card {
+  background: var(--panel-bg, #ffffff);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.28);
+}
+
+/* ── Icon cluster ── */
+.pds-icon-wrap {
+  width: clamp(120px, 32vw, 150px);
+  height: clamp(120px, 32vw, 150px);
+}
+
+.pds-halo {
+  background: var(--badge-bg, #e0e7ff);
+}
+
+.pds-circle {
+  width: clamp(96px, 26vw, 116px);
+  height: clamp(96px, 26vw, 116px);
+  background: var(--badge-bg, #e0e7ff);
+}
+
+.pds-lock-icon {
+  width: 42%;
+  height: 42%;
+  color: var(--btn-bg, #1e1b4b);
+}
+
+/* ── Text ── */
+.pds-title {
+  color: var(--text-primary, #0f172a);
+}
+.pds-desc {
+  color: var(--text-secondary, #475569);
+}
+
+/* ── Button ── */
+.pds-btn-primary {
+  background: var(--btn-bg, #1e1b4b);
+  color: var(--btn-text, #ffffff);
+  border: none;
+  cursor: pointer;
+}
+.pds-btn-primary:hover {
+  background: var(--btn-hover, #312e81);
+}
+
+@media (max-width: 380px) {
+  .pds-card {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}

@@ -78,7 +78,7 @@ const LoginForm = () => {
 
           <div className="input-wrap">
             <span className="input-icon">👨‍💼</span>
-
+<h1></h1>
             <input
               type="text"
               value={loginId}

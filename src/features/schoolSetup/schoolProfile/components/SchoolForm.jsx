@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Camera, Loader2 } from "lucide-react";
-// import { useDebounce } from "react-use";
 import { handleRestrictedInput, mobileNumber, pincode } from "../../../../common/utils/inputHandlers.js";
-
-const BASE_URL = "http://localhost:5000";
+import { getImageUrl } from "../../../../common/utils/imageUrl.js";
 
 const EMPTY = {
   name: "",
@@ -20,12 +18,6 @@ const EMPTY = {
   website: "",
   status: "active",
 };
-
-function resolveUrl(url) {
-  if (!url) return null;
-  if (/^https?:\/\//i.test(url) || url.startsWith("data:")) return url;
-  return `${BASE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
-}
 
 /**
  * Add/edit form for a single school.
@@ -64,7 +56,7 @@ export default function SchoolForm({
         website: initialData.website || "",
         status: initialData.status || "active",
       });
-      setLogoPreview(resolveUrl(initialData.logo_url));
+      setLogoPreview(initialData.logo_url ? getImageUrl(initialData.logo_url) : null);
     } else {
       setData(EMPTY);
       setLogoPreview(null);
@@ -81,6 +73,12 @@ export default function SchoolForm({
   const handleLogo = (e) => {
     const f = e.target.files?.[0];
     if (!f) return;
+
+    if (f.size > 2 * 1024 * 1024) {
+      alert("Logo file size must be less than 2MB");
+      return;
+    }
+
     setLogoFile(f);
     setLogoPreview(URL.createObjectURL(f));
   };
@@ -88,13 +86,16 @@ export default function SchoolForm({
   const validate = () => {
     const e = {};
     if (!data.name.trim()) e.name = "School name is required";
-    if (data.email && !/^\S+@\S+\.\S+$/.test(data.email))
+    if (data.email && !/^\S+@\S+\.\S+$/.test(data.email.trim()))
       e.email = "Enter a valid email";
     if (data.phone && !/^\d{7,15}$/.test(data.phone.replace(/[\s-]/g, ""))) {
       e.phone = "Enter a valid phone number";
     }
     if (data.postal_code && !/^\d{4,10}$/.test(data.postal_code)) {
       e.postal_code = "Enter a valid postal code";
+    }
+    if (data.website && !/^https?:\/\//i.test(data.website.trim())) {
+      e.website = "Website must start with http:// or https://";
     }
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -106,7 +107,9 @@ export default function SchoolForm({
 
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
-      formData.append(key, value ?? "");
+      // Do not append code when creating a new school because backend generates code
+      if (key === "code" && !initialData) return;
+      formData.append(key, (value ?? "").trim());
     });
     if (logoFile) formData.append("logo", logoFile);
 
@@ -124,6 +127,9 @@ export default function SchoolForm({
                 src={logoPreview}
                 alt="Logo"
                 className="w-full h-full object-cover"
+                onError={() => {
+                  setLogoPreview(null);
+                }}
               />
             ) : (
               <div className="text-center text-[10px] font-semibold">
@@ -136,7 +142,7 @@ export default function SchoolForm({
         <input
           id="school-logo"
           type="file"
-          accept=".jpg,.jpeg,.png,.svg,.webp"
+          accept=".jpg,.jpeg,.png,.webp,image/png,image/jpeg,image/webp"
           className="hidden"
           onChange={handleLogo}
         />
@@ -227,12 +233,16 @@ export default function SchoolForm({
               Website
             </label>
             <input
-              className="scp-input w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200"
+              className={`scp-input w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200 ${errors.website ? "scp-input-error" : ""}`}
               placeholder="https://school.in"
               value={data.website}
               onChange={set("website")}
             />
-            <div className="h-4" />
+            <div className="h-4">
+              {errors.website && (
+                <p className="scp-field-error text-[11px]">{errors.website}</p>
+              )}
+            </div>
           </div>
         </div>
       </div>

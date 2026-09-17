@@ -1,17 +1,29 @@
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+const BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  import.meta.env.VITE_BASE_URL ||
+  "http://localhost:5000";
 
-export const getImageUrl = (path) => {
-  if (!path) return "";
+/**
+ * Resolves a relative image path into a full public URL.
+ * Handles existing full URLs (http/https), data URLs, blob URLs, and relative paths.
+ */
+export function getImageUrl(path) {
+  if (!path) return null;
+  if (typeof path !== "string") return null;
 
-  let fullUrl = path;
-
-  // If it's not already an absolute URL, prepend the base URL.
-  if (!path.startsWith("http://") && !path.startsWith("https://")) {
-    const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-    fullUrl = `${BASE_URL}${normalizedPath}`;
+  // Already an absolute URL or embedded data/blob URL
+  if (
+    /^https?:\/\//i.test(path) ||
+    path.startsWith("data:") ||
+    path.startsWith("blob:")
+  ) {
+    return path;
   }
 
-  //   console.log("Image URL:", fullUrl);
+  const cleanBase = (BASE_URL || "http://localhost:5000").replace(/\/+$/, "");
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
 
-  return fullUrl;
-};
+  return `${cleanBase}${normalizedPath}`;
+}
+
+export default getImageUrl;

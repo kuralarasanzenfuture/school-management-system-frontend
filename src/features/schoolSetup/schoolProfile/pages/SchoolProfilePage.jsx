@@ -249,7 +249,7 @@ const SchoolProfilePage = () => {
 
       closeModal();
     } catch (err) {
-      alert(err.message || "Failed to save school");
+      alert(typeof err === "string" ? err : err?.message || "Failed to save school");
     } finally {
       setSubmitting(false);
     }

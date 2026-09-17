@@ -7,15 +7,7 @@ import {
   Eye,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-
-const BASE_URL = "http://localhost:5000";
-
-function resolveUrl(url) {
-  if (!url) return null;
-  if (/^https?:\/\//i.test(url) || url.startsWith("data:")) return url;
-  return `${BASE_URL}${url.startsWith("/") ? "" : "/"}${url}`;
-}
+import { getImageUrl } from "../../../../common/utils/imageUrl.js";
 
 function formatDate(value) {
   if (!value) return "—";
@@ -62,7 +54,7 @@ export default function SchoolTable({ schools, onEdit, onDelete, deletingId }) {
           </thead>
           <tbody>
             {schools.map((school) => {
-              const logo = resolveUrl(school.logo_url);
+              const logo = school.logo_url ? getImageUrl(school.logo_url) : null;
               const location = [school.city, school.state]
                 .filter(Boolean)
                 .join(", ");
@@ -79,6 +71,9 @@ export default function SchoolTable({ schools, onEdit, onDelete, deletingId }) {
                             src={logo}
                             alt={school.name}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                            }}
                           />
                         ) : (
                           <SchoolIcon size={18} />

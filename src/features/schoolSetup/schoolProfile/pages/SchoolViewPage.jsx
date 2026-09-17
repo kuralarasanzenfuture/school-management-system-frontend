@@ -321,13 +321,14 @@ export default function SchoolViewPage() {
         setSubmitting(true);
         try {
             // Dispatch update thunk with school ID and updated form data
-            await dispatch(updateSchool({ id: school.id, data: formData })).unwrap();
+            await dispatch(updateSchool({ id: school.id, formData })).unwrap();
 
             // Refresh details and close modal upon success
             dispatch(fetchSchoolById(id));
             handleCloseModal();
         } catch (err) {
             console.error("Failed to update school:", err);
+            alert(typeof err === "string" ? err : err?.message || "Failed to update school");
         } finally {
             setSubmitting(false);
         }
@@ -389,7 +390,14 @@ export default function SchoolViewPage() {
                 <div className="flex items-center gap-4">
                     <div className="scv-logo w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center shrink-0">
                         {logo ? (
-                            <img src={logo} alt={school.name} className="w-full h-full object-cover" />
+                            <img
+                                src={logo}
+                                alt={school.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                    e.currentTarget.style.display = "none";
+                                }}
+                            />
                         ) : (
                             <SchoolIcon size={26} />
                         )}

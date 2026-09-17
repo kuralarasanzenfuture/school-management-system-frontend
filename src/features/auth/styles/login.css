@@ -114,8 +114,8 @@ body .login-page {
 }
 
 /* Background blobs */
-body::before,
-body::after {
+.login-page::before,
+.login-page::after {
   content: "";
   position: fixed;
   border-radius: 50%;
@@ -124,14 +124,14 @@ body::after {
   pointer-events: none;
   transition: opacity 0.4s;
 }
-body::before .login-page {
+.login-page::before {
   width: 500px;
   height: 500px;
   background: #3949ab;
   top: -100px;
   left: -100px;
 }
-body::after .login-page {
+.login-page::after {
   width: 400px;
   height: 400px;
   background: #e91e63;

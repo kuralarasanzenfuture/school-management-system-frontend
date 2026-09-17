@@ -52,9 +52,9 @@ export const addSchool = createAsyncThunk(
 // Update School
 export const editSchool = createAsyncThunk(
   "school/editSchool",
-  async ({ id, formData }, thunkAPI) => {
+  async ({ id, formData, data }, thunkAPI) => {
     try {
-      return await updateSchool(id, formData);
+      return await updateSchool(id, formData || data);
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || error.message,

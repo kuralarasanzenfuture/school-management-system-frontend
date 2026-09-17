@@ -108,3 +108,13 @@ export const getTodayAttendance = async () => {
     throw error;
   }
 };
+
+export const getAttendanceMatrixApi = async (params = {}) => {
+  try {
+    const response = await api.get("/employee-attendance/matrix", { params });
+    return response.data?.data || response.data;
+  } catch (error) {
+    console.error("Error fetching employee attendance matrix:", error);
+    throw error;
+  }
+};

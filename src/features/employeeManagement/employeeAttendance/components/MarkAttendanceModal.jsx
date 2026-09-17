@@ -123,6 +123,7 @@ export default function MarkAttendanceModal({
     onSwitchToEdit = null,
     date = "",         // pre-selected date string "YYYY-MM-DD"
     schoolId = null,
+    onSuccess = null,
 }) {
     const dispatch = useDispatch();
     const isEdit = Boolean(attendance?.id);
@@ -440,6 +441,7 @@ export default function MarkAttendanceModal({
             }
             onClose();
             await dispatch(getAttendanceRecords()).unwrap();
+            if (onSuccess) onSuccess();
         } catch (submissionError) {
             alert(submissionError?.message ?? String(submissionError));
         } finally {

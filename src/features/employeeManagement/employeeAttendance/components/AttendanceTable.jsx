@@ -2,6 +2,7 @@ import React from "react";
 import { Pencil, Trash2, Clock, Plus, RotateCcw, FilterX } from "lucide-react";
 import Pagination from "../../../../common/components/table/Pagination";
 import usePagination from "../../../../common/components/table/usePagination";
+import { getImageUrl } from "../../../../common/utils/imageUrl.js";
 import "../styles/EmployeeAttendance.css";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
@@ -111,9 +112,7 @@ export default function AttendanceTable({
                                 const checkInTime = formatTime(record.check_in);
                                 const checkOutTime = formatTime(record.check_out);
                                 const isLate = record.late_minutes > 0;
-                                const photoUrl = record.photo_url
-                                    ? `${API_URL}${record.photo_url.startsWith("/") ? "" : "/"}${record.photo_url}`
-                                    : null;
+                                const photoUrl = record.photo_url ? getImageUrl(record.photo_url) : null;
 
                                 // console.log(photoUrl);    
 

@@ -2,12 +2,14 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
     getAttendanceRecords,
+    getAttendanceMatrix,
     removeAttendance,
 } from "../../../../redux/employeeAttendance/employeeAttendanceSlice.js";
 import { fetchEmployees } from "../../../../redux/employee/employeeSlice.js";
 import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
 import { fetchEmployeeShifts } from "../../../../redux/employeeShift/employeeShiftSlice.js";
 import AttendanceTable from "../components/AttendanceTable.jsx";
+import AttendanceMatrix from "../components/AttendanceMatrix.jsx";
 import MarkAttendanceModal from "../components/MarkAttendanceModal.jsx";
 import "../styles/EmployeeAttendance.css";
 import {
@@ -15,6 +17,7 @@ import {
     Umbrella, Coffee,
     Plus, Download, Search, RefreshCw,
     RotateCcw, X, FilterX,
+    ChevronLeft, ChevronRight,
 } from "lucide-react";
 import SearchableSelect from "../components/SearchableSelect.jsx";
 import { getImageUrl } from "../../../../common/utils/imageUrl.js";
@@ -46,7 +49,7 @@ function StatCard({ icon: Icon, iconBgClass, iconColorClass, value, label }) {
 export default function EmployeeAttendancePage() {
     const dispatch = useDispatch();
 
-    const { records, loading, error } =
+    const { records, loading, error, matrixData, matrixLoading } =
         useSelector((state) => state.employeeAttendance);
     const { user } = useSelector((state) => state.auth);
     const schools = useSelector((state) => state.schoolProfile?.schools ?? []);
@@ -62,6 +65,55 @@ export default function EmployeeAttendancePage() {
     const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
     const schoolId = isAdmin ? null : user?.school_id;
 
+    /* ── View Mode: "monthly" | "weekly" | "daily" ── */
+    const [viewMode, setViewMode] = useState("monthly");
+
+    /* ── Helper to find Monday of a given date (YYYY-MM-DD) ── */
+    const getMondayDateStr = (refDate = new Date()) => {
+        const d = new Date(refDate);
+        const day = d.getDay(); // 0 is Sun, 1 is Mon
+        const diff = day === 0 ? -6 : 1 - day;
+        d.setDate(d.getDate() + diff);
+        return new Intl.DateTimeFormat("en-CA").format(d);
+    };
+
+    /* ── Month & Year for Monthly Matrix ── */
+    const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
+    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+
+    /* ── Week Start Date for Weekly Matrix ── */
+    const [weekStartDate, setWeekStartDate] = useState(() => getMondayDateStr());
+
+    /* ── Handlers for week updates ── */
+    const handleWeekChange = (newWeekStart) => {
+        setWeekStartDate(newWeekStart);
+        const d = new Date(`${newWeekStart}T00:00:00`);
+        setCurrentMonth(d.getMonth() + 1);
+        setCurrentYear(d.getFullYear());
+    };
+
+    const handlePrevWeek = () => {
+        const current = new Date(`${weekStartDate}T00:00:00`);
+        current.setDate(current.getDate() - 7);
+        const prevStr = new Intl.DateTimeFormat("en-CA").format(current);
+        handleWeekChange(prevStr);
+    };
+
+    const handleNextWeek = () => {
+        const current = new Date(`${weekStartDate}T00:00:00`);
+        current.setDate(current.getDate() + 7);
+        const nextStr = new Intl.DateTimeFormat("en-CA").format(current);
+        handleWeekChange(nextStr);
+    };
+
+    const handleCurrentWeek = () => {
+        const thisWeek = getMondayDateStr();
+        handleWeekChange(thisWeek);
+    };
+
+    /* ── Department Filter ── */
+    const [selectedDepartment, setSelectedDepartment] = useState("");
+
     /* ── Filters ── */
     const [selectedDate, setSelectedDate] = useState(todayString());
     const [selectedSchool, setSelectedSchool] = useState(isAdmin ? "" : String(schoolId ?? ""));
@@ -74,6 +126,18 @@ export default function EmployeeAttendancePage() {
     const [showModal, setShowModal] = useState(false);
     const [editTarget, setEditTarget] = useState(null);
     const [deletingId, setDeletingId] = useState(null);
+    const [modalEmployee, setModalEmployee] = useState(null);
+
+    /* ── Unique Departments derived from active employees ── */
+    const departments = useMemo(() => {
+        const set = new Set();
+        (allEmployees || []).forEach((e) => {
+            if (e.department && typeof e.department === "string" && e.department.trim()) {
+                set.add(e.department.trim());
+            }
+        });
+        return Array.from(set).sort();
+    }, [allEmployees]);
 
     /* ── Fetch schools for admin ── */
     useEffect(() => {
@@ -93,19 +157,67 @@ export default function EmployeeAttendancePage() {
     }, [dispatch, employeeShifts]);
 
     /* ── Fetch all attendance records (token endpoint returns
-          records with employee/school names via JOINs; date
-          and employee filtering is done client-side) ── */
+    /* ── Fetch attendance records scoped to current date and school ── */
     useEffect(() => {
-        dispatch(getAttendanceRecords());
-    }, [dispatch]);
+        const activeSchoolId = isAdmin ? selectedSchool : schoolId;
+        const params = {};
+        if (selectedDate) params.date = selectedDate;
+        if (activeSchoolId) params.school_id = activeSchoolId;
+        dispatch(getAttendanceRecords(params));
+    }, [dispatch, selectedDate, selectedSchool, schoolId, isAdmin]);
 
-    /* ── Employees scoped to the current school (non-admin only) ── */
+    /* ── Fetch Attendance Matrix (structured monthly / weekly / daily grid) ── */
+    const fetchMatrix = () => {
+        const params = {
+            view: viewMode,
+        };
+
+        if (viewMode === "weekly") {
+            params.from_date = weekStartDate;
+            const start = new Date(`${weekStartDate}T00:00:00`);
+            const end = new Date(start);
+            end.setDate(start.getDate() + 6);
+            params.to_date = new Intl.DateTimeFormat("en-CA").format(end);
+            params.date = weekStartDate;
+        } else if (viewMode === "daily") {
+            params.date = selectedDate;
+            params.view = "daily";
+        } else {
+            params.month = currentMonth;
+            params.year = currentYear;
+        }
+
+        const activeSchoolId = isAdmin ? selectedSchool : schoolId;
+        if (activeSchoolId) {
+            params.school_id = activeSchoolId;
+        }
+        if (selectedDepartment) {
+            params.department = selectedDepartment;
+        }
+        if (searchQuery.trim()) {
+            params.search = searchQuery.trim();
+        }
+        dispatch(getAttendanceMatrix(params));
+    };
+
+    useEffect(() => {
+        fetchMatrix();
+    }, [dispatch, currentMonth, currentYear, weekStartDate, selectedDate, viewMode, selectedSchool, schoolId, selectedDepartment, isAdmin]);
+
+    /* ── Employees scoped to the current school ── */
     const scopedEmployees = useMemo(() => {
-        if (isAdmin) return allEmployees;
+        if (isAdmin) {
+            if (selectedSchool) {
+                return allEmployees.filter(
+                    (emp) => String(emp.school_id) === String(selectedSchool),
+                );
+            }
+            return allEmployees;
+        }
         return allEmployees.filter(
-            (emp) => Number(emp.school_id) === Number(schoolId),
+            (emp) => String(emp.school_id) === String(schoolId),
         );
-    }, [allEmployees, isAdmin, schoolId]);
+    }, [allEmployees, isAdmin, schoolId, selectedSchool]);
 
     /* ── Shifts scoped to the current school or selected employee's school ── */
     const scopedShifts = useMemo(() => {
@@ -160,8 +272,22 @@ export default function EmployeeAttendancePage() {
         }
     }, [scopedShifts, selectedShift, employeeShifts]);
 
-    /* ── Client-side filter (date, employee, school, shift, status, search) ── */
-    const filteredRecords = useMemo(() => {
+    /* ── Normalize status helper for consistent counting and filtering ── */
+    const normalizeStatus = (status) => {
+        if (!status) return null;
+        const s = String(status).toLowerCase().trim().replace(/[\s-]+/g, "_");
+        if (s === "present") return "present";
+        if (s === "absent") return "absent";
+        if (s === "late") return "late";
+        if (s === "half_day" || s === "halfday") return "half_day";
+        if (s === "leave" || s === "on_leave") return "leave";
+        if (s === "holiday") return "holiday";
+        if (s === "week_off" || s === "weekoff") return "week_off";
+        return s;
+    };
+
+    /* ── Base filtered records (date, shift, employee, school, search) ── */
+    const baseFilteredRecords = useMemo(() => {
         let result = records ?? [];
 
         // Filter by date
@@ -205,13 +331,6 @@ export default function EmployeeAttendancePage() {
             );
         }
 
-        // Filter by status
-        if (statusFilter !== "All") {
-            result = result.filter(
-                (record) => record.status === statusFilter,
-            );
-        }
-
         // Filter by search query
         if (searchQuery.trim()) {
             const query = searchQuery.trim().toLowerCase();
@@ -223,9 +342,18 @@ export default function EmployeeAttendancePage() {
         }
 
         return result;
-    }, [records, selectedDate, selectedShift, selectedEmployee, selectedSchool, isAdmin, statusFilter, searchQuery, employeeShifts]);
+    }, [records, selectedDate, selectedShift, selectedEmployee, selectedSchool, isAdmin, searchQuery, employeeShifts]);
 
-    /* ── Compute summary from filtered records ── */
+    /* ── Client-side filter including status ── */
+    const filteredRecords = useMemo(() => {
+        if (statusFilter === "All") return baseFilteredRecords;
+        const normalizedTarget = normalizeStatus(statusFilter);
+        return baseFilteredRecords.filter(
+            (record) => normalizeStatus(record.status) === normalizedTarget,
+        );
+    }, [baseFilteredRecords, statusFilter]);
+
+    /* ── Compute summary from base filtered records (shows true distribution for the scope) ── */
     const computedSummary = useMemo(() => {
         const summary = {
             present: 0,
@@ -235,23 +363,79 @@ export default function EmployeeAttendancePage() {
             leave: 0,
             holiday: 0,
             week_off: 0,
-            total: filteredRecords.length,
+            total: baseFilteredRecords.length,
         };
 
-        filteredRecords.forEach((record) => {
-            if (record.status && summary.hasOwnProperty(record.status)) {
-                summary[record.status]++;
+        baseFilteredRecords.forEach((record) => {
+            const norm = normalizeStatus(record.status);
+            if (norm && summary.hasOwnProperty(norm)) {
+                summary[norm]++;
             }
         });
 
         return summary;
-    }, [filteredRecords]);
+    }, [baseFilteredRecords]);
 
     /* ── Handlers ── */
-    const handleDateChange = (event) => setSelectedDate(event.target.value);
-    const handleSchoolChange = (event) => {
-        setSelectedSchool(event.target.value);
+    const handleDateChange = (eventOrValue) => {
+        const val = typeof eventOrValue === "object" && eventOrValue?.target
+            ? eventOrValue.target.value
+            : eventOrValue;
+        if (val) setSelectedDate(val);
+    };
+
+    const handlePrevDay = () => {
+        const d = new Date(`${selectedDate}T00:00:00`);
+        d.setDate(d.getDate() - 1);
+        setSelectedDate(new Intl.DateTimeFormat("en-CA").format(d));
+    };
+
+    const handleNextDay = () => {
+        const d = new Date(`${selectedDate}T00:00:00`);
+        d.setDate(d.getDate() + 1);
+        setSelectedDate(new Intl.DateTimeFormat("en-CA").format(d));
+    };
+
+    const handleToday = () => {
+        setSelectedDate(todayString());
+    };
+
+    const handleExportDailyCSV = () => {
+        if (!filteredRecords || filteredRecords.length === 0) {
+            alert("No attendance records to export for this date.");
+            return;
+        }
+        const headers = ["Employee Code", "Employee Name", "Department", "Shift", "Status", "Check-in", "Check-out", "Work Minutes", "Late Minutes", "Remarks"];
+        const rows = filteredRecords.map((r) => [
+            `"${r.employee_code || ""}"`,
+            `"${r.first_name || ""} ${r.last_name || ""}"`,
+            `"${r.department || ""}"`,
+            `"${r.shift_name || ""}"`,
+            `"${r.status || ""}"`,
+            `"${r.check_in || ""}"`,
+            `"${r.check_out || ""}"`,
+            `"${r.total_work_minutes || 0}"`,
+            `"${r.late_minutes || 0}"`,
+            `"${(r.remarks || "").replace(/"/g, '""')}"`,
+        ]);
+        const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `Employee_Attendance_Daily_${selectedDate}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const handleSchoolChange = (eventOrValue) => {
+        const val = typeof eventOrValue === "object" && eventOrValue?.target
+            ? eventOrValue.target.value
+            : eventOrValue;
+        setSelectedSchool(val || "");
         setSelectedEmployee(null);
+        setSelectedShift("");
     };
     const handleEmployeeChange = (event) => {
         const id = event.target.value;
@@ -281,10 +465,62 @@ export default function EmployeeAttendancePage() {
         selectedDate !== todayString()
     );
 
-    const [modalEmployee, setModalEmployee] = useState(null);
-
     const handleRefresh = () => {
-        dispatch(getAttendanceRecords());
+        const activeSchoolId = isAdmin ? selectedSchool : schoolId;
+        const params = {};
+        if (selectedDate) params.date = selectedDate;
+        if (activeSchoolId) params.school_id = activeSchoolId;
+        dispatch(getAttendanceRecords(params));
+        fetchMatrix();
+    };
+
+    const handleModalSuccess = () => {
+        const activeSchoolId = isAdmin ? selectedSchool : schoolId;
+        const params = {};
+        if (selectedDate) params.date = selectedDate;
+        if (activeSchoolId) params.school_id = activeSchoolId;
+        dispatch(getAttendanceRecords(params));
+        fetchMatrix();
+    };
+
+    const handleMonthChange = (newMonth, newYear) => {
+        setCurrentMonth(newMonth);
+        setCurrentYear(newYear);
+    };
+
+    const handleCellClick = (emp, dayMeta, cell) => {
+        if (cell && cell.id) {
+            const existingRecord = (records || []).find((r) => Number(r.id) === Number(cell.id));
+            if (existingRecord) {
+                openEditModal(existingRecord);
+                return;
+            }
+            openEditModal({
+                id: cell.id,
+                employee_id: emp.employee_id,
+                employee_name: emp.name,
+                first_name: emp.first_name,
+                last_name: emp.last_name,
+                attendance_date: dayMeta.date,
+                status: cell.status,
+                shift_id: cell.shift_id,
+                shift_name: cell.shift_name,
+                school_id: emp.school_id,
+            });
+            return;
+        }
+
+        setSelectedDate(dayMeta.date);
+        const targetEmp = (scopedEmployees || []).find(
+            (e) => Number(e.id) === Number(emp.employee_id),
+        );
+        openMarkModal(targetEmp || {
+            id: emp.employee_id,
+            first_name: emp.first_name,
+            last_name: emp.last_name,
+            employee_code: emp.employee_code,
+            school_id: emp.school_id,
+        });
     };
 
     const openMarkModal = (empToMark = null) => {
@@ -349,10 +585,77 @@ export default function EmployeeAttendancePage() {
     console.log(selectedEmployee)
 
     return (
-        <div className="ea-page min-h-screen p-6 max-w-7xl mx-auto">
+        <div className="ea-page min-h-screen p-3 sm:p-5 lg:p-6 w-full max-w-full min-w-0 space-y-5">
+            {viewMode !== "daily" ? (
+                <AttendanceMatrix
+                    matrixData={matrixData}
+                    loading={matrixLoading}
+                    month={currentMonth}
+                    year={currentYear}
+                    onMonthChange={handleMonthChange}
+                    weekStartDate={weekStartDate}
+                    onPrevWeek={handlePrevWeek}
+                    onNextWeek={handleNextWeek}
+                    onCurrentWeek={handleCurrentWeek}
+                    viewMode={viewMode}
+                    onViewModeChange={setViewMode}
+                    departments={departments}
+                    selectedDepartment={selectedDepartment}
+                    onDepartmentChange={setSelectedDepartment}
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    schools={schools}
+                    selectedSchool={selectedSchool}
+                    onSchoolChange={handleSchoolChange}
+                    isAdmin={isAdmin}
+                    shifts={scopedShifts}
+                    selectedShift={selectedShift}
+                    onShiftChange={setSelectedShift}
+                    onCellClick={handleCellClick}
+                    onBulkMark={() => openMarkModal()}
+                    allEmployees={scopedEmployees}
+                    records={records}
+                />
+            ) : (
+                <div className="space-y-5">
+                    {/* View Mode Bar for Daily */}
+                    <div className="ea-table-card rounded-2xl px-5 py-3 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold ea-cell-muted uppercase tracking-wider">Active View:</span>
+                            <span className="text-xs font-bold text-[#1a237e] dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 px-3 py-1 rounded-xl shadow-2xs">
+                                Daily Attendance Detail ({new Date(`${selectedDate}T00:00:00`).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })})
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs ea-cell-muted font-medium">Switch mode:</span>
+                            <div className="flex items-center p-1 bg-[var(--input-bg)] rounded-xl border border-[var(--input-border)] text-xs font-medium text-[var(--text-muted)] shadow-2xs">
+                                <button
+                                    onClick={() => setViewMode("daily")}
+                                    className="px-3.5 py-1.5 rounded-lg ea-btn-primary font-semibold shadow-xs cursor-pointer"
+                                    type="button"
+                                >
+                                    Daily
+                                </button>
+                                <button
+                                    onClick={() => setViewMode("weekly")}
+                                    className="px-3.5 py-1.5 rounded-lg hover:text-[var(--text-primary)] transition cursor-pointer"
+                                    type="button"
+                                >
+                                    Weekly
+                                </button>
+                                <button
+                                    onClick={() => setViewMode("monthly")}
+                                    className="px-3.5 py-1.5 rounded-lg hover:text-[var(--text-primary)] transition cursor-pointer"
+                                    type="button"
+                                >
+                                    Monthly Matrix
+                                </button>
+                            </div>
+                        </div>
+                    </div>
 
-            {/* ── Page header ── */}
-            <div className="flex items-start justify-between mb-6">
+                    {/* ── Page header ── */}
+                    <div className="flex items-start justify-between">
                 <div>
                     <h1 className="ea-title text-2xl font-bold">Employee Attendance</h1>
                     <p className="ea-subtitle text-[13.5px] mt-1">
@@ -362,18 +665,19 @@ export default function EmployeeAttendancePage() {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={handleRefresh}
-                        className="ea-btn-outline inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors"
+                        className="ea-btn-outline inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors cursor-pointer"
                     >
                         <RefreshCw size={15} /> Refresh
                     </button>
                     <button
-                        className="ea-btn-outline inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors"
+                        onClick={handleExportDailyCSV}
+                        className="ea-btn-outline inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors cursor-pointer"
                     >
                         <Download size={15} /> Export
                     </button>
                     <button
                         onClick={openMarkModal}
-                        className="ea-btn-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors active:scale-[0.97] shadow-sm"
+                        className="ea-btn-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors active:scale-[0.97] shadow-sm cursor-pointer"
                     >
                         <Plus size={16} /> Mark Attendance
                     </button>
@@ -393,13 +697,40 @@ export default function EmployeeAttendancePage() {
             {/* ── Filter bar ── */}
             <div className="ea-filter-bar flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3 mb-3">
 
-                {/* Date picker */}
-                <input
-                    type="date"
-                    value={selectedDate}
-                    onChange={handleDateChange}
-                    className="ea-input rounded-lg px-3.5 py-2.5 text-[13.5px]"
-                />
+                {/* Date navigator with day stepper */}
+                <div className="flex items-center gap-1 bg-[var(--input-bg)] p-1 rounded-xl border border-[var(--input-border)] shadow-2xs">
+                    <button
+                        type="button"
+                        onClick={handlePrevDay}
+                        className="p-1.5 hover:bg-[var(--panel-bg)] rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] transition cursor-pointer"
+                        title="Previous Day"
+                    >
+                        <ChevronLeft size={16} />
+                    </button>
+                    <input
+                        type="date"
+                        value={selectedDate}
+                        onChange={handleDateChange}
+                        className="bg-transparent border-none text-xs font-bold text-[var(--text-primary)] px-2 py-1 outline-none cursor-pointer"
+                    />
+                    <button
+                        type="button"
+                        onClick={handleNextDay}
+                        className="p-1.5 hover:bg-[var(--panel-bg)] rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] transition cursor-pointer"
+                        title="Next Day"
+                    >
+                        <ChevronRight size={16} />
+                    </button>
+                    {selectedDate !== todayString() && (
+                        <button
+                            type="button"
+                            onClick={handleToday}
+                            className="text-[11px] font-bold px-2 py-1 rounded-lg text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition cursor-pointer"
+                        >
+                            Today
+                        </button>
+                    )}
+                </div>
 
                 {/* School filter — admin only */}
                 {isAdmin && (
@@ -650,11 +981,14 @@ export default function EmployeeAttendancePage() {
                     onClearFilters={hasActiveFilters ? handleClearFilters : null}
                 />
             )}
+                </div>
+            )}
 
             {/* ── Modal ── */}
             <MarkAttendanceModal
                 isOpen={showModal}
                 onClose={closeModal}
+                onSuccess={handleModalSuccess}
                 attendance={editTarget}
                 employee={
                     editTarget

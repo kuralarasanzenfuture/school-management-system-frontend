@@ -10,9 +10,22 @@ import {
   getTodayAttendance,
   checkOutAttendance,
   checkInAttendance,
+  getAttendanceMatrixApi,
 } from "./employeeAttendance.service.js";
 
 // ─────────────────────────── Async Thunks ────────────────────────────
+
+// Fetch structured matrix (grid) for employee attendance
+export const getAttendanceMatrix = createAsyncThunk(
+  "employeeAttendance/getMatrix",
+  async (params, { rejectWithValue }) => {
+    try {
+      return await getAttendanceMatrixApi(params);
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message ?? error.message);
+    }
+  },
+);
 
 // Fetch all records (supports ?date, ?school_id, ?employee_id, ?status)
 export const getAttendanceRecords = createAsyncThunk(
@@ -150,6 +163,11 @@ const initialState = {
   mySummary: null,
   myLoading: false,
   myError: null,
+
+  // Attendance Matrix / Grid view data
+  matrixData: null,
+  matrixLoading: false,
+  matrixError: null,
 
   // Legacy / misc
   employeeAttendance: [],
@@ -407,6 +425,20 @@ const employeeAttendanceSlice = createSlice({
       .addCase(fetchTodayAttendance.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+      // ── Matrix / Grid ─────────────────────────────────
+      .addCase(getAttendanceMatrix.pending, (state) => {
+        state.matrixLoading = true;
+        state.matrixError = null;
+      })
+      .addCase(getAttendanceMatrix.fulfilled, (state, action) => {
+        state.matrixLoading = false;
+        state.matrixData = action.payload;
+      })
+      .addCase(getAttendanceMatrix.rejected, (state, action) => {
+        state.matrixLoading = false;
+        state.matrixError = action.payload;
       });
   },
 });

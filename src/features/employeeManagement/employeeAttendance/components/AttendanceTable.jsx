@@ -1,5 +1,5 @@
 import React from "react";
-import { Pencil, Trash2, Clock } from "lucide-react";
+import { Pencil, Trash2, Clock, Plus, RotateCcw, FilterX } from "lucide-react";
 import Pagination from "../../../../common/components/table/Pagination";
 import usePagination from "../../../../common/components/table/usePagination";
 import "../styles/EmployeeAttendance.css";
@@ -35,6 +35,9 @@ export default function AttendanceTable({
     showSchoolColumn = false,
     initialPageSize = 15,
     pageSizeOptions = [10, 15, 25, 50],
+    selectedEmployee = null,
+    onMarkAttendance = null,
+    onClearFilters = null,
 }) {
     const {
         pagedData,
@@ -69,7 +72,37 @@ export default function AttendanceTable({
                         {pagedData.length === 0 ? (
                             <tr>
                                 <td colSpan={colSpan} className="ea-empty-state px-5 py-12 text-center text-[13.5px]">
-                                    No attendance records found.
+                                    <div className="flex flex-col items-center justify-center gap-3">
+                                        <p className="ea-cell-muted">
+                                            {selectedEmployee
+                                                ? `No attendance record found for ${selectedEmployee.first_name} ${selectedEmployee.last_name || ""} on this date.`
+                                                : "No attendance records found for the selected criteria."}
+                                        </p>
+                                        <div className="flex items-center gap-2.5 flex-wrap justify-center">
+                                            {onClearFilters && (
+                                                <button
+                                                    type="button"
+                                                    onClick={onClearFilters}
+                                                    className="ea-btn-outline inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-[12.5px] font-semibold text-rose-600 dark:text-rose-400 border-rose-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all cursor-pointer"
+                                                >
+                                                    <RotateCcw size={14} />
+                                                    Clear Filters
+                                                </button>
+                                            )}
+                                            {onMarkAttendance && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => onMarkAttendance(selectedEmployee || null)}
+                                                    className="ea-btn-primary inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[12.5px] font-semibold transition-all active:scale-[0.98] shadow-sm cursor-pointer"
+                                                >
+                                                    <Plus size={15} />
+                                                    {selectedEmployee
+                                                        ? `Mark Attendance for ${selectedEmployee.first_name}`
+                                                        : "Mark Attendance"}
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         ) : (
@@ -105,9 +138,23 @@ export default function AttendanceTable({
                                                     <p className="ea-cell-primary text-[13.5px] font-semibold truncate">
                                                         {record.first_name} {record.last_name ?? ""}
                                                     </p>
-                                                    <p className="ea-cell-muted text-[12px] truncate">
-                                                        {record.employee_mobile ?? ""}
-                                                    </p>
+                                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                                        <p className="ea-cell-muted text-[12px] truncate">
+                                                            {record.employee_code || record.employee_mobile || ""}
+                                                        </p>
+                                                        {record.shift_name && (
+                                                            <span
+                                                                className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10.5px] font-semibold"
+                                                                style={{
+                                                                    background: "var(--badge-bg, #e8ecff)",
+                                                                    color: "var(--badge-text, #1a237e)",
+                                                                    border: "1px solid color-mix(in srgb, var(--btn-bg, #1a237e) 20%, transparent)",
+                                                                }}
+                                                            >
+                                                                {record.shift_name}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </td>

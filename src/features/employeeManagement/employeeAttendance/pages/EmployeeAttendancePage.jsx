@@ -6,6 +6,7 @@ import {
 } from "../../../../redux/employeeAttendance/employeeAttendanceSlice.js";
 import { fetchEmployees } from "../../../../redux/employee/employeeSlice.js";
 import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
+import { fetchEmployeeShifts } from "../../../../redux/employeeShift/employeeShiftSlice.js";
 import AttendanceTable from "../components/AttendanceTable.jsx";
 import MarkAttendanceModal from "../components/MarkAttendanceModal.jsx";
 import "../styles/EmployeeAttendance.css";
@@ -13,12 +14,19 @@ import {
     UserCheck, UserX, Clock, CalendarOff,
     Umbrella, Coffee,
     Plus, Download, Search, RefreshCw,
+    RotateCcw, X, FilterX,
 } from "lucide-react";
 import SearchableSelect from "../components/SearchableSelect.jsx";
 import { getImageUrl } from "../../../../common/utils/imageUrl.js";
 
-/* ── today as YYYY-MM-DD ── */
-const todayString = () => new Date().toISOString().split("T")[0];
+/* ── today as YYYY-MM-DD (local timezone safe) ── */
+const todayString = () => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+};
 
 /* ── Stat card ── */
 function StatCard({ icon: Icon, iconBgClass, iconColorClass, value, label }) {
@@ -48,12 +56,16 @@ export default function EmployeeAttendancePage() {
     const { employees: allEmployees, loading: employeesLoading } =
         useSelector((state) => state.employees);
 
+    /* ── Employee Shifts ── */
+    const { employeeShifts } = useSelector((state) => state.employeeShifts);
+
     const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
     const schoolId = isAdmin ? null : user?.school_id;
 
     /* ── Filters ── */
     const [selectedDate, setSelectedDate] = useState(todayString());
     const [selectedSchool, setSelectedSchool] = useState(isAdmin ? "" : String(schoolId ?? ""));
+    const [selectedShift, setSelectedShift] = useState("");
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [statusFilter, setStatusFilter] = useState("All");
     const [searchQuery, setSearchQuery] = useState("");
@@ -73,6 +85,13 @@ export default function EmployeeAttendancePage() {
         if (allEmployees.length === 0) dispatch(fetchEmployees());
     }, [dispatch, allEmployees.length]);
 
+    /* ── Fetch employee shifts ── */
+    useEffect(() => {
+        if (!employeeShifts || employeeShifts.length === 0) {
+            dispatch(fetchEmployeeShifts());
+        }
+    }, [dispatch, employeeShifts]);
+
     /* ── Fetch all attendance records (token endpoint returns
           records with employee/school names via JOINs; date
           and employee filtering is done client-side) ── */
@@ -88,17 +107,88 @@ export default function EmployeeAttendancePage() {
         );
     }, [allEmployees, isAdmin, schoolId]);
 
-    /* ── Client-side filter (date, employee, school, status, search) ── */
+    /* ── Shifts scoped to the current school or selected employee's school ── */
+    const scopedShifts = useMemo(() => {
+        const list = Array.isArray(employeeShifts) ? employeeShifts : [];
+        const targetSchool = (isAdmin && selectedSchool)
+            ? Number(selectedSchool)
+            : selectedEmployee?.school_id
+              ? Number(selectedEmployee.school_id)
+              : (!isAdmin && schoolId)
+                ? Number(schoolId)
+                : null;
+
+        const filtered = list.filter((s) => {
+            if (s.status === "inactive") return false;
+            if (targetSchool) {
+                return Number(s.school_id) === targetSchool;
+            }
+            return true;
+        });
+
+        // When viewing all schools without a school/employee filter, deduplicate by shift name to avoid duplicate options
+        if (!targetSchool) {
+            const seen = new Set();
+            const unique = [];
+            for (const s of filtered) {
+                const key = s.name?.trim().toLowerCase();
+                if (key && !seen.has(key)) {
+                    seen.add(key);
+                    unique.push(s);
+                }
+            }
+            return unique;
+        }
+
+        return filtered;
+    }, [employeeShifts, isAdmin, selectedSchool, selectedEmployee, schoolId]);
+
+    /* ── Reset shift filter if it no longer belongs to the active school scope ── */
+    useEffect(() => {
+        if (selectedShift && scopedShifts.length > 0) {
+            const selectedShiftObj = (employeeShifts ?? []).find(
+                (s) => String(s.id) === String(selectedShift),
+            );
+            const existsInScoped = scopedShifts.some(
+                (s) =>
+                    Number(s.id) === Number(selectedShift) ||
+                    (selectedShiftObj && s.name?.trim().toLowerCase() === selectedShiftObj.name?.trim().toLowerCase()),
+            );
+            if (!existsInScoped) {
+                setSelectedShift("");
+            }
+        }
+    }, [scopedShifts, selectedShift, employeeShifts]);
+
+    /* ── Client-side filter (date, employee, school, shift, status, search) ── */
     const filteredRecords = useMemo(() => {
         let result = records ?? [];
 
         // Filter by date
         if (selectedDate) {
-            result = result.filter(
-                (record) =>
-                    record.attendance_date &&
-                    new Date(record.attendance_date).toISOString().split("T")[0] === selectedDate,
+            result = result.filter((record) => {
+                if (!record.attendance_date) return false;
+                const recDate = String(record.attendance_date).slice(0, 10);
+                return recDate === selectedDate;
+            });
+        }
+
+        // Filter by shift
+        if (selectedShift) {
+            const selectedShiftObj = (employeeShifts ?? []).find(
+                (s) => String(s.id) === String(selectedShift),
             );
+            const targetName = selectedShiftObj?.name?.trim().toLowerCase();
+
+            result = result.filter((record) => {
+                // Direct ID match
+                if (Number(record.shift_id) === Number(selectedShift)) return true;
+                // Match by shift name (important when filtering across schools as admin)
+                if (targetName && record.shift_name?.trim().toLowerCase() === targetName) {
+                    return true;
+                }
+                return false;
+            });
         }
 
         // Filter by employee
@@ -133,7 +223,7 @@ export default function EmployeeAttendancePage() {
         }
 
         return result;
-    }, [records, selectedDate, selectedEmployee, selectedSchool, isAdmin, statusFilter, searchQuery]);
+    }, [records, selectedDate, selectedShift, selectedEmployee, selectedSchool, isAdmin, statusFilter, searchQuery, employeeShifts]);
 
     /* ── Compute summary from filtered records ── */
     const computedSummary = useMemo(() => {
@@ -173,20 +263,45 @@ export default function EmployeeAttendancePage() {
     const handleStatusChange = (event) => setStatusFilter(event.target.value);
     const handleSearch = (event) => setSearchQuery(event.target.value);
 
+    const handleClearFilters = () => {
+        setSelectedEmployee(null);
+        setSelectedShift("");
+        setStatusFilter("All");
+        setSearchQuery("");
+        if (isAdmin) setSelectedSchool("");
+        setSelectedDate(todayString());
+    };
+
+    const hasActiveFilters = Boolean(
+        selectedEmployee ||
+        selectedShift ||
+        statusFilter !== "All" ||
+        searchQuery.trim() ||
+        (isAdmin && selectedSchool) ||
+        selectedDate !== todayString()
+    );
+
+    const [modalEmployee, setModalEmployee] = useState(null);
+
     const handleRefresh = () => {
         dispatch(getAttendanceRecords());
     };
 
-    const openMarkModal = () => {
-        if (!selectedEmployee) {
-            alert("Please select an employee before marking attendance.");
-            return;
-        }
+    const openMarkModal = (empToMark = null) => {
         setEditTarget(null);
+        if (empToMark && empToMark.id) {
+            setModalEmployee(empToMark);
+        } else {
+            setModalEmployee(selectedEmployee || null);
+        }
         setShowModal(true);
     };
     const openEditModal = (record) => { setEditTarget(record); setShowModal(true); };
-    const closeModal = () => { setShowModal(false); setEditTarget(null); };
+    const closeModal = () => {
+        setShowModal(false);
+        setEditTarget(null);
+        setModalEmployee(null);
+    };
 
     const handleDelete = async (id) => {
         if (!window.confirm("Delete this attendance record?")) return;
@@ -234,7 +349,7 @@ export default function EmployeeAttendancePage() {
     console.log(selectedEmployee)
 
     return (
-        <div className="ea-page min-h-screen p-5 sm:p-6">
+        <div className="ea-page min-h-screen p-6 max-w-7xl mx-auto">
 
             {/* ── Page header ── */}
             <div className="flex items-start justify-between mb-6">
@@ -276,7 +391,7 @@ export default function EmployeeAttendancePage() {
             </div>
 
             {/* ── Filter bar ── */}
-            <div className="ea-filter-bar flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3 mb-6">
+            <div className="ea-filter-bar flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3 mb-3">
 
                 {/* Date picker */}
                 <input
@@ -342,6 +457,20 @@ export default function EmployeeAttendancePage() {
                     />
                 </div>
 
+                {/* Shift filter */}
+                <select
+                    value={selectedShift}
+                    onChange={(e) => setSelectedShift(e.target.value)}
+                    className="ea-input rounded-lg px-3.5 py-2.5 text-[13.5px] min-w-[150px]"
+                >
+                    <option value="">All Shifts</option>
+                    {scopedShifts.map((sh) => (
+                        <option key={sh.id} value={sh.id}>
+                            {sh.name} ({sh.start_time?.slice(0, 5)} - {sh.end_time?.slice(0, 5)})
+                        </option>
+                    ))}
+                </select>
+
                 {/* Status filter */}
                 <select
                     value={statusFilter}
@@ -367,7 +496,30 @@ export default function EmployeeAttendancePage() {
                         value={searchQuery}
                         onChange={handleSearch}
                     />
+                    {searchQuery && (
+                        <button
+                            type="button"
+                            onClick={() => setSearchQuery("")}
+                            className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full text-slate-400 hover:text-slate-600 transition-colors"
+                            title="Clear search"
+                        >
+                            <X size={13} />
+                        </button>
+                    )}
                 </div>
+
+                {/* Clear all filters button */}
+                {hasActiveFilters && (
+                    <button
+                        type="button"
+                        onClick={handleClearFilters}
+                        className="ea-btn-outline inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[12.5px] font-semibold text-rose-600 dark:text-rose-400 border-rose-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all cursor-pointer shrink-0"
+                        title="Clear all active filters"
+                    >
+                        <RotateCcw size={13} />
+                        Clear Filters
+                    </button>
+                )}
 
                 {/* Record count */}
                 <span className="ea-count-text text-[12.5px] ml-auto">
@@ -376,6 +528,100 @@ export default function EmployeeAttendancePage() {
                         : `${filteredRecords.length} record${filteredRecords.length === 1 ? "" : "s"}`}
                 </span>
             </div>
+
+            {/* ── Active Filter Tags / Chips ── */}
+            {hasActiveFilters && (
+                <div className="flex items-center gap-2 flex-wrap mb-5 px-1">
+                    <span className="text-[12px] font-semibold ea-cell-muted flex items-center gap-1">
+                        <FilterX size={13} /> Active filters:
+                    </span>
+                    {selectedEmployee && (
+                        <span className="ea-filter-chip inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[12px] font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                            Employee: {selectedEmployee.first_name} {selectedEmployee.last_name || ""}
+                            <button
+                                type="button"
+                                onClick={() => setSelectedEmployee(null)}
+                                className="hover:text-indigo-900 dark:hover:text-indigo-100 p-0.5"
+                                title="Remove employee filter"
+                            >
+                                <X size={12} />
+                            </button>
+                        </span>
+                    )}
+                    {selectedShift && (
+                        <span className="ea-filter-chip inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[12px] font-medium bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                            Shift: {scopedShifts.find((s) => String(s.id) === String(selectedShift))?.name || "Selected Shift"}
+                            <button
+                                type="button"
+                                onClick={() => setSelectedShift("")}
+                                className="hover:text-blue-900 dark:hover:text-blue-100 p-0.5"
+                                title="Remove shift filter"
+                            >
+                                <X size={12} />
+                            </button>
+                        </span>
+                    )}
+                    {statusFilter !== "All" && (
+                        <span className="ea-filter-chip inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[12px] font-medium bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800 capitalize">
+                            Status: {statusFilter.replace("_", " ")}
+                            <button
+                                type="button"
+                                onClick={() => setStatusFilter("All")}
+                                className="hover:text-amber-900 dark:hover:text-amber-100 p-0.5"
+                                title="Remove status filter"
+                            >
+                                <X size={12} />
+                            </button>
+                        </span>
+                    )}
+                    {searchQuery.trim() && (
+                        <span className="ea-filter-chip inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[12px] font-medium bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                            Search: "{searchQuery.trim()}"
+                            <button
+                                type="button"
+                                onClick={() => setSearchQuery("")}
+                                className="hover:text-slate-900 dark:hover:text-slate-100 p-0.5"
+                                title="Remove search filter"
+                            >
+                                <X size={12} />
+                            </button>
+                        </span>
+                    )}
+                    {selectedDate !== todayString() && (
+                        <span className="ea-filter-chip inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[12px] font-medium bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                            Date: {selectedDate}
+                            <button
+                                type="button"
+                                onClick={() => setSelectedDate(todayString())}
+                                className="hover:text-purple-900 dark:hover:text-purple-100 p-0.5"
+                                title="Reset date to today"
+                            >
+                                <X size={12} />
+                            </button>
+                        </span>
+                    )}
+                    {isAdmin && selectedSchool && (
+                        <span className="ea-filter-chip inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[12px] font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                            School: {schools.find((s) => String(s.id) === String(selectedSchool))?.name || "Selected School"}
+                            <button
+                                type="button"
+                                onClick={() => setSelectedSchool("")}
+                                className="hover:text-emerald-900 dark:hover:text-emerald-100 p-0.5"
+                                title="Remove school filter"
+                            >
+                                <X size={12} />
+                            </button>
+                        </span>
+                    )}
+                    <button
+                        type="button"
+                        onClick={handleClearFilters}
+                        className="text-[12px] font-semibold text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 ml-1 underline cursor-pointer"
+                    >
+                        Clear all
+                    </button>
+                </div>
+            )}
 
             {/* ── Loading ── */}
             {loading && (
@@ -398,7 +644,10 @@ export default function EmployeeAttendancePage() {
                     onEdit={openEditModal}
                     onDelete={handleDelete}
                     deletingId={deletingId}
-                    showSchoolColumn={isAdmin}
+                    showSchoolColumn={isAdmin && !selectedSchool}
+                    selectedEmployee={selectedEmployee}
+                    onMarkAttendance={openMarkModal}
+                    onClearFilters={hasActiveFilters ? handleClearFilters : null}
                 />
             )}
 
@@ -407,7 +656,16 @@ export default function EmployeeAttendancePage() {
                 isOpen={showModal}
                 onClose={closeModal}
                 attendance={editTarget}
-                employee={selectedEmployee}
+                employee={
+                    editTarget
+                        ? (allEmployees.find((e) => Number(e.id) === Number(editTarget.employee_id)) || selectedEmployee)
+                        : (modalEmployee || selectedEmployee)
+                }
+                employees={scopedEmployees}
+                shifts={employeeShifts}
+                initialShiftId={selectedShift}
+                existingRecords={records}
+                onSwitchToEdit={openEditModal}
                 date={selectedDate}
                 schoolId={isAdmin ? (selectedSchool || null) : schoolId}
             />

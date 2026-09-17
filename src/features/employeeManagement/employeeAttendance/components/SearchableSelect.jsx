@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Search, ChevronDown, Check, User } from "lucide-react";
+import { Search, ChevronDown, Check, User, X, RotateCcw } from "lucide-react";
 import "../styles/SearchableSelect.css";
 
 /** Highlights the first matching substring of `text` against `query`. */
@@ -52,6 +52,7 @@ function Avatar({ avatarUrl, initials, size = 26 }) {
  * @param {string} loadingText
  * @param {boolean} hasError - applies the error border style
  * @param {boolean} showAvatars - set true if options carry avatarUrl/initials
+ * @param {boolean} clearable - shows an X button to clear selection
  */
 export default function SearchableSelect({
     options,
@@ -63,6 +64,7 @@ export default function SearchableSelect({
     loadingText = "Loading…",
     hasError = false,
     showAvatars = false,
+    clearable = true,
 }) {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
@@ -155,6 +157,26 @@ export default function SearchableSelect({
                 >
                     {selected ? selected.label : loading ? loadingText : placeholder}
                 </span>
+                {clearable && selected && !disabled && (
+                    <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onChange("");
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                                e.stopPropagation();
+                                onChange("");
+                            }
+                        }}
+                        className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full cursor-pointer transition-colors text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 shrink-0"
+                        title="Clear selection"
+                    >
+                        <X size={14} />
+                    </span>
+                )}
                 <ChevronDown size={15} className="ss-trigger-icon shrink-0" />
             </button>
 
@@ -174,6 +196,19 @@ export default function SearchableSelect({
                     </div>
 
                     <div className="ss-options max-h-64 sm:max-h-56 overflow-y-auto" role="listbox">
+                        {clearable && selected && !loading && (
+                            <div
+                                role="option"
+                                onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    selectOption({ value: "", label: placeholder });
+                                }}
+                                className="flex items-center gap-2 px-3.5 py-2 text-[12.5px] font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/30 cursor-pointer border-b border-slate-100 dark:border-slate-800 transition-colors"
+                            >
+                                <RotateCcw size={12} />
+                                <span>Clear / All employees</span>
+                            </div>
+                        )}
                         {loading ? (
                             <div className="ss-empty px-3.5 py-3 text-[13px]">{loadingText}</div>
                         ) : filtered.length === 0 ? (

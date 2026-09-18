@@ -15,9 +15,14 @@ export const changePassword = createAsyncThunk(
         confirmPassword,
       });
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to change password",
-      );
+      const data = error.response?.data;
+      const msg =
+        data?.message ||
+        (Array.isArray(data?.errors) ? data.errors.join(". ") : null) ||
+        data?.error ||
+        error.message ||
+        "Failed to change password";
+      return rejectWithValue(msg);
     }
   },
 );

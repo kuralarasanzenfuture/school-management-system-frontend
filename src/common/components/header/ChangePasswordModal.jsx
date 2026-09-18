@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { X, Eye, EyeOff, Check, KeyRound } from "lucide-react";
 import {
     changePassword,
     clearChangePasswordState,
 } from "../../../redux/changePassword/changePasswordSlice.js";
+import { clearAuth } from "../../../redux/auth/authSlice.js";
 import "./ChangePassword.css";
 
 const EMPTY = {
@@ -36,6 +39,7 @@ function getStrength(password) {
 
 export default function ChangePasswordModal({ isOpen, onClose }) {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { loading, error, success } = useSelector(
         (state) => state.changePassword ?? {},
     );
@@ -46,6 +50,7 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
     const [showNew, setShowNew] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
 
+    // Reset state whenever modal opens
     useEffect(() => {
         if (!isOpen) return;
         setData(EMPTY);
@@ -56,18 +61,39 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
         dispatch(clearChangePasswordState());
     }, [isOpen, dispatch]);
 
-    // Close automatically a moment after a successful change, so the person
-    // sees the confirmation before the modal disappears.
+    // Lock body scroll when modal is open
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+        return () => {
+            document.body.style.overflow = "";
+        };
+    }, [isOpen]);
+
+    // Close on Escape key press
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape") onClose();
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [isOpen, onClose]);
+
+    // Close automatically a moment after a successful change and redirect to login
     useEffect(() => {
         if (!success) return;
         const timer = setTimeout(() => {
             dispatch(clearChangePasswordState());
+            dispatch(clearAuth());
             onClose();
+            navigate("/login", { replace: true });
         }, 1500);
         return () => clearTimeout(timer);
-    }, [success, dispatch, onClose]);
-
-    if (!isOpen) return null;
+    }, [success, dispatch, onClose, navigate]);
 
     const strength = getStrength(data.newPassword);
     const metRequirements = REQUIREMENTS.map((r) => ({
@@ -105,11 +131,6 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!validate()) return;
-        // console.log({
-        //     currentPassword: data.currentPassword,
-        //     newPassword: data.newPassword,
-        //     confirmPassword: data.confirmPassword,
-        // });
         dispatch(
             changePassword({
                 currentPassword: data.currentPassword,
@@ -122,9 +143,11 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
     const inputCls = (key) =>
         `cpw-input w-full rounded-lg pl-3.5 pr-10 py-2.5 text-[14px] outline-none transition-all duration-200 ${errors[key] ? "cpw-input-error" : ""}`;
 
-    return (
+    if (!isOpen || typeof document === "undefined") return null;
+
+    return createPortal(
         <div
-            className="cpw-overlay fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-4"
+            className="cpw-overlay fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm p-4"
             onClick={onClose}
         >
             <div
@@ -320,6 +343,7 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
                     </div>
                 </form>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

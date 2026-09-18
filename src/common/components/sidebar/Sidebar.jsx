@@ -66,7 +66,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
 
       <aside
         className={`
-          fixed top-0 left-0 h-screen flex flex-col z-[1100]
+          fixed top-0 left-0 h-screen flex flex-col z-[1100] lg:z-30
           bg-[var(--sidebar-bg)] border-r border-[var(--sidebar-border)]
           transition-all duration-300 ease-in-out overflow-hidden
 

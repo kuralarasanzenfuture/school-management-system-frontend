@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import {
     X, Clock, CalendarCheck, CircleCheck, CheckCircle2,
@@ -463,11 +464,35 @@ export default function MarkAttendanceModal({
         });
     }, [effectiveDate]);
 
-    return (
+    // Lock body scroll when modal is open
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+        return () => {
+            document.body.style.overflow = "";
+        };
+    }, [isOpen]);
+
+    // Close on Escape key press
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape") onClose();
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [isOpen, onClose]);
+
+    if (typeof document === "undefined") return null;
+
+    return createPortal(
         <AnimatePresence>
             {isOpen && (
                 <motion.div
-                    className="ea-overlay fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4"
+                    className="ea-overlay fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -479,10 +504,10 @@ export default function MarkAttendanceModal({
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.94, y: 24 }}
                         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                        className="ea-modal w-full max-w-[560px] rounded-3xl overflow-hidden flex flex-col max-h-[90vh]"
+                        className="ea-modal w-full max-w-[560px] rounded-3xl overflow-hidden flex flex-col max-h-[90vh] shadow-2xl my-auto"
                     >
                         {/* ── Header ── */}
-                        <div className="ea-modal-header flex items-center justify-between px-6 py-4.5 bg-gradient-to-b from-transparent to-black/[0.01]">
+                        <div className="ea-modal-header flex items-center justify-between px-6 py-4 bg-gradient-to-b from-transparent to-black/[0.01] shrink-0">
                             <div className="flex items-center gap-3.5 min-w-0">
                                 <div
                                     className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm text-white"
@@ -493,7 +518,7 @@ export default function MarkAttendanceModal({
                                     <CalendarCheck size={20} />
                                 </div>
                                 <div className="min-w-0">
-                                    <h2 className="ea-modal-title text-[16.5px] font-bold tracking-tight mt-5">
+                                    <h2 className="ea-modal-title text-[16.5px] font-bold tracking-tight">
                                         {isEdit ? "Edit Attendance" : "Mark Attendance"}
                                     </h2>
                                     <div className="flex items-center flex-wrap gap-1.5 mt-0.5 text-[12px]">
@@ -924,6 +949,7 @@ export default function MarkAttendanceModal({
                     </motion.div>
                 </motion.div>
             )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     );
 }

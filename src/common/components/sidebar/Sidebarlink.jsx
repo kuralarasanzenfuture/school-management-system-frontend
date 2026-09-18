@@ -29,27 +29,27 @@ export default function SidebarLink({
       // need to know what this button does.
       aria-label={showLabel ? undefined : item.name}
       className={({ isActive }) =>
-        `group relative flex items-center gap-3.5 px-3.5 py-[11px] rounded-[10px] mb-1.5 text-[var(--sidebar-text)] no-underline transition-all duration-200 ${
+        `group relative flex items-center gap-3.5 px-3.5 py-[11px] rounded-[11px] mb-1.5 no-underline transition-all duration-150 cursor-pointer font-medium ${
           isCollapsed ? "lg:justify-center lg:px-3" : ""
         } ${
           isActive
-            ? "bg-[var(--sidebar-active-grad)] text-white shadow-[var(--sidebar-active-shadow)]"
-            : "hover:bg-[var(--sidebar-hover-bg)] hover:text-[var(--sidebar-text-strong)]"
+            ? "bg-white/10 text-white hover:bg-white/[0.14]"
+            : "text-[var(--sidebar-text)] hover:bg-white/10 hover:text-white"
         }`
       }
     >
-      <Icon className="min-w-[22px] text-[20px]" />
+      <Icon className="min-w-[22px] text-[20px] transition-colors shrink-0" />
 
       {showLabel && (
         <>
           <span
-            className={`flex-1 whitespace-nowrap ${isCollapsed ? "lg:hidden" : ""}`}
+            className={`flex-1 whitespace-nowrap text-[13.5px] ${isCollapsed ? "lg:hidden" : ""}`}
           >
             {item.name}
           </span>
           {item.badge && (
             <span
-              className={`px-2 py-[3px] rounded-full bg-[var(--sidebar-badge-bg)] text-[var(--sidebar-badge-text)] text-[10px] font-bold ${
+              className={`px-2 py-[2px] rounded-full bg-[var(--sidebar-badge-bg)] text-[var(--sidebar-badge-text)] text-[10px] font-bold ${
                 isCollapsed ? "lg:hidden" : ""
               }`}
             >
@@ -59,8 +59,7 @@ export default function SidebarLink({
         </>
       )}
 
-      {/* Collapsed-only tooltip. Pure CSS (group-hover), so there's no extra
-          JS state or mouseEnter/mouseLeave handlers to manage. */}
+      {/* Collapsed-only tooltip */}
       {isCollapsed && (
         <span
           role="tooltip"

@@ -1,6 +1,6 @@
 /* ModuleLauncher.css
    Color styling for the header's module/page launcher — an anchored
-   dropdown (not a modal), same visual language as the profile dropdown.
+   dropdown, same visual language as the profile dropdown.
 */
 
 .ml-trigger {
@@ -15,13 +15,15 @@
 .ml-panel {
   background: var(--panel-bg);
   border: 1px solid var(--divider);
-  box-shadow: var(--shadow);
-  width: min(640px, 92vw);
+  box-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.16);
+  width: min(680px, 92vw);
   max-height: 75vh;
+  font-family: inherit;
 }
 
 .ml-search-row {
   border-bottom: 1px solid var(--divider);
+  background: var(--panel-bg);
 }
 .ml-search-icon {
   color: var(--text-muted);
@@ -29,9 +31,13 @@
 .ml-search-input {
   color: var(--text-primary);
   background: transparent;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 400;
 }
 .ml-search-input::placeholder {
   color: var(--text-muted);
+  font-weight: 400;
 }
 .ml-clear-btn {
   color: var(--text-muted);
@@ -41,16 +47,19 @@
 }
 
 .ml-section-title {
-  color: var(--text-secondary);
+  color: var(--text-muted);
   border-bottom: 1px solid var(--divider);
+  font-family: inherit;
+  letter-spacing: 0.06em;
 }
 .ml-section-icon {
   color: var(--text-muted);
 }
 .ml-section-title-active {
   color: var(--btn-bg);
-    border-bottom: 2px solid var(--btn-bg) !important;
-
+  border-bottom: 2px solid var(--btn-bg) !important;
+  font-family: inherit;
+  letter-spacing: 0.06em;
 }
 .ml-section-icon-active {
   color: var(--btn-bg);
@@ -58,23 +67,38 @@
 
 .ml-item {
   color: var(--text-secondary);
+  font-family: inherit;
+  font-weight: 450;
+  border-radius: 6px;
+  padding: 3px 6px;
+  transition: color 0.15s, background 0.15s;
 }
 .ml-item:hover {
+  background: var(--input-bg);
   color: var(--btn-bg);
 }
 .ml-item-active {
   color: var(--btn-bg);
+  font-family: inherit;
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 3px 6px;
+  transition: color 0.15s, background 0.15s;
 }
 .ml-item-active:hover {
-  opacity: 0.85;
+  background: var(--input-bg);
+  opacity: 0.9;
 }
 .ml-item-current {
   font-weight: 600;
+  background: color-mix(in srgb, var(--btn-bg) 8%, transparent);
 }
 .ml-item-current-dot {
-  background: currentColor;
+  background: var(--btn-bg);
 }
 
 .ml-empty-state {
   color: var(--text-muted);
+  font-family: inherit;
 }
+

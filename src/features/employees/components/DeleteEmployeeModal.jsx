@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Trash2, X } from "lucide-react";
+import { Trash2, X, AlertCircle } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { removeEmployee } from "../../../redux/employee/employeeSlice.js";
 import "../styles/Employee.css";
@@ -8,15 +8,17 @@ import "../styles/Employee.css";
 export default function DeleteEmployeeModal({ isOpen, onClose, employee }) {
     const dispatch = useDispatch();
     const [deleting, setDeleting] = useState(false);
+    const [error, setError] = useState(null);
 
     const handleDelete = async () => {
         if (!employee?.id) return;
         setDeleting(true);
+        setError(null);
         try {
             await dispatch(removeEmployee(employee.id)).unwrap();
             onClose();
         } catch (err) {
-            alert(err?.message ?? String(err));
+            setError(err?.message ?? String(err));
         } finally {
             setDeleting(false);
         }
@@ -81,6 +83,13 @@ export default function DeleteEmployeeModal({ isOpen, onClose, employee }) {
                                 linked to this employee may be affected. This action cannot
                                 be undone.
                             </p>
+
+                            {error && (
+                                <div className="w-full flex items-center gap-2 p-2.5 rounded-lg bg-[var(--danger-bg)] text-[var(--danger)] text-[12.5px] font-medium text-left">
+                                    <AlertCircle size={15} className="shrink-0" />
+                                    <span>{error}</span>
+                                </div>
+                            )}
                         </div>
 
                         {/* Footer */}

@@ -655,16 +655,14 @@
  * EmployeeDetailsPage.jsx  — tabbed employee profile
  *
  * Tabs:
- *  1. Profile    — personal / employment / address / bank / documents (existing)
+ *  1. Profile    — personal / employment / address / bank / documents
  *  2. Salary     — full salary breakdown from /full-salary-by-employee/:id
- *  3. Attendance — (future)
- *  4. Leave      — (future)
- *
- * Adding a new tab = add one entry to TABS array + one case in <TabContent>.
+ *  3. Attendance — attendance calendar and records
+ *  4. Leave      — leave tracking (future)
  *
  * Route:  /employees/:id
  */
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { AnimatePresence, motion } from "framer-motion";
@@ -673,7 +671,7 @@ import {
   FileText, FileImage, ExternalLink, Loader2,
   User, IndianRupee, CalendarClock, Umbrella,
   TrendingUp, TrendingDown, CalendarDays,
-  CalendarCheck2, Percent, Minus,
+  CalendarCheck2, Minus,
 } from "lucide-react";
 import * as XLSX from "xlsx";
 
@@ -682,7 +680,7 @@ import api from "../../../common/services/api.js";
 import EmployeeAttendanceTab from "../components/EmployeeAttendanceTab.jsx";
 import "../styles/EmployeeDetailsPage-new.css";
 
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 /* ══════════════════════════════════════════════════════
    TAB REGISTRY  — add future tabs here, nothing else changes
@@ -745,7 +743,7 @@ function getFileUrl(v) {
 function resolveUrl(v) {
   const raw = getFileUrl(v);
   if (!raw) return null;
-  if (/^https?:\/\//i.test(raw) || raw.startsWith("data:")) return raw;
+  if (/^https?:\/\//i.test(raw) || raw.startsWith("data:") || raw.startsWith("blob:")) return raw;
   return `${BASE_URL}${raw.startsWith("/") ? "" : "/"}${raw}`;
 }
 function toCamel(s) { return s.replace(/_([a-z])/g, (_, c) => c.toUpperCase()); }
@@ -801,14 +799,6 @@ function SectionCard({ title, children }) {
     </div>
   );
 }
-function InfoRow({ label, value }) {
-  return (
-    <div className="flex items-center justify-between py-2.5" style={{ borderBottom: "1px solid var(--divider)" }}>
-      <span className="ed-info-row-label text-[13px]">{label}</span>
-      <span className="ed-info-row-value text-[13px]">{value ?? "—"}</span>
-    </div>
-  );
-}
 
 /* ═══════════════════ SALARY SECTION ═══════════════════ */
 function SalarySection({ title, tone, rows }) {
@@ -829,44 +819,29 @@ function SalarySection({ title, tone, rows }) {
           <tr className="ed-salary-thead text-[11px] uppercase tracking-wide">
             <th className="px-4 py-2 font-semibold">Component</th>
             <th className="px-3 py-2 font-semibold">Type</th>
-            <th className="px-3 py-2 font-semibold text-right">Amount</th>
+            <th className="px-4 py-2 font-semibold text-right">Amount</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((r, i) => {
-            const isPct = r.calculation_type === "percentage";
-            const val = r.value != null ? r.value : r.amount;
-            return (
-              <tr key={r.id ?? i} className="ed-salary-row">
-                <td className="px-4 py-3">
-                  <p className="ed-salary-primary text-[13.5px] font-semibold">{r.name}</p>
+          {rows.length === 0 ? (
+            <tr><td colSpan={3} className="px-4 py-3 ed-salary-muted text-[12.5px]">No components</td></tr>
+          ) : (
+            rows.map((r, i) => (
+              <tr key={i} className="ed-salary-row">
+                <td className="px-4 py-2.5 ed-salary-primary text-[13px] font-medium">{r.name}</td>
+                <td className="px-3 py-2.5 ed-salary-muted text-[12px] capitalize">
+                  {r.calculation_type === "percentage" ? `${r.percentage_value ?? r.value}% of basic` : "Fixed"}
                 </td>
-                <td className="px-3 py-3">
-                  {isPct ? (
-                    <div className="flex flex-col gap-0.5">
-                      <span className="ed-calc-chip ed-calc-percentage inline-flex items-center gap-1">
-                        <Percent size={10} />{Number(r.percentage ?? 0).toFixed(2)}%
-                      </span>
-                      <span className="ed-based-on">of {r.based_on}</span>
-                    </div>
-                  ) : (
-                    <span className="ed-calc-chip ed-calc-fixed inline-flex items-center gap-1">
-                      <IndianRupee size={10} />Fixed
-                    </span>
-                  )}
-                </td>
-                <td className="px-3 py-3 text-right">
-                  <span className={tone === "earning" ? "ed-salary-earning" : "ed-salary-deduction"}>
-                    ₹{fmtMoney(val)}
-                  </span>
+                <td className="px-4 py-2.5 ed-salary-primary text-[13px] font-semibold text-right">
+                  ₹{fmtMoney(r.amount ?? r.value)}
                 </td>
               </tr>
-            );
-          })}
+            ))
+          )}
         </tbody>
         {rows.length > 0 && (
           <tfoot>
-            <tr style={{ borderTop: "2px solid var(--divider)", background: "var(--input-bg)" }}>
+            <tr className="ed-salary-row">
               <td colSpan={2} className="px-4 py-2.5 ed-salary-muted text-[12px] font-bold">Subtotal</td>
               <td className={`px-3 py-2.5 text-right text-[14px] font-bold ${tone === "earning" ? "ed-salary-earning" : "ed-salary-deduction"}`}>
                 ₹{fmtMoney(subtotal)}
@@ -880,7 +855,7 @@ function SalarySection({ title, tone, rows }) {
 }
 
 /* ═══════════════════ TAB 1: PROFILE ═══════════════════ */
-function ProfileTab({ employee, age, photoUrl, sigUrl, fullName, notImage, downloading, onMarkNotImage, onLightbox, onDownload }) {
+function ProfileTab({ employee, age, fullName, notImage, downloading, onMarkNotImage, onLightbox, onDownload }) {
   return (
     <>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
@@ -966,12 +941,21 @@ function SalaryTab({ employeeId }) {
 
   useEffect(() => {
     if (!employeeId) return;
-    setLoading(true);
-    setError(null);
+    let ignore = false;
     api.get(`/employee-salary-structures-details/full-salary-by-employee/${employeeId}`)
-      .then((res) => setData(res.data?.data ?? res.data))
-      .catch((err) => setError(err.response?.data?.message || err.message))
-      .finally(() => setLoading(false));
+      .then((res) => {
+        if (!ignore) {
+          setData(res.data?.data ?? res.data);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!ignore) {
+          setError(err.response?.data?.message || err.message);
+          setLoading(false);
+        }
+      });
+    return () => { ignore = true; };
   }, [employeeId]);
 
   if (loading) return <p className="ed-salary-muted text-[13.5px] text-center py-12">Loading salary data…</p>;
@@ -1097,14 +1081,20 @@ export default function EmployeeDetailsPage() {
   const [activeTab, setActiveTab] = useState("profile");
 
   /* ── Fetch employee ── */
-  const loadEmployee = () => {
-    setFetching(true); setFetchError(null);
-    dispatch(fetchEmployeeById(id)).unwrap()
+  const loadEmployee = useCallback(() => {
+    if (!id) return;
+    setFetching(true);
+    setFetchError(null);
+    dispatch(fetchEmployeeById(id))
+      .unwrap()
       .then((payload) => setEmployee(payload?.employee ?? payload?.data ?? payload ?? null))
       .catch((err) => { setFetchError(err?.message ?? String(err)); setEmployee(null); })
       .finally(() => setFetching(false));
-  };
-  useEffect(() => { loadEmployee(); }, [dispatch, id]);
+  }, [dispatch, id]);
+
+  useEffect(() => {
+    loadEmployee();
+  }, [loadEmployee]);
 
   const age = useMemo(() => computeAge(employee?.dob), [employee]);
   const photoUrl = useMemo(() => resolveUrl(findDoc(employee, "photo_url") || findDoc(employee, "photo")), [employee]);
@@ -1269,7 +1259,7 @@ export default function EmployeeDetailsPage() {
 
           {activeTab === "profile" && (
             <ProfileTab
-              employee={employee} age={age} photoUrl={photoUrl} sigUrl={sigUrl} fullName={fullName}
+              employee={employee} age={age} fullName={fullName}
               notImage={notImage} downloading={downloading}
               onMarkNotImage={markNotImage} onLightbox={openLightbox} onDownload={downloadFile}
             />

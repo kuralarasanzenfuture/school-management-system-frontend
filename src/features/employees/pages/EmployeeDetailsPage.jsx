@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import {
@@ -244,6 +244,7 @@ function EmployeeDetailsPage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadEmployee();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, id]);

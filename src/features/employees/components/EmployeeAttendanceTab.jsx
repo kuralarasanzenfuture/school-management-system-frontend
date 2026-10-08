@@ -11,11 +11,10 @@
  *   Shape A: { success, data: [] }              → logs = data
  *   Shape B: { success, data: { summary, logs }} → logs = data.logs, summary = data.summary
  */
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Calendar, List, RefreshCw, UserCheck, UserX, Clock, Umbrella, CalendarOff, CalendarDays, TrendingUp } from "lucide-react";
 
-/* ── adjust import to your project ── */
 import { getEmployeeAttendanceByEmployeeId } from "../../../redux/employeeAttendance/employeeAttendanceSlice.js";
 import EmployeeAttendanceCalendar from "./EmployeeAttendanceCalendar.jsx";
 import EmployeeAttendanceTable from "./EmployeeAttendanceTable.jsx";
@@ -138,8 +137,6 @@ export default function EmployeeAttendanceTab({ employeeId }) {
         return [];
     }, [records]);
 
-    console.log("logs:", logs);
-
     const summary = useMemo(() => {
         // prefer slice's dedicated summary field (from Shape B response)
         if (reduxSummary && typeof reduxSummary === "object") return reduxSummary;
@@ -149,7 +146,6 @@ export default function EmployeeAttendanceTab({ employeeId }) {
         const absent = cnt("absent");
         const late = cnt("late");
         const holiday = cnt("holiday");
-        const attendable = logs.length - holiday;
         return {
             present_days: String(present),
             absent_days: String(absent),

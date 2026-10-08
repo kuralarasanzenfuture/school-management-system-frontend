@@ -4572,7 +4572,7 @@ export default function EmployeeForm({
   useEffect(() => {
     return () => {
       Object.values(previewUrlsRef.current).forEach((url) => {
-        if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
+        if (url?.startsWith("blob:")) window.URL.revokeObjectURL(url);
       });
     };
   }, []);
@@ -4586,6 +4586,7 @@ export default function EmployeeForm({
   // this form has already mounted and the user has started typing; if
   // this effect depended on schoolId, that flip would wipe the whole
   // form out from under them.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (initialData) {
       setData({
@@ -4631,7 +4632,7 @@ export default function EmployeeForm({
 
       setPreviewUrls((prev) => {
         Object.values(prev).forEach((url) => {
-          if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
+          if (url?.startsWith("blob:")) window.URL.revokeObjectURL(url);
         });
         return {};
       });
@@ -4646,6 +4647,7 @@ export default function EmployeeForm({
   // the "Add Employee" form already open, backfill it without touching
   // anything else they've typed. Only applies to a brand-new record that
   // doesn't already have a school_id set.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (!initialData && !isAdmin && schoolId) {
       setData((d) => (d.school_id ? d : { ...d, school_id: schoolId }));

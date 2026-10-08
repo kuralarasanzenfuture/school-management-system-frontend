@@ -13,7 +13,7 @@
  *
  * Route:  /salary/employee/:employeeId
  */
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
@@ -433,13 +433,9 @@ export default function EmployeeSalaryProfilePage() {
         dispatch(fetchEmployeeSalaryStructureDetailsByEmployeeId(id));
     }, [dispatch, employeeId]);
 
-    /* ── Auto-select the active (or first) structure ── */
-    useEffect(() => {
-        if (!selectedStructId && structures.length > 0) {
-            const active = structures.find(isStructActive) ?? structures[0];
-            setSelectedStructId(active.id);
-        }
-    }, [structures, selectedStructId]);
+    /* ── Current selected (or active/first) structure ── */
+    const defaultStructId = structures.find(isStructActive)?.id ?? structures[0]?.id ?? null;
+    const currentStructId = selectedStructId ?? defaultStructId;
 
     /* ── Handlers ── */
     const handleSelectStructure = (structId) => {
@@ -452,7 +448,7 @@ export default function EmployeeSalaryProfilePage() {
         if (tabId === "structures") return structures.length || null;
         if (tabId === "components") {
             const count = allDetailsByEmployee.filter(
-                (d) => String(d.salary_structure_id) === String(selectedStructId),
+                (d) => String(d.salary_structure_id) === String(currentStructId),
             ).length;
             return count || null;
         }
@@ -566,7 +562,7 @@ export default function EmployeeSalaryProfilePage() {
                     {activeTabId === "structures" && (
                         <StructuresTab
                             structures={structures}
-                            selectedStructId={selectedStructId}
+                            selectedStructId={currentStructId}
                             allDetailsByEmployee={allDetailsByEmployee}
                             onSelect={handleSelectStructure}
                         />
@@ -574,7 +570,7 @@ export default function EmployeeSalaryProfilePage() {
                     {activeTabId === "components" && (
                         <ComponentsTab
                             structures={structures}
-                            selectedStructId={selectedStructId}
+                            selectedStructId={currentStructId}
                             allDetailsByEmployee={allDetailsByEmployee}
                             loading={detailLoading}
                         />

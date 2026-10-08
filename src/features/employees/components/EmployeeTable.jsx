@@ -160,12 +160,12 @@
 
 /*-------------------pagination implementation-------------------*/
 
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { Pencil, Trash2, ArrowUpDown, Eye } from "lucide-react";
 import Pagination from "../../../common/components/table/Pagination";
 import usePagination from "../../../common/components/table/usePagination";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 /* ── helpers ── */
 function formatDate(value) {
@@ -185,6 +185,14 @@ function getInitials(firstName, lastName) {
   return (firstInitial + lastInitial).toUpperCase() || "?";
 }
 
+function resolveAvatarUrl(url) {
+  if (!url) return null;
+  if (/^https?:\/\//i.test(url) || url.startsWith("data:") || url.startsWith("blob:")) {
+    return url;
+  }
+  return `${API_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+}
+
 const STATUS_CLASS = {
   active: "ep-status-active",
   inactive: "ep-status-inactive",
@@ -195,7 +203,7 @@ const STATUS_CLASS = {
 /* ────────────────────────────────────────────────────────────────
    EmployeeTable
    Props
-     employees       array      full (unsliced) employee list
+     employees       array      full employee list
      onView          fn(emp)
      onEdit          fn(emp)
      onDelete        fn(id)
@@ -212,8 +220,53 @@ export default function EmployeeTable({
   initialPageSize = 10,
   pageSizeOptions = [5, 10, 20, 50],
 }) {
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
+
+  const handleSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    } else if (sortConfig.key === key && sortConfig.direction === "desc") {
+      key = null;
+      direction = null;
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedEmployees = useMemo(() => {
+    const items = [...employees];
+    if (sortConfig.key !== null) {
+      items.sort((a, b) => {
+        let aVal, bVal;
+        if (sortConfig.key === "name") {
+          aVal = `${a.first_name ?? ""} ${a.last_name ?? ""}`.toLowerCase().trim();
+          bVal = `${b.first_name ?? ""} ${b.last_name ?? ""}`.toLowerCase().trim();
+        } else if (sortConfig.key === "joining_date") {
+          aVal = a.joining_date ? new Date(a.joining_date).getTime() : 0;
+          bVal = b.joining_date ? new Date(b.joining_date).getTime() : 0;
+        } else {
+          aVal = a[sortConfig.key];
+          bVal = b[sortConfig.key];
+        }
+
+        if (aVal === null || aVal === undefined) return 1;
+        if (bVal === null || bVal === undefined) return -1;
+
+        if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+    return items;
+  }, [employees, sortConfig]);
+
   const { pagedData, currentPage, pageSize, totalItems, setPage, setPageSize } =
-    usePagination({ data: employees, initialSize: initialPageSize });
+    usePagination({ data: sortedEmployees, initialSize: initialPageSize });
+
+  const SortIcon = ({ columnKey }) => {
+    if (sortConfig.key !== columnKey) return <ArrowUpDown size={11} className="opacity-40" />;
+    return sortConfig.direction === "asc" ? <ArrowUp size={11} /> : <ArrowDown size={11} />;
+  };
 
   return (
     <div className="ep-table-card rounded-2xl overflow-hidden">
@@ -221,18 +274,24 @@ export default function EmployeeTable({
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="ep-thead text-[11.5px] uppercase tracking-wide">
-              <th className="px-5 py-3 font-semibold">
-                <span className="inline-flex items-center gap-1">
-                  Employee <ArrowUpDown size={11} />
+            <tr className="ep-thead text-[11.5px] uppercase tracking-wide select-none">
+              <th
+                className="px-5 py-3 font-semibold cursor-pointer hover:text-[var(--text-primary)] transition-colors"
+                onClick={() => handleSort("name")}
+              >
+                <span className="inline-flex items-center gap-1.5">
+                  Employee <SortIcon columnKey="name" />
                 </span>
               </th>
               <th className="px-3 py-3 font-semibold">Designation</th>
               <th className="px-3 py-3 font-semibold">Department</th>
               <th className="px-3 py-3 font-semibold">Mobile</th>
-              <th className="px-3 py-3 font-semibold">
-                <span className="inline-flex items-center gap-1">
-                  Joined <ArrowUpDown size={11} />
+              <th
+                className="px-3 py-3 font-semibold cursor-pointer hover:text-[var(--text-primary)] transition-colors"
+                onClick={() => handleSort("joining_date")}
+              >
+                <span className="inline-flex items-center gap-1.5">
+                  Joined <SortIcon columnKey="joining_date" />
                 </span>
               </th>
               <th className="px-3 py-3 font-semibold">Status</th>
@@ -253,92 +312,96 @@ export default function EmployeeTable({
                 </td>
               </tr>
             ) : (
-              pagedData.map((employee) => (
-                <tr key={employee.id} className="ep-row transition-colors">
-                  {/* Employee name + avatar */}
-                  <td className="px-5 py-3.5">
-                    <div
-                      className="flex items-center gap-3 cursor-pointer"
-                      onClick={() => onView?.(employee)}
-                      title="View employee"
-                    >
-                      <div className="ep-avatar w-9 h-9 rounded-full flex items-center justify-center text-[12.5px] font-semibold shrink-0">
-                        {employee.photo_url ? (
-                          <img
-                            src={`${API_URL}${employee.photo_url}`}
-                            alt={`${employee.first_name} ${employee.last_name}`}
-                            className="w-9 h-9 rounded-full object-cover"
-                          />
-                        ) : (
-                          getInitials(employee.first_name, employee.last_name)
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="ep-name text-[13.5px] font-semibold truncate">
-                          {employee.first_name} {employee.last_name ?? ""}
-                        </p>
-                        <p className="ep-code text-[12px] truncate">
-                          {employee.employee_code}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-
-                  <td className="ep-cell px-3 py-3.5 text-[13px]">
-                    {employee.designation}
-                  </td>
-
-                  <td className="ep-cell px-3 py-3.5 text-[13px]">
-                    {employee.department ?? (
-                      <span className="ep-cell-muted">—</span>
-                    )}
-                  </td>
-
-                  <td className="ep-cell px-3 py-3.5 text-[13px]">
-                    {employee.mobile}
-                  </td>
-
-                  <td className="ep-cell-muted px-3 py-3.5 text-[13px]">
-                    {formatDate(employee.joining_date)}
-                  </td>
-
-                  <td className="px-3 py-3.5">
-                    <span
-                      className={`ep-status ${STATUS_CLASS[employee.status] ?? "ep-status-inactive"}`}
-                    >
-                      {employee.status}
-                    </span>
-                  </td>
-
-                  {/* Actions */}
-                  <td className="px-3 py-3.5">
-                    <div className="flex items-center justify-end gap-1 pr-2">
-                      <button
+              pagedData.map((employee) => {
+                const avatarSrc = resolveAvatarUrl(employee.photo_url);
+                return (
+                  <tr key={employee.id} className="ep-row transition-colors">
+                    {/* Employee name + avatar */}
+                    <td className="px-5 py-3.5">
+                      <div
+                        className="flex items-center gap-3 cursor-pointer"
                         onClick={() => onView?.(employee)}
-                        className="ep-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                        title="View"
+                        title="View employee"
                       >
-                        <Eye size={15} />
-                      </button>
-                      <button
-                        onClick={() => onEdit(employee)}
-                        className="ep-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                        title="Edit"
+                        <div className="ep-avatar w-9 h-9 rounded-full flex items-center justify-center text-[12.5px] font-semibold shrink-0 overflow-hidden">
+                          {avatarSrc ? (
+                            <img
+                              src={avatarSrc}
+                              alt={`${employee.first_name} ${employee.last_name ?? ""}`}
+                              className="w-9 h-9 rounded-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                              }}
+                            />
+                          ) : (
+                            getInitials(employee.first_name, employee.last_name)
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="ep-name text-[13.5px] font-semibold truncate">
+                            {employee.first_name} {employee.last_name ?? ""}
+                          </p>
+                          <p className="ep-code text-[12px] truncate">
+                            {employee.employee_code}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="ep-cell px-3 py-3.5 text-[13px]">
+                      {employee.designation || <span className="ep-cell-muted">—</span>}
+                    </td>
+
+                    <td className="ep-cell px-3 py-3.5 text-[13px]">
+                      {employee.department || <span className="ep-cell-muted">—</span>}
+                    </td>
+
+                    <td className="ep-cell px-3 py-3.5 text-[13px]">
+                      {employee.mobile || <span className="ep-cell-muted">—</span>}
+                    </td>
+
+                    <td className="ep-cell-muted px-3 py-3.5 text-[13px]">
+                      {formatDate(employee.joining_date)}
+                    </td>
+
+                    <td className="px-3 py-3.5">
+                      <span
+                        className={`ep-status ${STATUS_CLASS[employee.status] ?? "ep-status-inactive"}`}
                       >
-                        <Pencil size={15} />
-                      </button>
-                      <button
-                        onClick={() => onDelete(employee.id)}
-                        disabled={deletingId === employee.id}
-                        className="ep-action-btn ep-action-btn-danger w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50"
-                        title="Delete"
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
+                        {employee.status}
+                      </span>
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-3 py-3.5">
+                      <div className="flex items-center justify-end gap-1 pr-2">
+                        <button
+                          onClick={() => onView?.(employee)}
+                          className="ep-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+                          title="View"
+                        >
+                          <Eye size={15} />
+                        </button>
+                        <button
+                          onClick={() => onEdit(employee)}
+                          className="ep-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+                          title="Edit"
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          onClick={() => onDelete(employee.id)}
+                          disabled={deletingId === employee.id}
+                          className="ep-action-btn ep-action-btn-danger w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50"
+                          title="Delete"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>

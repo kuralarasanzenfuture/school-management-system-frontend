@@ -3,8 +3,7 @@
  * Paginated table for employee attendance logs.
  * Receives logs[] directly — no Redux inside.
  */
-import React from "react";
-import { Clock, IndianRupee } from "lucide-react";
+import { Clock } from "lucide-react";
 import Pagination from "../../../common/components/table/Pagination.jsx";
 import usePagination from "../../../common/components/table/usePagination.jsx";
 import { STATUS_COLOR } from "./EmployeeAttendanceCalendar.jsx";

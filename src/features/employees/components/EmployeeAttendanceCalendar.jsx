@@ -3,9 +3,10 @@
  * Month grid — each day coloured by attendance status.
  * Click a day → detail popover with check-in/out, work hours.
  */
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, X, Clock } from "lucide-react";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const STATUS_COLOR = {
     present: { bg: "var(--success-bg)", dot: "var(--success)", text: "var(--success)", label: "Present" },
     absent: { bg: "var(--danger-bg)", dot: "var(--danger)", text: "var(--danger)", label: "Absent" },
@@ -110,7 +111,6 @@ export default function EmployeeAttendanceCalendar({ logs = [], year, month, onM
                     const colors = status ? STATUS_COLOR[status] : null;
                     const isToday = dateStr === todayStr;
                     const checkIn = fmtTime(record?.check_in);
-                    const checkOut = fmtTime(record?.check_out);
 
                     return (
                         <button key={dateStr}

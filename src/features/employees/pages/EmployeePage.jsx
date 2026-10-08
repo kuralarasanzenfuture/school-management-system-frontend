@@ -303,10 +303,9 @@ const EmployeePage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const { user, loading: authLoading } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
 
   const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
-
   const schoolId = isAdmin ? null : user?.school_id;
 
   const schools = useSelector((state) => state.schoolProfile?.schools || []);
@@ -397,8 +396,7 @@ const EmployeePage = () => {
   // EmployeeTable calls onDelete(id) — matching every other table in this
   // app. DeleteEmployeeModal needs the full record (first_name, last_name,
   // employee_code) to show a meaningful confirmation, so look it up here
-  // rather than changing the table's contract. Same fix applied to every
-  // other module's page after the School empty-name bug.
+  // rather than changing the table's contract.
   const openDeleteModal = (id) => {
     const employee = employees.find((e) => String(e.id) === String(id));
     setDeleteTarget(employee ?? null);
@@ -510,6 +508,7 @@ const EmployeePage = () => {
         isOpen={modalOpen}
         onClose={closeModal}
         employee={editingEmployee}
+        schoolId={schoolId}
         onSubmit={handleSubmit}
         submitting={submitting}
       />

@@ -147,7 +147,7 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
 
     return createPortal(
         <div
-            className="cpw-overlay fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm p-4"
+            className="cpw-overlay fixed inset-0 z-[9999] flex items-center justify-center p-4"
             onClick={onClose}
         >
             <div

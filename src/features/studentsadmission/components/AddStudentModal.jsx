@@ -6,7 +6,7 @@
 
 //   return (
 //     <div
-//       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+//       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
 //       onClick={onClose}
 //     >
 //       <div
@@ -189,7 +189,7 @@
 //   return (
 //     <div
 //       onClick={onClose}
-//       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+//       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-in fade-in duration-200"
 //     >
 //       <div
 //         onClick={(e) => e.stopPropagation()}
@@ -221,7 +221,7 @@
 //         {/* <AnimatePresence>
 //           {isOpen && (
 //             <motion.div
-//               className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+//               className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 "
 //               initial={{ opacity: 0 }}
 //               animate={{ opacity: 1 }}
 //               exit={{ opacity: 0 }}
@@ -501,7 +501,7 @@ export default function AddStudentModal({ isOpen, onClose }) {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 "
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

@@ -46,6 +46,7 @@ body, button, input, select, textarea {
   --divider: #eaedf8;
   --badge-bg: #e8ecff;
   --badge-text: #3949ab;
+  --modal-overlay-bg: rgba(0, 0, 0, 0.25);
 
   /* Semantic status colors — used for form validation, doc upload states, success screens */
   --success: #059669;
@@ -111,6 +112,7 @@ body, button, input, select, textarea {
   --divider: #1e2235;
   --badge-bg: #1e2235;
   --badge-text: #7986cb;
+  --modal-overlay-bg: rgba(0, 0, 0, 0.45);
 
   --success: #34d399;
   --success-bg: rgba(52, 211, 153, 0.1);
@@ -278,4 +280,48 @@ h4 {
 .badge-other {
   background: var(--badge-other-bg);
   color: var(--badge-other-text);
+}
+
+/* ========================================================
+   Global Modal Overlay System: Light Background & No Blur
+   Applies across all modules: employees, departments, students,
+   school profile, classes, sections, subjects, salary, attendance, etc.
+   ======================================================== */
+.ep-modal-overlay,
+.dp-overlay,
+.sm-overlay,
+.sa-modal-overlay,
+.sp-modal-overlay,
+.cp-modal-overlay,
+.cs-modal-overlay,
+.sj-modal-overlay,
+.sg-modal-overlay,
+.cx-modal-overlay,
+.scp-modal-overlay,
+.ay-modal-overlay,
+.edp-modal-overlay,
+.es-modal-overlay,
+.sc-overlay,
+.ss-overlay,
+.ssd-overlay,
+.lt-overlay,
+.ma-overlay,
+.ea-overlay,
+.cpw-overlay,
+.fixed.inset-0[class*="overlay"]:not([class*="lightbox"]),
+div[class*="-modal-overlay"],
+div[class*="-overlay"]:not([class*="lightbox"]) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background-color: var(--modal-overlay-bg, rgba(0, 0, 0, 0.25)) !important;
+}
+
+/* Ensure backdrop blur utility classes on modal overlays are completely disabled */
+.fixed.inset-0.backdrop-blur-sm:not([class*="lightbox"]),
+.fixed.inset-0.backdrop-blur-md:not([class*="lightbox"]),
+.fixed.inset-0.backdrop-blur-lg:not([class*="lightbox"]),
+.fixed.inset-0.backdrop-blur:not([class*="lightbox"]) {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background-color: var(--modal-overlay-bg, rgba(0, 0, 0, 0.25)) !important;
 }

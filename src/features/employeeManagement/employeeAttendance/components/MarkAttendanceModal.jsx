@@ -492,7 +492,7 @@ export default function MarkAttendanceModal({
         <AnimatePresence>
             {isOpen && (
                 <motion.div
-                    className="ea-overlay fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm"
+                    className="ea-overlay fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 "
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}

@@ -13,7 +13,7 @@ export default function StudentAdmissionModal({
 
   return (
     <div
-      className="sa-modal-overlay fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-4"
+      className="sa-modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4"
       onClick={onClose}
     >
       <div

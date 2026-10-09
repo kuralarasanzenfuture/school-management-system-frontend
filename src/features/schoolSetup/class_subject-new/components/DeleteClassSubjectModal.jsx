@@ -36,7 +36,7 @@ export default function DeleteClassSubjectModal({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="cx-modal-overlay fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-4"
+          className="cx-modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

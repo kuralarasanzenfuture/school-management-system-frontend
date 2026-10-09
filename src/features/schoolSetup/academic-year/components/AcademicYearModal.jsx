@@ -20,7 +20,7 @@ export default function AcademicYearModal({
 
   return (
     <div
-      className="ay-modal-overlay fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-4"
+      className="ay-modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4"
       onClick={onClose}
     >
       <div

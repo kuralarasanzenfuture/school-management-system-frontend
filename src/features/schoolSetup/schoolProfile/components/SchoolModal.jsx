@@ -28,7 +28,7 @@ export default function SchoolModal({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="scp-modal-overlay fixed inset-0 z-[1200] flex items-center justify-center backdrop-blur-md p-4"
+          className="scp-modal-overlay fixed inset-0 z-[1200] flex items-center justify-center p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

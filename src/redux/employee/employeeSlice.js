@@ -83,9 +83,13 @@ export const removeEmployee = createAsyncThunk(
 // ---------------- Assign User To Employee ----------------
 export const assignEmployeeUser = createAsyncThunk(
   "employees/assignUser",
-  async ({ employeeId, userId }, { rejectWithValue }) => {
+  async (payload, { rejectWithValue }) => {
     try {
-      return await assignUserToEmployee(employeeId, userId);
+      const employeeId =
+        payload?.employee_id ?? payload?.employeeId ?? payload?.id;
+      const userId =
+        payload?.user_id ?? payload?.userId;
+      return await assignUserToEmployee({ employee_id: employeeId, user_id: userId });
     } catch (error) {
       return rejectWithValue(extractErrorMessage(error, "Failed to assign user"));
     }
@@ -95,8 +99,12 @@ export const assignEmployeeUser = createAsyncThunk(
 // ---------------- Unassign User From Employee ----------------
 export const unassignEmployeeUser = createAsyncThunk(
   "employees/unassignUser",
-  async (employeeId, { rejectWithValue }) => {
+  async (payload, { rejectWithValue }) => {
     try {
+      const employeeId =
+        typeof payload === "object" && payload !== null
+          ? payload?.employee_id ?? payload?.employeeId ?? payload?.id
+          : payload;
       return await unassignUserFromEmployee(employeeId);
     } catch (error) {
       return rejectWithValue(extractErrorMessage(error, "Failed to unassign user"));

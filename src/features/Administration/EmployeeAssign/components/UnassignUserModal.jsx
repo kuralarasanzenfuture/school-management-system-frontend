@@ -32,11 +32,12 @@ export default function UnassignUserModal({
   const [error, setError] = useState("");
 
   const handleUnassign = async () => {
-    if (!employee?.id) return;
+    const empId = employee?.id ?? employee?.employee_id;
+    if (!empId) return;
     setUnassigning(true);
     setError("");
     try {
-      await dispatch(unassignEmployeeUser(employee.id)).unwrap();
+      await dispatch(unassignEmployeeUser(Number(empId))).unwrap();
       if (onSuccess) {
         onSuccess(employee);
       }

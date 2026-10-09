@@ -58,11 +58,22 @@ export const deleteEmployee = async (id) => {
   }
 };
 
-export const assignUserToEmployee = async ({ employeeId, userId }) => {
+export const assignUserToEmployee = async (param1, param2) => {
   try {
+    let empId;
+    let uId;
+
+    if (typeof param1 === "object" && param1 !== null) {
+      empId = param1.employee_id ?? param1.employeeId ?? param1.id;
+      uId = param1.user_id ?? param1.userId;
+    } else {
+      empId = param1;
+      uId = param2;
+    }
+
     const response = await api.post("/employees/assign-user", {
-      employee_id: employeeId,
-      user_id: userId,
+      employee_id: Number(empId),
+      user_id: Number(uId),
     });
     return response.data;
   } catch (error) {
@@ -73,8 +84,13 @@ export const assignUserToEmployee = async ({ employeeId, userId }) => {
 
 export const unassignUserFromEmployee = async (employeeId) => {
   try {
+    const empId =
+      typeof employeeId === "object" && employeeId !== null
+        ? employeeId.employee_id ?? employeeId.employeeId ?? employeeId.id
+        : employeeId;
+
     const response = await api.post("/employees/unassign-user", {
-      employee_id: employeeId,
+      employee_id: Number(empId),
     });
     return response.data;
   } catch (error) {

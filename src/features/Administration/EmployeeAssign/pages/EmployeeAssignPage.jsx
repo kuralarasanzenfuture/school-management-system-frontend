@@ -164,11 +164,18 @@ const EmployeeAssignPage = () => {
   };
 
   const handleAssignSubmit = async (userId) => {
-    if (!selectedEmployee?.id) return;
+    const empId = selectedEmployee?.id ?? selectedEmployee?.employee_id;
+    if (!empId) {
+      alert("Employee ID is missing");
+      return;
+    }
     setSubmitting(true);
     try {
       await dispatch(
-        assignEmployeeUser({ employeeId: selectedEmployee.id, userId }),
+        assignEmployeeUser({
+          employee_id: Number(empId),
+          user_id: Number(userId),
+        }),
       ).unwrap();
       closeAssignModal();
       loadEmployees();

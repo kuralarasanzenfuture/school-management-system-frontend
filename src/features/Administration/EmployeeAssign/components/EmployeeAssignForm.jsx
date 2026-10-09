@@ -1,6 +1,37 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Loader2, UserCheck, Shield } from "lucide-react";
 import CustomDropdown from "../../../../common/components/dropdown/CustomDropdown.jsx";
+
+function isSystemAdminUser(user) {
+  if (!user) return false;
+
+  // Check username
+  const username = (user.username || "").trim().toLowerCase();
+  if (username === "admin" || username === "superadmin" || username === "super_admin") {
+    return true;
+  }
+
+  // Check flags
+  if (user.is_admin || user.isAdmin || user.is_superadmin || user.isSuperAdmin) {
+    return true;
+  }
+
+  // Check roles
+  const rawRoles = Array.isArray(user.roles)
+    ? user.roles.map((r) => (typeof r === "object" ? r?.name || "" : String(r)))
+    : typeof user.roles === "string"
+    ? user.roles.split(",")
+    : user.role
+    ? [String(user.role)]
+    : [];
+
+  return rawRoles.some((r) => {
+    const roleStr = String(r);
+    const cleanName = roleStr.includes(":") ? roleStr.split(":")[1].trim() : roleStr.trim();
+    const upper = cleanName.toUpperCase();
+    return upper === "ADMIN" || upper === "SUPER ADMIN" || upper === "SUPERADMIN";
+  });
+}
 
 function getUserDisplayLabel(u) {
   if (!u) return "";
@@ -25,10 +56,26 @@ export default function EmployeeAssignForm({
   submitting = false,
 }) {
   const currentUserId = employee?.user_id ?? employee?.user?.id ?? "";
+
+  // Check if currently assigned user is an admin; if so, do not select it
+  const isCurrentAdmin = useMemo(() => {
+    if (!currentUserId) return false;
+    const current = (users || []).find((u) => String(u.id) === String(currentUserId));
+    return isSystemAdminUser(current);
+  }, [users, currentUserId]);
+
   const [selectedUserId, setSelectedUserId] = useState(
-    currentUserId ? String(currentUserId) : "",
+    currentUserId && !isCurrentAdmin ? String(currentUserId) : "",
   );
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (currentUserId && !isCurrentAdmin) {
+      setSelectedUserId(String(currentUserId));
+    } else {
+      setSelectedUserId("");
+    }
+  }, [currentUserId, isCurrentAdmin]);
 
   // Determine users eligible to be linked to this employee
   const availableUsers = useMemo(() => {
@@ -42,6 +89,11 @@ export default function EmployeeAssignForm({
     );
 
     return (users || []).filter((user) => {
+      // 0. System Administrator accounts cannot be linked to employees
+      if (isSystemAdminUser(user)) {
+        return false;
+      }
+
       // 1. School matching: must belong to same school if school is specified
       const empSchool = employee?.school_id ?? employee?.school?.id;
       const userSchool = user?.school_id ?? user?.school?.id;

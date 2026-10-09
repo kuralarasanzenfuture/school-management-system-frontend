@@ -234,6 +234,15 @@
   color: var(--danger);
 }
 
+/* ── Toggle Switch ── */
+.up-toggle-switch {
+  cursor: pointer;
+}
+.up-toggle-switch:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
 .up-role-option {
   border: 1px solid var(--input-border);
   color: var(--text-secondary);

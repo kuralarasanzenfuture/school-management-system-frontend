@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Plus, Search, Filter } from "lucide-react";
+import toast from "react-hot-toast";
 import UserTable from "../components/UserTable";
 import UserModal from "../components/UserModal.jsx";
 import UserChangePasswordModal from "../components/UserChangePasswordModal.jsx";
+import UserStatusModal from "../components/UserStatusModal.jsx";
 import CustomDropdown from "../components/CustomDropdown.jsx";
 import { parseRolesToIds } from "../components/UserForm.jsx";
 
@@ -35,6 +37,11 @@ const UserPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   const [togglingId, setTogglingId] = useState(null);
+
+  // Status Change Confirmation Modal
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [statusTargetUser, setStatusTargetUser] = useState(null);
+  const [targetStatus, setTargetStatus] = useState("active");
 
   // Change Password Modal state
   const [passwordUser, setPasswordUser] = useState(null);
@@ -166,24 +173,28 @@ const UserPage = () => {
     }
   };
 
-  const handleToggleStatus = async (targetUser) => {
-    const nextStatus = targetUser.status === "active" ? "inactive" : "active";
-    if (
-      !window.confirm(
-        `Are you sure you want to ${nextStatus === "active" ? "activate" : "deactivate"} user "${targetUser.username}"?`,
-      )
-    ) {
-      return;
-    }
+  const handleToggleStatus = (targetUser, nextStatus) => {
+    setStatusTargetUser(targetUser);
+    setTargetStatus(
+      nextStatus || (targetUser.status === "active" ? "inactive" : "active"),
+    );
+    setStatusModalOpen(true);
+  };
 
-    setTogglingId(targetUser.id);
+  const handleConfirmStatusChange = async (userId, next) => {
+    setTogglingId(userId);
     try {
       await dispatch(
-        toggleUserStatus({ id: targetUser.id, status: nextStatus }),
+        toggleUserStatus({ id: userId, status: next }),
       ).unwrap();
+      toast.success(`User status changed to ${next} successfully`);
+      setStatusModalOpen(false);
+      setStatusTargetUser(null);
       dispatch(fetchUsers());
     } catch (err) {
-      alert(err || "Failed to update user status");
+      const msg =
+        typeof err === "string" ? err : err?.message || "Failed to update user status";
+      toast.error(msg);
     } finally {
       setTogglingId(null);
     }
@@ -341,6 +352,19 @@ const UserPage = () => {
         isOpen={passwordModalOpen}
         onClose={handleCloseChangePassword}
         targetUser={passwordUser}
+      />
+
+      {/* Status Change Confirmation Modal */}
+      <UserStatusModal
+        isOpen={statusModalOpen}
+        onClose={() => {
+          setStatusModalOpen(false);
+          setStatusTargetUser(null);
+        }}
+        user={statusTargetUser}
+        targetStatus={targetStatus}
+        onConfirm={handleConfirmStatusChange}
+        submitting={Boolean(togglingId)}
       />
     </div>
   );

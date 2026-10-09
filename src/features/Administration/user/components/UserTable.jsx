@@ -1,5 +1,4 @@
-import React from "react";
-import { Pencil, Trash2, ArrowUpDown, Shield, KeyRound } from "lucide-react";
+import { Pencil, Trash2, ArrowUpDown, Shield, KeyRound, Lock, Loader2 } from "lucide-react";
 import Pagination from "../../../../common/components/table/Pagination";
 import usePagination from "../../../../common/components/table/usePagination";
 
@@ -127,9 +126,10 @@ export default function UserTable({
                 const roles = normalizeUserRoles(user.roles);
                 const visibleRoles = roles.slice(0, MAX_VISIBLE_ROLES);
                 const extraCount = roles.length - visibleRoles.length;
-                const isUserAdmin = roles.some(
-                  (role) => (role.name || "").toUpperCase() === "ADMIN",
-                );
+                const isUserAdmin =
+                  roles.some(
+                    (role) => (role.name || "").toUpperCase() === "ADMIN",
+                  ) || (user.username || "").toLowerCase() === "admin";
 
                 return (
                   <tr key={user.id} className="up-row transition-colors">
@@ -217,40 +217,67 @@ export default function UserTable({
                       </td>
                     )}
 
-                    {/* Status */}
+                    {/* Status & Quick Toggle */}
                     <td className="px-3 py-3.5">
-                      {onToggleStatus && !isUserAdmin ? (
-                        <button
-                          type="button"
-                          onClick={() => onToggleStatus(user)}
-                          disabled={togglingId === user.id}
-                          className={`up-status cursor-pointer transition-all hover:scale-105 ${
-                            user.status === "active"
-                              ? "up-status-active"
-                              : "up-status-inactive"
-                          } ${togglingId === user.id ? "opacity-60" : ""}`}
-                          title={`Click to ${
-                            user.status === "active" ? "deactivate" : "activate"
-                          }`}
-                        >
-                          {togglingId === user.id ? "Updating…" : user.status}
-                        </button>
-                      ) : (
+                      <div className="flex items-center gap-2">
+                        {togglingId === user.id ? (
+                          <Loader2
+                            size={16}
+                            className="animate-spin text-primary"
+                          />
+                        ) : (
+                          <button
+                            type="button"
+                            disabled={isUserAdmin && user.status === "active"}
+                            onClick={() =>
+                              onToggleStatus &&
+                              onToggleStatus(
+                                user,
+                                user.status === "active"
+                                  ? "inactive"
+                                  : "active",
+                              )
+                            }
+                            title={
+                              isUserAdmin && user.status === "active"
+                                ? "ADMIN user cannot be deactivated"
+                                : `Toggle status to ${
+                                    user.status === "active"
+                                      ? "inactive"
+                                      : "active"
+                                  }`
+                            }
+                            className={`up-toggle-switch relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                              user.status === "active"
+                                ? "bg-emerald-500"
+                                : "bg-slate-300 dark:bg-slate-700"
+                            } ${
+                              isUserAdmin && user.status === "active"
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
+                            }`}
+                          >
+                            <span
+                              aria-hidden="true"
+                              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                                user.status === "active"
+                                  ? "translate-x-4"
+                                  : "translate-x-0"
+                              }`}
+                            />
+                          </button>
+                        )}
+
                         <span
                           className={`up-status ${
                             user.status === "active"
                               ? "up-status-active"
                               : "up-status-inactive"
                           }`}
-                          title={
-                            isUserAdmin
-                              ? "ADMIN user cannot be deactivated"
-                              : undefined
-                          }
                         >
                           {user.status}
                         </span>
-                      )}
+                      </div>
                     </td>
 
                     {/* Created */}
@@ -282,6 +309,7 @@ export default function UserTable({
                         {/* Admin users cannot be deleted according to backend policy */}
                         {!isUserAdmin ? (
                           <button
+                            type="button"
                             onClick={() => onDelete(user.id)}
                             disabled={deletingId === user.id}
                             className="up-action-btn up-action-btn-danger w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 text-destructive hover:bg-destructive/10"
@@ -290,12 +318,14 @@ export default function UserTable({
                             <Trash2 size={15} />
                           </button>
                         ) : (
-                          <span
-                            className="w-8 h-8 flex items-center justify-center text-muted-foreground/40 cursor-not-allowed"
+                          <button
+                            type="button"
+                            disabled
+                            className="up-action-btn w-8 h-8 rounded-lg flex items-center justify-center opacity-40 cursor-not-allowed text-muted-foreground"
                             title="ADMIN user cannot be deleted"
                           >
-                            <Trash2 size={15} />
-                          </span>
+                            <Lock size={14} />
+                          </button>
                         )}
                       </div>
                     </td>

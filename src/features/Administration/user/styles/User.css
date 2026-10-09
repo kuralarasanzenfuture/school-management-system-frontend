@@ -7,7 +7,10 @@
 
 /* ── Page ── */
 .up-page {
-  background: var(--bg);
+  background: #ffffff !important;
+}
+[data-theme="dark"] .up-page {
+  background: var(--bg, #0d0f1e) !important;
 }
 .up-title {
   color: var(--text-primary);

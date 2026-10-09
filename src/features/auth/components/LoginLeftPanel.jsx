@@ -1,75 +1,94 @@
 import React from "react";
+import {
+  GraduationCap,
+  BarChart3,
+  Calendar,
+  MessageSquare,
+  ShieldCheck,
+  Users,
+} from "lucide-react";
 
 const LoginLeftPanel = () => {
   return (
-    <div>
-      <div className="side">
-        <div className="brand">
-          <div className="brand-icon">🎓</div>
-          <div>
-            <div className="brand-name">EduCore</div>
-            <div className="brand-tagline">School Management System</div>
+    <div className="side">
+      {/* Brand Header */}
+      <div className="brand">
+        <div className="brand-icon">
+          <GraduationCap size={26} color="#ffffff" strokeWidth={2.2} />
+        </div>
+        <div>
+          <div className="brand-name">Zenfuture</div>
+          <div className="brand-tagline">School Management System</div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="side-content">
+        <div className="side-headline">
+          Manage your school
+          <br />
+          smarter, not harder.
+        </div>
+        <p className="side-sub">
+          One unified platform for administrators, teachers, students, and parents
+          to collaborate seamlessly.
+        </p>
+
+        {/* Live Metrics */}
+        <div className="stats">
+          <div className="stat">
+            <div className="stat-num">12K+</div>
+            <div className="stat-label">Students</div>
+          </div>
+          <div className="stat">
+            <div className="stat-num">480+</div>
+            <div className="stat-label">Faculty</div>
+          </div>
+          <div className="stat">
+            <div className="stat-num">99.4%</div>
+            <div className="stat-label">Attendance</div>
+          </div>
+          <div className="stat">
+            <div className="stat-num">50+</div>
+            <div className="stat-label">Classes</div>
           </div>
         </div>
 
-        <div className="side-content">
-          <div className="side-headline">
-            Manage your school
-            <br />
-            smarter, not harder.
+        {/* Feature Highlights with Lucide Icons */}
+        <div className="features">
+          <div className="feature">
+            <div className="feature-icon-wrap">
+              <BarChart3 size={17} strokeWidth={2.2} />
+            </div>
+            <span>Real-time academic analytics and grading</span>
           </div>
-          <p className="side-sub">
-            One unified platform for students, teachers, and administrators to
-            collaborate seamlessly.
-          </p>
-
-          <div className="stats">
-            <div className="stat">
-              <div className="stat-num">12K+</div>
-              <div className="stat-label">Students</div>
+          <div className="feature">
+            <div className="feature-icon-wrap">
+              <Calendar size={17} strokeWidth={2.2} />
             </div>
-            <div className="stat">
-              <div className="stat-num">480</div>
-              <div className="stat-label">Teachers</div>
-            </div>
-            <div className="stat">
-              <div className="stat-num">98%</div>
-              <div className="stat-label">Attendance</div>
-            </div>
-            <div className="stat">
-              <div className="stat-num">56</div>
-              <div className="stat-label">classNamees</div>
-            </div>
+            <span>Automated timetables and event scheduling</span>
           </div>
-
-          <div className="features">
-            <div className="feature">
-              <div className="feature-dot fd-1">📊</div>
-              Real-time analytics and grade tracking
+          <div className="feature">
+            <div className="feature-icon-wrap">
+              <ShieldCheck size={17} strokeWidth={2.2} />
             </div>
-            <div className="feature">
-              <div className="feature-dot fd-2">📅</div>
-              Automated timetables and scheduling
-            </div>
-            <div className="feature">
-              <div className="feature-dot fd-3">💬</div>
-              Parent-teacher communication hub
-            </div>
+            <span>Enterprise security & role-based permissions</span>
           </div>
         </div>
+      </div>
 
-        <div className="side-footer">
-          <div className="avatar-stack">
-            <div className="av av-1">KR</div>
-            <div className="av av-2">PS</div>
-            <div className="av av-3">MT</div>
-            <div className="av av-4">JD</div>
-          </div>
-          <div className="side-footer-text">
-            Trusted by 400+ schools
-            <br />
-            across Tamil Nadu
-          </div>
+      {/* Social Proof Footer */}
+      <div className="side-footer">
+        <div className="avatar-stack">
+          <div className="av av-1">ZF</div>
+          <div className="av av-2">AD</div>
+          <div className="av av-3">TC</div>
+          <div className="av av-4">PR</div>
+        </div>
+        <div className="side-footer-text">
+          Trusted by 400+ schools
+          <br />
+          for daily operations
         </div>
       </div>
     </div>

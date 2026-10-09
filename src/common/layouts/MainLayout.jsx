@@ -9,7 +9,10 @@ const MainLayout = () => {
   });
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#F4F6FB]">
+    <div
+      className="flex h-screen overflow-hidden"
+      style={{ backgroundColor: "var(--bg, #ffffff)" }}
+    >
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 
       {/*
@@ -24,7 +27,10 @@ const MainLayout = () => {
       >
         <Header />
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden min-w-0">
+        <main
+          className="flex-1 overflow-y-auto overflow-x-hidden min-w-0"
+          style={{ backgroundColor: "var(--bg, #ffffff)" }}
+        >
           <Outlet />
         </main>
       </div>

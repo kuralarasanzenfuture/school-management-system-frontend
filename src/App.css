@@ -6,13 +6,40 @@
 
 html {
   font-size: 16px;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-body, button, input, select, textarea {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+html,
+body,
+#root {
+  background-color: var(--bg, #ffffff) !important;
+}
+[data-theme="dark"],
+[data-theme="dark"] body,
+[data-theme="dark"] #root {
+  background-color: var(--bg, #0d0f1e) !important;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
   font-size: 14px;
   font-weight: 400;
   line-height: 1.5;
@@ -20,33 +47,34 @@ body, button, input, select, textarea {
 }
 
 :root {
-  --bg: #f0f4ff;
+  --bg: #ffffff;
   --panel-bg: #ffffff;
-  --side-bg: #1a237e;
-  --side-accent: #3949ab;
+  --side-bg: #1e1b4b;
+  --side-accent: #312e81;
   --side-text: rgba(255, 255, 255, 0.85);
   --side-muted: rgba(255, 255, 255, 0.5);
-  --text-primary: #1a1a2e;
-  --text-secondary: #5c6278;
-  --text-muted: #9ea3b8;
-  --input-bg: #f5f7ff;
-  --input-border: #dde1f0;
-  --input-focus: #3949ab;
-  --btn-bg: #1a237e;
-  --btn-hover: #3949ab;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --input-bg: #ffffff;
+  --input-border: #e2e8f0;
+  --input-focus: #4f46e5;
+  --focus-ring: rgba(79, 70, 229, 0.15);
+  --btn-bg: #4f46e5;
+  --btn-hover: #4338ca;
   --btn-text: #ffffff;
-  --link: #3949ab;
-  --shadow: 0 20px 60px rgba(26, 35, 126, 0.12);
-  --card-shadow: 0 4px 20px rgba(26, 35, 126, 0.08);
-  --toggle-bg: #e8ecff;
-  --toggle-icon: #3949ab;
-  --accent: #e91e63;
-  --accent2: #7c4dff;
+  --link: #4f46e5;
+  --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  --toggle-bg: #e0e7ff;
+  --toggle-icon: #4f46e5;
+  --accent: #e11d48;
+  --accent2: #6366f1;
   --stat-bg: rgba(255, 255, 255, 0.12);
-  --divider: #eaedf8;
-  --badge-bg: #e8ecff;
-  --badge-text: #3949ab;
-  --modal-overlay-bg: rgba(0, 0, 0, 0.25);
+  --divider: #f1f5f9;
+  --badge-bg: #eef2ff;
+  --badge-text: #4338ca;
+  --modal-overlay-bg: rgba(15, 23, 42, 0.45);
 
   /* Semantic status colors — used for form validation, doc upload states, success screens */
   --success: #059669;
@@ -229,7 +257,6 @@ h4 {
 .caption {
   font-size: 12px;
 }
-
 
 .badge {
   display: inline-flex;

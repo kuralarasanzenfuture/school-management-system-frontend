@@ -245,7 +245,7 @@ export default function StudentAdmissionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F6FB]">
+    <div className="min-h-screen" style={{ backgroundColor: "var(--bg, #ffffff)" }}>
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div>

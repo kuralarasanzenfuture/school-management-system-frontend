@@ -1,13 +1,16 @@
-/* Role.css
+/* RolePage.css
    All COLOR styling for the Role Management feature (page, table, modal,
    form) lives here as plain CSS classes driven by the theme variables in
-   app.css. Tailwind utility classes in the JSX only handle layout, spacing,
+   App.css. Tailwind utility classes in the JSX only handle layout, spacing,
    and sizing.
 */
 
 /* ── Page ── */
 .rp-page {
-  background: var(--bg);
+  background: #ffffff !important;
+}
+[data-theme="dark"] .rp-page {
+  background: var(--bg, #0d0f1e) !important;
 }
 .rp-title {
   color: var(--text-primary);
@@ -35,12 +38,27 @@
 }
 .rp-btn-outline:hover {
   background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+/* ── Stats / KPI cards ── */
+.rp-stat-card {
+  background: var(--panel-bg);
+  border-color: var(--divider);
+  box-shadow: var(--card-shadow);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.rp-stat-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
 }
 
 /* ── Search / toolbar ── */
 .rp-toolbar {
   background: var(--panel-bg);
-  border: 1px solid var(--divider);
+  border-color: var(--divider);
   box-shadow: var(--card-shadow);
 }
 .rp-search-input {
@@ -60,15 +78,107 @@
   color: var(--text-muted);
 }
 
+/* ── Tailwind UI Filter Toolbar ── */
+.rp-tw-toolbar {
+  background: var(--panel-bg);
+  border-color: var(--divider);
+}
+
+.rp-tw-pill {
+  background: var(--panel-bg);
+  border-color: var(--input-border);
+  color: var(--text-secondary);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.rp-tw-pill:hover {
+  background: var(--input-bg);
+  border-color: var(--input-focus);
+  color: var(--text-primary);
+}
+.rp-tw-pill-active {
+  background: var(--input-bg);
+  border-color: var(--btn-bg);
+  color: var(--btn-bg);
+}
+
+.rp-tw-label {
+  color: inherit;
+}
+
+.rp-tw-search {
+  background: var(--panel-bg);
+  border-color: var(--input-border);
+  color: var(--text-primary);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.rp-tw-search::placeholder {
+  color: var(--text-muted);
+}
+.rp-tw-search:focus {
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.rp-tw-menu {
+  background: var(--panel-bg);
+  border-color: var(--divider);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.12),
+    0 2px 6px rgba(0, 0, 0, 0.06);
+}
+.rp-tw-menu-item {
+  color: var(--text-secondary);
+}
+.rp-tw-menu-item:hover {
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+.rp-tw-menu-active {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── Dropdown Selects (Native) ── */
+.rp-select {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+  cursor: pointer;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background-color 0.2s;
+}
+.rp-select:hover {
+  border-color: var(--input-focus);
+}
+.rp-select:focus {
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.rp-select option {
+  background: var(--panel-bg);
+  color: var(--text-primary);
+}
+
+/* ── Monospace code pill ── */
+.rp-code-pill {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+  border: 1px solid var(--divider);
+}
+
 /* ── Table card ── */
 .rp-table-card {
   background: var(--panel-bg);
-  border: 1px solid var(--divider);
+  border-color: var(--divider);
   box-shadow: var(--card-shadow);
 }
 .rp-thead {
   background: var(--input-bg);
   color: var(--text-muted);
+  border-color: var(--divider);
 }
 .rp-row {
   border-top: 1px solid var(--divider);
@@ -86,13 +196,16 @@
   color: var(--text-muted);
 }
 
-/* ── Status badges (matches the roles.status ENUM) ── */
+/* ── Status badges (matches roles.status) ── */
 .rp-status {
   padding: 3px 10px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   text-transform: capitalize;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 .rp-status-active {
   background: var(--success-bg);
@@ -103,6 +216,16 @@
   color: var(--danger);
 }
 
+/* ── Toggle Switch ── */
+.rp-toggle-switch {
+  cursor: pointer;
+}
+.rp-toggle-switch:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+/* ── Action buttons ── */
 .rp-action-btn {
   color: var(--text-muted);
 }
@@ -125,10 +248,11 @@
 
 /* ── Modal ── */
 .rp-modal-overlay {
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--modal-overlay-bg, rgba(0, 0, 0, 0.25));
 }
 .rp-modal-panel {
   background: var(--panel-bg);
+  border: 1px solid var(--divider);
   box-shadow: var(--shadow);
 }
 .rp-modal-header {
@@ -143,6 +267,25 @@
 .rp-modal-close:hover {
   background: var(--input-bg);
   color: var(--text-secondary);
+}
+.rp-modal-footer {
+  border-top: 1px solid var(--divider);
+}
+
+/* ── Detail Card & Stat ── */
+.rp-detail-card {
+  background: var(--input-bg);
+  border-color: var(--divider);
+}
+.rp-detail-stat {
+  background: var(--panel-bg);
+  border-color: var(--divider);
+}
+
+/* ── System Banner ── */
+.rp-system-banner {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.25);
 }
 
 /* ── Form ── */
@@ -199,4 +342,5 @@
 }
 .rp-btn-cancel:hover {
   color: var(--text-primary);
+  background: var(--input-bg);
 }

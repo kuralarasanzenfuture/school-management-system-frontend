@@ -1,8 +1,32 @@
 import api from "../../../common/services/api";
 
-const getUsers = async () => {
-  const response = await api.get("/users/token");
-  return response.data;
+/**
+ * User Service - Full integration with backend user routes:
+ * - GET    /users                      (getAllUsers - Admin only, supports search, filter, paginate, sort)
+ * - GET    /users/token                (getAllUsersByToken - Scoped to user's school if not admin)
+ * - GET    /users/:id                  (getUserById)
+ * - POST   /users                      (createUser - Admin only)
+ * - POST   /users/register             (createUser - Fallback / public registration)
+ * - PUT    /users/update/:id           (updateUser - Admin only)
+ * - PATCH  /users/status/:id           (updateUserStatus - Admin only)
+ * - DELETE /users/delete/:id           (deleteUser - Admin only)
+ * - GET    /users/check-username/:username (checkUsername)
+ * - GET    /users/check-email/:email       (checkEmail)
+ * - GET    /users/check-phone/:phone       (checkPhone)
+ */
+
+const getUsers = async (params = {}) => {
+  try {
+    const response = await api.get("/users", { params });
+    return response.data;
+  } catch (err) {
+    // If 403 Forbidden (e.g. non-super admin), fallback to token-scoped endpoint
+    if (err.response?.status === 403) {
+      const fallback = await api.get("/users/token", { params });
+      return fallback.data;
+    }
+    throw err;
+  }
 };
 
 const getUserById = async (id) => {
@@ -11,8 +35,16 @@ const getUserById = async (id) => {
 };
 
 const createUser = async (userData) => {
-  const response = await api.post("/users/register", userData);
-  return response.data;
+  try {
+    const response = await api.post("/users", userData);
+    return response.data;
+  } catch (err) {
+    if (err.response?.status === 404 || err.response?.status === 403) {
+      const fallback = await api.post("/users/register", userData);
+      return fallback.data;
+    }
+    throw err;
+  }
 };
 
 const updateUser = async ({ id, formData }) => {
@@ -20,44 +52,57 @@ const updateUser = async ({ id, formData }) => {
   return response.data;
 };
 
+const updateUserStatus = async ({ id, status }) => {
+  const response = await api.patch(`/users/status/${id}`, { status });
+  return response.data;
+};
+
 const deleteUser = async (id) => {
-  try {
-    const response = await api.delete(`/users/delete/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error("Error deleting user:", error);
-    throw error; // Rethrow the error to be handled by the caller
-  }
+  const response = await api.delete(`/users/delete/${id}`);
+  return response.data;
+};
+
+export const checkUsernameAvailability = async (username) => {
+  if (!username || !String(username).trim()) return { available: false, exists: false };
+  const encoded = encodeURIComponent(String(username).trim());
+  const response = await api.get(`/users/check-username/${encoded}`);
+  return response.data;
 };
 
 export const checkUserExists = async (username) => {
-  try {
-    const response = await api.get(`/users/check-username/${username}`);
-    return response.data.exists;
-  } catch (error) {
-    console.error("Error checking user existence:", error);
-    throw error; // Rethrow the error to be handled by the caller
-  }
+  const result = await checkUsernameAvailability(username);
+  return Boolean(result?.exists);
+};
+
+export const checkEmailAvailability = async (email) => {
+  if (!email || !String(email).trim()) return { available: false, exists: false };
+  const encoded = encodeURIComponent(String(email).trim().toLowerCase());
+  const response = await api.get(`/users/check-email/${encoded}`);
+  return response.data;
 };
 
 export const checkEmailExists = async (email) => {
-  try {
-    const response = await api.get(`/users/check-email/${email}`);
-    return response.data.exists;
-  } catch (error) {
-    console.error("Error checking email existence:", error);
-    throw error; // Rethrow the error to be handled by the caller
-  }
+  const result = await checkEmailAvailability(email);
+  return Boolean(result?.exists);
+};
+
+export const checkPhoneAvailability = async (phone) => {
+  if (!phone || !String(phone).trim()) return { available: false, exists: false };
+  const encoded = encodeURIComponent(String(phone).trim());
+  const response = await api.get(`/users/check-phone/${encoded}`);
+  return response.data;
 };
 
 export const checkPhoneExists = async (phone) => {
-  try {
-    const response = await api.get(`/users/check-phone/${phone}`);
-    return response.data.exists;
-  } catch (error) {
-    console.error("Error checking phone existence:", error);
-    throw error; // Rethrow the error to be handled by the caller
-  }
+  const result = await checkPhoneAvailability(phone);
+  return Boolean(result?.exists);
 };
 
-export { getUsers, getUserById, createUser, updateUser, deleteUser };
+export {
+  getUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  updateUserStatus,
+  deleteUser,
+};

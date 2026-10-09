@@ -6,6 +6,7 @@ import {
   updateRole,
   updateRoleStatus,
   deleteRole,
+  checkRoleName,
 } from "./roleService.js";
 
 // Helper to extract clean error message
@@ -17,6 +18,18 @@ const extractErrorMessage = (err, fallback = "An unexpected error occurred") => 
     fallback
   );
 };
+
+// Check Role Name Availability (GET /roles/check-name)
+export const verifyRoleName = createAsyncThunk(
+  "roles/verifyRoleName",
+  async ({ name, excludeId = null }, { rejectWithValue }) => {
+    try {
+      return await checkRoleName(name, excludeId);
+    } catch (err) {
+      return rejectWithValue(extractErrorMessage(err, "Failed to verify role name"));
+    }
+  },
+);
 
 // Get Roles (supports search, filters, pagination, sorting)
 export const fetchRoles = createAsyncThunk(
@@ -106,10 +119,26 @@ const roleSlice = createSlice({
     loading: false,
     actionLoading: false,
     error: null,
+    nameCheck: {
+      checking: false,
+      available: null,
+      exists: null,
+      role: null,
+      error: null,
+    },
   },
   reducers: {
     clearRoleError: (state) => {
       state.error = null;
+    },
+    resetNameCheck: (state) => {
+      state.nameCheck = {
+        checking: false,
+        available: null,
+        exists: null,
+        role: null,
+        error: null,
+      };
     },
     setSelectedRole: (state, action) => {
       state.selectedRole = action.payload;
@@ -243,11 +272,37 @@ const roleSlice = createSlice({
       .addCase(removeRole.rejected, (state, action) => {
         state.actionLoading = false;
         state.error = action.payload;
+      })
+
+      // Verify Role Name (GET /roles/check-name)
+      .addCase(verifyRoleName.pending, (state) => {
+        state.nameCheck.checking = true;
+        state.nameCheck.error = null;
+      })
+      .addCase(verifyRoleName.fulfilled, (state, action) => {
+        state.nameCheck.checking = false;
+        state.nameCheck.available = action.payload?.available ?? null;
+        state.nameCheck.exists = action.payload?.exists ?? null;
+        state.nameCheck.role = action.payload?.role ?? null;
+        state.nameCheck.error = null;
+      })
+      .addCase(verifyRoleName.rejected, (state, action) => {
+        state.nameCheck.checking = false;
+        state.nameCheck.available = null;
+        state.nameCheck.exists = null;
+        state.nameCheck.role = null;
+        state.nameCheck.error = action.payload;
       });
   },
 });
 
-export const { clearRoleError, setSelectedRole, setPage, setLimit } = roleSlice.actions;
+export const {
+  clearRoleError,
+  resetNameCheck,
+  setSelectedRole,
+  setPage,
+  setLimit,
+} = roleSlice.actions;
 
 export default roleSlice.reducer;
 

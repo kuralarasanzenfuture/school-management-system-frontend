@@ -1,153 +1,181 @@
 import React, { useMemo, useState } from "react";
-import { Loader2 } from "lucide-react";
-import SearchableSelect from "../../../../common/components/search/SearchableSelect";
+import { Loader2, UserCheck, Shield } from "lucide-react";
+import CustomDropdown from "../../../../common/components/dropdown/CustomDropdown.jsx";
 
-
-function userLabel(u) {
-    if (!u) return "";
-    return u.username || u.email || `#${u.id}`;
+function getUserDisplayLabel(u) {
+  if (!u) return "";
+  const name = u.username || u.name || `#${u.id}`;
+  const roles = Array.isArray(u.roles)
+    ? u.roles.map((r) => (typeof r === "object" ? r.name : r)).join(", ")
+    : typeof u.roles === "string"
+    ? u.roles
+    : "";
+  return roles ? `${name} (${roles})` : name;
 }
 
 /**
- * @param {object} employee - the employee being assigned a user.
- * @param {Array<object>} users - full user list.
- * @param {Array<object>} employees - full employee list, used to figure out
- *   which users are already linked elsewhere so they can be excluded
- *   (assumes a 1:1 employee↔user relationship).
- * @param {(userId: number) => void} onSubmit
- * @param {() => void} onCancel
- * @param {boolean} submitting
+ * Form for linking a user login account to an employee
  */
 export default function EmployeeAssignForm({
-    employee,
-    users = [],
-    employees = [],
-    onSubmit,
-    onCancel,
-    submitting,
+  employee,
+  users = [],
+  employees = [],
+  onSubmit,
+  onCancel,
+  submitting = false,
 }) {
-    const currentUserId = employee?.user_id ?? employee?.user?.id ?? "";
-    const [selectedUserId, setSelectedUserId] = useState(currentUserId ? String(currentUserId) : "");
-    const [error, setError] = useState("");
+  const currentUserId = employee?.user_id ?? employee?.user?.id ?? "";
+  const [selectedUserId, setSelectedUserId] = useState(
+    currentUserId ? String(currentUserId) : "",
+  );
+  const [error, setError] = useState("");
 
-    // const availableUsers = useMemo(() => {
-    //     const takenIds = new Set(
-    //         employees
-    //             .filter((e) => e.id !== employee?.id) // exclude the employee we're assigning right now
-    //             .map((e) => e.user_id ?? e.user?.id)
-    //             .filter(Boolean)
-    //             .map(String),
-    //     );
-    //     return users.filter((u) => !takenIds.has(String(u.id)));
-    // }, [users, employees, employee]);
-
-    const availableUsers = useMemo(() => {
-        // Users already assigned to other employees
-        const assignedUserIds = new Set(
-            employees
-                .filter((e) => e.id !== employee?.id)
-                .map((e) => e.user_id ?? e.user?.id)
-                .filter(Boolean)
-                .map(String)
-        );
-
-        return users.filter((user) => {
-            const sameSchool =
-                String(user.school_id) === String(employee?.school_id);
-
-            const notAssigned =
-                !assignedUserIds.has(String(user.id));
-
-            // Keep currently assigned user visible while editing
-            const isCurrentUser =
-                String(user.id) === String(currentUserId);
-
-            return sameSchool && (notAssigned || isCurrentUser);
-        });
-    }, [users, employees, employee, currentUserId]);
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (!selectedUserId) {
-            setError("Please select a user");
-            return;
-        }
-        onSubmit(Number(selectedUserId));
-    };
-
-    const userOptions = useMemo(
-        () =>
-            availableUsers.map((u) => ({
-                value: u.id,
-                label: userLabel(u), // e.g. "John Doe (john@example.com)"
-                data: u,
-            })),
-        [availableUsers]
+  // Determine users eligible to be linked to this employee
+  const availableUsers = useMemo(() => {
+    // Collect user IDs already assigned to any other employee
+    const assignedUserIds = new Set(
+      (employees || [])
+        .filter((e) => Number(e.id) !== Number(employee?.id))
+        .map((e) => e.user_id ?? e.user?.id)
+        .filter(Boolean)
+        .map(String),
     );
 
-    return (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-                <label className="ea-field-label text-[13px] font-medium">
-                    User Account <span className="ea-field-required">*</span>
-                </label>
-                {/* <select
-                    className={`ea-input w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200 ${error ? "ea-input-error" : ""}`}
-                    value={selectedUserId}
-                    onChange={(e) => {
-                        setSelectedUserId(e.target.value);
-                        setError("");
-                    }}
-                >
-                    <option value="">Select a user…</option>
-                    {availableUsers.map((u) => (
-                        <option key={u.id} value={u.id}>
-                            {userLabel(u)}
-                        </option>
-                    ))}
-                </select> */}
+    return (users || []).filter((user) => {
+      // 1. School matching: must belong to same school if school is specified
+      const empSchool = employee?.school_id ?? employee?.school?.id;
+      const userSchool = user?.school_id ?? user?.school?.id;
+      const sameSchool =
+        !empSchool || !userSchool
+          ? true
+          : String(userSchool) === String(empSchool);
 
-                <div className="relative z-[9999]">
-                    <SearchableSelect
-                        options={userOptions}
-                        value={selectedUserId}
-                        onChange={(value) => {
-                            setSelectedUserId(value);
-                            setError("");
-                        }}
-                        placeholder="Select User"
-                        disabled={submitting}
-                        hasError={Boolean(error)}
-                    />
-                </div>
-                <div className="h-4">
-                    {error ? (
-                        <p className="ea-field-error text-[11px]">{error}</p>
-                    ) : availableUsers.length === 0 ? (
-                        <p className="ea-field-hint text-[11px]">
-                            No unlinked user accounts available.
-                        </p>
-                    ) : null}
-                </div>
-            </div>
+      // 2. Not assigned to any other employee (allow currently assigned user to remain)
+      const isCurrentlyAssigned = String(user.id) === String(currentUserId);
+      const isFree = !assignedUserIds.has(String(user.id));
 
-            <div className="ea-form-footer flex items-center justify-end gap-3 pt-4">
-                <button
-                    type="button"
-                    onClick={onCancel}
-                    className="ea-btn-cancel text-[13.5px] font-semibold px-4 py-2.5 transition-colors"
-                >
-                    Cancel
-                </button>
-                <button
-                    type="submit"
-                    disabled={submitting}
-                    className="ea-btn-primary inline-flex items-center gap-2 text-[13.5px] font-semibold px-5 py-2.5 rounded-lg transition-colors"
-                >
-                    {submitting && <Loader2 size={14} className="animate-spin" />}
-                    Assign User
-                </button>
-            </div>
-        </form>
-    );
+      return sameSchool && (isFree || isCurrentlyAssigned);
+    });
+  }, [users, employees, employee, currentUserId]);
+
+  // Format dropdown options
+  const userOptions = useMemo(() => {
+    return [
+      { value: "", label: "Select user account…" },
+      ...availableUsers.map((u) => ({
+        value: u.id,
+        label: getUserDisplayLabel(u),
+      })),
+    ];
+  }, [availableUsers]);
+
+  const selectedUserDetails = useMemo(() => {
+    if (!selectedUserId) return null;
+    return users.find((u) => String(u.id) === String(selectedUserId));
+  }, [users, selectedUserId]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!selectedUserId) {
+      setError("Please select a user account to assign");
+      return;
+    }
+    onSubmit(Number(selectedUserId));
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {/* Selected Employee Info Box */}
+      <div className="rounded-xl p-3.5 bg-muted/40 border border-border/60 flex items-center justify-between text-[13px]">
+        <div>
+          <p className="text-muted-foreground text-[11px] uppercase font-semibold">
+            Target Employee
+          </p>
+          <p className="font-semibold text-foreground text-[14px]">
+            {employee?.first_name || ""} {employee?.last_name || ""}
+          </p>
+          <p className="text-muted-foreground text-[12px]">
+            Code: {employee?.employee_code || "N/A"}
+            {(employee?.mobile || employee?.phone) && ` • Phone: ${employee.mobile || employee.phone}`}
+            {` • Dept: ${employee?.department || "General"}`}
+          </p>
+        </div>
+
+        {employee?.user_id && (
+          <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold border border-emerald-500/20">
+            Currently Linked
+          </span>
+        )}
+      </div>
+
+      {/* User Dropdown */}
+      <div className="flex flex-col gap-1.5">
+        <label className="ea-field-label text-[13px] font-medium">
+          Select User Account <span className="ea-field-required">*</span>
+        </label>
+
+        <CustomDropdown
+          options={userOptions}
+          value={selectedUserId}
+          onChange={(val) => {
+            setSelectedUserId(val);
+            setError("");
+          }}
+          placeholder="Select a user account…"
+          searchable={userOptions.length > 5}
+          searchPlaceholder="Search by username or role…"
+          hasError={Boolean(error)}
+          disabled={submitting}
+          className="w-full"
+        />
+
+        <div className="min-h-[16px]">
+          {error ? (
+            <p className="ea-field-error text-[11px] text-destructive">{error}</p>
+          ) : availableUsers.length === 0 ? (
+            <p className="ea-field-hint text-[11px] text-muted-foreground">
+              No unlinked user accounts available in this school.
+            </p>
+          ) : null}
+        </div>
+      </div>
+
+      {/* Selected User Preview Badge */}
+      {selectedUserDetails && (
+        <div className="rounded-xl p-3 bg-primary/5 border border-primary/20 flex items-center gap-2.5 text-[12.5px]">
+          <UserCheck size={16} className="text-primary shrink-0" />
+          <div className="min-w-0">
+            <p className="font-medium text-foreground truncate">
+              Will link login <span className="font-bold text-primary">@{selectedUserDetails.username}</span> to this employee.
+            </p>
+            {selectedUserDetails.email && (
+              <p className="text-muted-foreground text-[11.5px] truncate">
+                {selectedUserDetails.email}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Footer */}
+      <div className="ea-form-footer flex items-center justify-end gap-3 pt-3 border-t border-border/40">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={submitting}
+          className="ea-btn-cancel text-[13.5px] font-semibold px-4 py-2.5 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={submitting || !selectedUserId}
+          className="ea-btn-primary inline-flex items-center gap-2 text-[13.5px] font-semibold px-5 py-2.5 rounded-lg transition-colors shadow-sm disabled:opacity-50"
+        >
+          {submitting && <Loader2 size={14} className="animate-spin" />}
+          Assign User
+        </button>
+      </div>
+    </form>
+  );
 }

@@ -1,390 +1,5 @@
-// // import React from "react";
-// // import { Pencil, Trash2, ArrowUpDown } from "lucide-react";
-
-// // function formatDate(value) {
-// //   if (!value) return "—";
-// //   const d = new Date(value);
-// //   if (isNaN(d)) return value;
-// //   return d.toLocaleDateString("en-IN", {
-// //     day: "2-digit",
-// //     month: "short",
-// //     year: "numeric",
-// //   });
-// // }
-
-// // function getInitials(name) {
-// //   if (!name) return "?";
-// //   return name
-// //     .trim()
-// //     .split(/\s+/)
-// //     .slice(0, 2)
-// //     .map((w) => w[0]?.toUpperCase())
-// //     .join("");
-// // }
-
-// // const MAX_VISIBLE_ROLES = 2;
-
-// // export default function UserTable({ users, onEdit, onDelete, deletingId }) {
-// //   return (
-// //     <div className="up-table-card rounded-2xl overflow-hidden">
-// //       <div className="overflow-x-auto">
-// //         <table className="w-full text-left">
-// //           <thead>
-// //             <tr className="up-thead text-[11.5px] uppercase tracking-wide">
-// //               <th className="px-5 py-3 font-semibold">
-// //                 <span className="inline-flex items-center gap-1">
-// //                   User <ArrowUpDown size={11} />
-// //                 </span>
-// //               </th>
-// //               <th className="px-3 py-3 font-semibold">Phone</th>
-// //               <th className="px-3 py-3 font-semibold">Roles</th>
-// //               <th className="px-3 py-3 font-semibold">Status</th>
-// //               <th className="px-3 py-3 font-semibold">
-// //                 <span className="inline-flex items-center gap-1">
-// //                   Created <ArrowUpDown size={11} />
-// //                 </span>
-// //               </th>
-// //               <th className="px-3 py-3 font-semibold text-right pr-5">
-// //                 Actions
-// //               </th>
-// //             </tr>
-// //           </thead>
-// //           <tbody>
-// //             {users.map((user) => {
-// //               const roles =
-// //                 typeof user.roles === "string"
-// //                   ? user.roles
-// //                       .split(",")
-// //                       .map((role) => role.trim())
-// //                       .filter(Boolean)
-// //                   : Array.isArray(user.roles)
-// //                     ? user.roles
-// //                     : [];
-// //               const visibleRoles = roles.slice(0, MAX_VISIBLE_ROLES);
-// //               const extraCount = roles.length - visibleRoles.length;
-// //               //   console.log(user);
-// //               console.log(user.roles);
-// //               const isAdmin = user.roles?.some((role) => role.name === "ADMIN");
-// //               return (
-// //                 <tr key={user.id} className="up-row transition-colors">
-// //                   <td className="px-5 py-3.5">
-// //                     <div className="flex items-center gap-3">
-// //                       <div className="relative shrink-0">
-// //                         <div className="up-avatar w-9 h-9 rounded-full flex items-center justify-center text-[12.5px] font-semibold">
-// //                           {getInitials(user.username)}
-// //                         </div>
-// //                         <span
-// //                           className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full ${
-// //                             user.is_online ? "up-online-dot" : "up-offline-dot"
-// //                           }`}
-// //                           title={user.is_online ? "Online" : "Offline"}
-// //                         />
-// //                       </div>
-// //                       <div className="min-w-0">
-// //                         <p className="up-username text-[13.5px] font-semibold truncate">
-// //                           {user.username}
-// //                         </p>
-// //                         <p className="up-email text-[12.5px] truncate">
-// //                           {user.email || "—"}
-// //                         </p>
-// //                       </div>
-// //                     </div>
-// //                   </td>
-
-// //                   <td className="up-cell px-3 py-3.5 text-[13px]">
-// //                     {user.phone || <span className="up-cell-muted">—</span>}
-// //                   </td>
-
-// //                   <td className="px-3 py-3.5">
-// //                     {roles.length === 0 ? (
-// //                       <span className="up-cell-muted text-[13px]">—</span>
-// //                     ) : (
-// //                       <div className="flex flex-wrap items-center gap-1.5">
-// //                         {visibleRoles.map((role) => (
-// //                           <span
-// //                             key={role.id || role}
-// //                             className="up-role-chip px-2.5 py-1 rounded-full text-[11.5px] font-medium"
-// //                           >
-// //                             {role.name || role}
-// //                           </span>
-// //                         ))}
-// //                         {extraCount > 0 && (
-// //                           <span className="up-role-chip-more px-2.5 py-1 rounded-full text-[11.5px] font-medium">
-// //                             +{extraCount}
-// //                           </span>
-// //                         )}
-// //                       </div>
-// //                     )}
-// //                   </td>
-
-// //                   <td className="px-3 py-3.5">
-// //                     <span
-// //                       className={`up-status ${
-// //                         user.status === "active"
-// //                           ? "up-status-active"
-// //                           : "up-status-inactive"
-// //                       }`}
-// //                     >
-// //                       {user.status}
-// //                     </span>
-// //                   </td>
-
-// //                   <td className="up-cell-muted px-3 py-3.5 text-[13px]">
-// //                     {formatDate(user.created_at)}
-// //                   </td>
-// //                   {!isAdmin && (
-// //                     <td className="px-3 py-3.5">
-// //                       <div className="flex items-center justify-end gap-1 pr-2">
-// //                         <button
-// //                           onClick={() => onEdit(user)}
-// //                           className="up-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-// //                           title="Edit"
-// //                         >
-// //                           <Pencil size={15} />
-// //                         </button>
-// //                         <button
-// //                           onClick={() => onDelete(user.id)}
-// //                           disabled={deletingId === user.id}
-// //                           className="up-action-btn up-action-btn-danger w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50"
-// //                           title="Delete"
-// //                         >
-// //                           <Trash2 size={15} />
-// //                         </button>
-// //                       </div>
-// //                     </td>
-// //                   )}
-// //                 </tr>
-// //               );
-// //             })}
-
-// //             {users.length === 0 && (
-// //               <tr>
-// //                 <td
-// //                   colSpan={6}
-// //                   className="up-empty-state px-5 py-10 text-center text-[13.5px]"
-// //                 >
-// //                   No users found.
-// //                 </td>
-// //               </tr>
-// //             )}
-// //           </tbody>
-// //         </table>
-// //       </div>
-// //     </div>
-// //   );
-// // }
-
-// import React from "react";
-// import { Pencil, Trash2, ArrowUpDown } from "lucide-react";
-// import Pagination from "../../../../common/components/table/Pagination";
-// import usePagination from "../../../../common/components/table/usePagination";
-
-// function formatDate(value) {
-//   if (!value) return "—";
-//   const dateObj = new Date(value);
-//   if (isNaN(dateObj)) return value;
-//   return dateObj.toLocaleDateString("en-IN", {
-//     day: "2-digit",
-//     month: "short",
-//     year: "numeric",
-//   });
-// }
-
-// function getInitials(name) {
-//   if (!name) return "?";
-//   return name
-//     .trim()
-//     .split(/\s+/)
-//     .slice(0, 2)
-//     .map((word) => word[0]?.toUpperCase())
-//     .join("");
-// }
-
-// const MAX_VISIBLE_ROLES = 2;
-
-// export default function UserTable({
-//   users = [],
-//   onEdit,
-//   onDelete,
-//   deletingId,
-//   initialPageSize = 10,
-//   pageSizeOptions = [5, 10, 20, 50],
-// }) {
-//   const { pagedData, currentPage, pageSize, totalItems, setPage, setPageSize } =
-//     usePagination({ data: users, initialSize: initialPageSize });
-
-//   return (
-//     <div className="up-table-card rounded-2xl overflow-hidden">
-//       <div className="overflow-x-auto">
-//         <table className="w-full text-left">
-//           <thead>
-//             <tr className="up-thead text-[11.5px] uppercase tracking-wide">
-//               <th className="px-5 py-3 font-semibold">
-//                 <span className="inline-flex items-center gap-1">
-//                   User <ArrowUpDown size={11} />
-//                 </span>
-//               </th>
-//               <th className="px-3 py-3 font-semibold">Phone</th>
-//               <th className="px-3 py-3 font-semibold">Roles</th>
-//               <th className="px-3 py-3 font-semibold">Status</th>
-//               <th className="px-3 py-3 font-semibold">
-//                 <span className="inline-flex items-center gap-1">
-//                   Created <ArrowUpDown size={11} />
-//                 </span>
-//               </th>
-//               <th className="px-3 py-3 font-semibold text-right pr-5">
-//                 Actions
-//               </th>
-//             </tr>
-//           </thead>
-
-//           <tbody>
-//             {pagedData.length === 0 ? (
-//               <tr>
-//                 <td
-//                   colSpan={6}
-//                   className="up-empty-state px-5 py-10 text-center text-[13.5px]"
-//                 >
-//                   No users found.
-//                 </td>
-//               </tr>
-//             ) : (
-//               pagedData.map((user) => {
-//                 const roles =
-//                   typeof user.roles === "string"
-//                     ? user.roles
-//                         .split(",")
-//                         .map((role) => role.trim())
-//                         .filter(Boolean)
-//                     : Array.isArray(user.roles)
-//                       ? user.roles
-//                       : [];
-
-//                 const visibleRoles = roles.slice(0, MAX_VISIBLE_ROLES);
-//                 const extraCount = roles.length - visibleRoles.length;
-//                 const isAdmin = user.roles?.some(
-//                   (role) => role.name === "ADMIN",
-//                 );
-
-//                 return (
-//                   <tr key={user.id} className="up-row transition-colors">
-//                     {/* User avatar + name + email */}
-//                     <td className="px-5 py-3.5">
-//                       <div className="flex items-center gap-3">
-//                         <div className="relative shrink-0">
-//                           <div className="up-avatar w-9 h-9 rounded-full flex items-center justify-center text-[12.5px] font-semibold">
-//                             {getInitials(user.username)}
-//                           </div>
-//                           <span
-//                             className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full ${
-//                               user.is_online
-//                                 ? "up-online-dot"
-//                                 : "up-offline-dot"
-//                             }`}
-//                             title={user.is_online ? "Online" : "Offline"}
-//                           />
-//                         </div>
-//                         <div className="min-w-0">
-//                           <p className="up-username text-[13.5px] font-semibold truncate">
-//                             {user.username}
-//                           </p>
-//                           <p className="up-email text-[12.5px] truncate">
-//                             {user.email || "—"}
-//                           </p>
-//                         </div>
-//                       </div>
-//                     </td>
-
-//                     {/* Phone */}
-//                     <td className="up-cell px-3 py-3.5 text-[13px]">
-//                       {user.phone || <span className="up-cell-muted">—</span>}
-//                     </td>
-
-//                     {/* Roles */}
-//                     <td className="px-3 py-3.5">
-//                       {roles.length === 0 ? (
-//                         <span className="up-cell-muted text-[13px]">—</span>
-//                       ) : (
-//                         <div className="flex flex-wrap items-center gap-1.5">
-//                           {visibleRoles.map((role) => (
-//                             <span
-//                               key={role.id || role}
-//                               className="up-role-chip px-2.5 py-1 rounded-full text-[11.5px] font-medium"
-//                             >
-//                               {role.name || role}
-//                             </span>
-//                           ))}
-//                           {extraCount > 0 && (
-//                             <span className="up-role-chip-more px-2.5 py-1 rounded-full text-[11.5px] font-medium">
-//                               +{extraCount}
-//                             </span>
-//                           )}
-//                         </div>
-//                       )}
-//                     </td>
-
-//                     {/* Status */}
-//                     <td className="px-3 py-3.5">
-//                       <span
-//                         className={`up-status ${
-//                           user.status === "active"
-//                             ? "up-status-active"
-//                             : "up-status-inactive"
-//                         }`}
-//                       >
-//                         {user.status}
-//                       </span>
-//                     </td>
-
-//                     {/* Created */}
-//                     <td className="up-cell-muted px-3 py-3.5 text-[13px]">
-//                       {formatDate(user.created_at)}
-//                     </td>
-
-//                     {/* Actions — hidden for ADMIN users */}
-//                     <td className="px-3 py-3.5">
-//                       {!isAdmin && (
-//                         <div className="flex items-center justify-end gap-1 pr-2">
-//                           <button
-//                             onClick={() => onEdit(user)}
-//                             className="up-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-//                             title="Edit"
-//                           >
-//                             <Pencil size={15} />
-//                           </button>
-//                           <button
-//                             onClick={() => onDelete(user.id)}
-//                             disabled={deletingId === user.id}
-//                             className="up-action-btn up-action-btn-danger w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50"
-//                             title="Delete"
-//                           >
-//                             <Trash2 size={15} />
-//                           </button>
-//                         </div>
-//                       )}
-//                     </td>
-//                   </tr>
-//                 );
-//               })
-//             )}
-//           </tbody>
-//         </table>
-//       </div>
-
-//       <Pagination
-//         currentPage={currentPage}
-//         totalItems={totalItems}
-//         pageSize={pageSize}
-//         pageSizeOptions={pageSizeOptions}
-//         onPageChange={setPage}
-//         onPageSizeChange={setPageSize}
-//       />
-//     </div>
-//   );
-// }
-
 import React from "react";
-import { Pencil, Trash2, ArrowUpDown } from "lucide-react";
+import { Pencil, Trash2, ArrowUpDown, Shield, KeyRound } from "lucide-react";
 import Pagination from "../../../../common/components/table/Pagination";
 import usePagination from "../../../../common/components/table/usePagination";
 
@@ -412,16 +27,50 @@ function getInitials(name) {
 const MAX_VISIBLE_ROLES = 2;
 
 /**
- * @param {boolean} isAdmin - when true, shows a "School" column so an admin
- *   managing multiple schools can tell users apart. Non-admins only ever
- *   see users from their own school (already filtered by the parent page),
- *   so the column would just repeat the same value on every row for them.
+ * Safely parse user roles into an array of displayable role items
+ */
+function normalizeUserRoles(userRoles) {
+  if (!userRoles) return [];
+  if (Array.isArray(userRoles)) {
+    return userRoles.map((r) => {
+      if (typeof r === "object" && r !== null) {
+        return { id: r.id, name: r.name || "Role" };
+      }
+      const str = String(r);
+      const parts = str.split(":");
+      return { id: parts[0], name: parts.length > 1 ? parts[1].trim() : str.trim() };
+    });
+  }
+  if (typeof userRoles === "string") {
+    return userRoles
+      .split(",")
+      .map((part) => {
+        const trimmed = part.trim();
+        const parts = trimmed.split(":");
+        return {
+          id: parts[0],
+          name: parts.length > 1 ? parts[1].trim() : trimmed,
+        };
+      })
+      .filter((r) => Boolean(r.name));
+  }
+  return [];
+}
+
+/**
+ * UserTable component with accurate role display and backend restrictions:
+ * - ADMIN user cannot be deleted
+ * - ADMIN user status cannot be deactivated
+ * - School column displayed when viewed by Super Admin
  */
 export default function UserTable({
   users = [],
   onEdit,
   onDelete,
-  deletingId,
+  onToggleStatus,
+  onChangePassword,
+  deletingId = null,
+  togglingId = null,
   isAdmin = false,
   initialPageSize = 10,
   pageSizeOptions = [5, 10, 20, 50],
@@ -432,7 +81,7 @@ export default function UserTable({
   const colSpan = isAdmin ? 7 : 6;
 
   return (
-    <div className="up-table-card rounded-2xl overflow-hidden">
+    <div className="up-table-card rounded-2xl overflow-hidden shadow-sm border border-border/60">
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
@@ -468,27 +117,18 @@ export default function UserTable({
               <tr>
                 <td
                   colSpan={colSpan}
-                  className="up-empty-state px-5 py-10 text-center text-[13.5px]"
+                  className="up-empty-state px-5 py-12 text-center text-[13.5px] text-muted-foreground"
                 >
                   No users found.
                 </td>
               </tr>
             ) : (
               pagedData.map((user) => {
-                const roles =
-                  typeof user.roles === "string"
-                    ? user.roles
-                      .split(",")
-                      .map((role) => role.trim())
-                      .filter(Boolean)
-                    : Array.isArray(user.roles)
-                      ? user.roles
-                      : [];
-
+                const roles = normalizeUserRoles(user.roles);
                 const visibleRoles = roles.slice(0, MAX_VISIBLE_ROLES);
                 const extraCount = roles.length - visibleRoles.length;
-                const isUserAdmin = user.roles?.some(
-                  (role) => role.name === "ADMIN",
+                const isUserAdmin = roles.some(
+                  (role) => (role.name || "").toUpperCase() === "ADMIN",
                 );
 
                 return (
@@ -501,17 +141,28 @@ export default function UserTable({
                             {getInitials(user.username)}
                           </div>
                           <span
-                            className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full ${user.is_online
+                            className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full ${
+                              user.is_online
                                 ? "up-online-dot"
                                 : "up-offline-dot"
-                              }`}
+                            }`}
                             title={user.is_online ? "Online" : "Offline"}
                           />
                         </div>
                         <div className="min-w-0">
-                          <p className="up-username text-[13.5px] font-semibold truncate">
-                            {user.username}
-                          </p>
+                          <div className="flex items-center gap-1.5">
+                            <p className="up-username text-[13.5px] font-semibold truncate">
+                              {user.username}
+                            </p>
+                            {isUserAdmin && (
+                              <span
+                                title="System Administrator"
+                                className="inline-flex items-center text-primary text-[10px]"
+                              >
+                                <Shield size={12} />
+                              </span>
+                            )}
+                          </div>
                           <p className="up-email text-[12.5px] truncate">
                             {user.email || "—"}
                           </p>
@@ -530,16 +181,26 @@ export default function UserTable({
                         <span className="up-cell-muted text-[13px]">—</span>
                       ) : (
                         <div className="flex flex-wrap items-center gap-1.5">
-                          {visibleRoles.map((role) => (
+                          {visibleRoles.map((role, idx) => (
                             <span
-                              key={role.id || role}
-                              className="up-role-chip px-2.5 py-1 rounded-full text-[11.5px] font-medium"
+                              key={role.id || idx}
+                              className={`up-role-chip px-2.5 py-1 rounded-full text-[11.5px] font-medium ${
+                                (role.name || "").toUpperCase() === "ADMIN"
+                                  ? "border border-primary/30"
+                                  : ""
+                              }`}
                             >
-                              {role.name || role}
+                              {role.name}
                             </span>
                           ))}
                           {extraCount > 0 && (
-                            <span className="up-role-chip-more px-2.5 py-1 rounded-full text-[11.5px] font-medium">
+                            <span
+                              className="up-role-chip-more px-2.5 py-1 rounded-full text-[11.5px] font-medium"
+                              title={roles
+                                .slice(MAX_VISIBLE_ROLES)
+                                .map((r) => r.name)
+                                .join(", ")}
+                            >
                               +{extraCount}
                             </span>
                           )}
@@ -547,7 +208,7 @@ export default function UserTable({
                       )}
                     </td>
 
-                    {/* School — admin only */}
+                    {/* School — Super Admin only */}
                     {isAdmin && (
                       <td className="up-cell px-3 py-3.5 text-[13px]">
                         {user.school_name || (
@@ -558,14 +219,38 @@ export default function UserTable({
 
                     {/* Status */}
                     <td className="px-3 py-3.5">
-                      <span
-                        className={`up-status ${user.status === "active"
-                            ? "up-status-active"
-                            : "up-status-inactive"
+                      {onToggleStatus && !isUserAdmin ? (
+                        <button
+                          type="button"
+                          onClick={() => onToggleStatus(user)}
+                          disabled={togglingId === user.id}
+                          className={`up-status cursor-pointer transition-all hover:scale-105 ${
+                            user.status === "active"
+                              ? "up-status-active"
+                              : "up-status-inactive"
+                          } ${togglingId === user.id ? "opacity-60" : ""}`}
+                          title={`Click to ${
+                            user.status === "active" ? "deactivate" : "activate"
                           }`}
-                      >
-                        {user.status}
-                      </span>
+                        >
+                          {togglingId === user.id ? "Updating…" : user.status}
+                        </button>
+                      ) : (
+                        <span
+                          className={`up-status ${
+                            user.status === "active"
+                              ? "up-status-active"
+                              : "up-status-inactive"
+                          }`}
+                          title={
+                            isUserAdmin
+                              ? "ADMIN user cannot be deactivated"
+                              : undefined
+                          }
+                        >
+                          {user.status}
+                        </span>
+                      )}
                     </td>
 
                     {/* Created */}
@@ -573,27 +258,46 @@ export default function UserTable({
                       {formatDate(user.created_at)}
                     </td>
 
-                    {/* Actions — hidden for ADMIN users */}
+                    {/* Actions */}
                     <td className="px-3 py-3.5">
-                      {!isUserAdmin && (
-                        <div className="flex items-center justify-end gap-1 pr-2">
+                      <div className="flex items-center justify-end gap-1 pr-2">
+                        {onChangePassword && (
                           <button
-                            onClick={() => onEdit(user)}
-                            className="up-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-                            title="Edit"
+                            onClick={() => onChangePassword(user)}
+                            className="up-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:text-amber-500 hover:bg-amber-500/10"
+                            title="Change Password"
                           >
-                            <Pencil size={15} />
+                            <KeyRound size={15} />
                           </button>
+                        )}
+
+                        <button
+                          onClick={() => onEdit(user)}
+                          className="up-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:text-primary"
+                          title="Edit User"
+                        >
+                          <Pencil size={15} />
+                        </button>
+
+                        {/* Admin users cannot be deleted according to backend policy */}
+                        {!isUserAdmin ? (
                           <button
                             onClick={() => onDelete(user.id)}
                             disabled={deletingId === user.id}
-                            className="up-action-btn up-action-btn-danger w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50"
-                            title="Delete"
+                            className="up-action-btn up-action-btn-danger w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 text-destructive hover:bg-destructive/10"
+                            title="Delete User"
                           >
                             <Trash2 size={15} />
                           </button>
-                        </div>
-                      )}
+                        ) : (
+                          <span
+                            className="w-8 h-8 flex items-center justify-center text-muted-foreground/40 cursor-not-allowed"
+                            title="ADMIN user cannot be deleted"
+                          >
+                            <Trash2 size={15} />
+                          </span>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );

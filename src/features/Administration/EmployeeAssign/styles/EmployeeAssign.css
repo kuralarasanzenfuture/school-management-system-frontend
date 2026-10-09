@@ -1,34 +1,47 @@
 /* EmployeeAssign.css
-   Color styling for the Employee ↔ User assignment feature, driven by the
-   theme variables in app.css. Tailwind handles layout/spacing/sizing.
+   Modern styling for Employee ↔ User assignment feature, aligned with User & Role modules.
 */
 
 .ea-page {
-  background: var(--bg);
+  background: var(--bg, #f8fafc);
 }
+
+html:not(.dark) .ea-page {
+  background: #ffffff !important;
+}
+
 .ea-title {
-  color: var(--text-primary);
+  color: var(--text-primary, #0f172a);
 }
+
 .ea-subtitle {
-  color: var(--text-muted);
+  color: var(--text-muted, #64748b);
 }
 
 .ea-btn-outline {
-  background: var(--panel-bg);
-  border: 1px solid var(--input-border);
-  color: var(--text-secondary);
+  background: var(--panel-bg, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  color: var(--text-primary, #1e293b);
 }
+
+html:not(.dark) .ea-btn-outline {
+  background: #ffffff !important;
+  border-color: #e2e8f0;
+}
+
 .ea-btn-outline:hover {
-  background: var(--input-bg);
+  background: var(--muted, #f1f5f9);
 }
 
 .ea-btn-primary {
-  background: var(--btn-bg);
-  color: var(--btn-text);
+  background: var(--primary, #4f46e5);
+  color: #ffffff;
 }
+
 .ea-btn-primary:hover {
-  background: var(--btn-hover);
+  opacity: 0.92;
 }
+
 .ea-btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -36,87 +49,214 @@
 
 /* ── Toolbar ── */
 .ea-toolbar {
-  background: var(--panel-bg);
-  border: 1px solid var(--divider);
-  box-shadow: var(--card-shadow);
+  background: var(--panel-bg, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
 }
+
+html:not(.dark) .ea-toolbar {
+  background: #ffffff !important;
+  border-color: #e2e8f0;
+}
+
+/* ── Search Input Pill (exact match to RoleFilterToolbar / Image 1) ── */
+.ea-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 14rem;
+  max-width: 24rem;
+}
+
 .ea-search-input {
-  background: var(--input-bg);
-  border: 1px solid var(--input-border);
-  color: var(--text-primary);
-}
-.ea-search-input::placeholder {
-  color: var(--text-muted);
-}
-.ea-search-input:focus {
+  width: 100%;
+  height: 2.375rem; /* 38px, matching pills */
+  border-radius: 0.75rem;
+  padding: 0 2rem 0 2.25rem;
+  font-size: 0.8125rem;
+  background: var(--panel-bg, #ffffff);
+  border: 1px solid var(--input-border, #e2e8f0);
+  color: var(--text-primary, #0f172a);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
   outline: none;
-  border-color: var(--input-focus);
-  box-shadow: 0 0 0 4px var(--focus-ring);
+  transition: all 0.15s ease;
 }
+
+html:not(.dark) .ea-search-input {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.ea-search-input::placeholder {
+  color: var(--text-muted, #94a3b8);
+}
+
+.ea-search-input:focus,
+html:not(.dark) .ea-search-input:focus {
+  outline: none;
+  border-color: var(--btn-bg, #4f46e5) !important;
+  box-shadow: 0 0 0 3px var(--focus-ring, rgba(79, 70, 229, 0.14)) !important;
+}
+
+.ea-search-icon {
+  position: absolute;
+  left: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted, #94a3b8);
+  pointer-events: none;
+}
+
+.ea-search-clear {
+  position: absolute;
+  right: 0.625rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted, #94a3b8);
+  background: transparent;
+  border: none;
+  padding: 0.25rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
+}
+
+.ea-search-clear:hover {
+  color: var(--text-primary, #0f172a);
+}
+
+/* Dark mode search input */
+.dark .ea-search-input,
+[data-theme="dark"] .ea-search-input {
+  background: var(--panel-bg, #151929) !important;
+  border-color: var(--input-border, #2a2f4a) !important;
+  color: var(--text-primary, #ffffff) !important;
+}
+
+.dark .ea-search-input::placeholder,
+[data-theme="dark"] .ea-search-input::placeholder {
+  color: var(--text-muted, #64748b);
+}
+
+.dark .ea-search-input:focus,
+[data-theme="dark"] .ea-search-input:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+}
+
+.dark .ea-search-icon,
+[data-theme="dark"] .ea-search-icon {
+  color: #64748b;
+}
+
+.dark .ea-search-clear,
+[data-theme="dark"] .ea-search-clear {
+  color: #64748b;
+}
+
+.dark .ea-search-clear:hover,
+[data-theme="dark"] .ea-search-clear:hover {
+  color: #ffffff;
+}
+
 .ea-count-text {
-  color: var(--text-muted);
+  color: var(--text-muted, #64748b);
 }
 
 /* ── Table ── */
 .ea-table-card {
-  background: var(--panel-bg);
-  border: 1px solid var(--divider);
-  box-shadow: var(--card-shadow);
+  background: var(--panel-bg, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
 }
+
+html:not(.dark) .ea-table-card {
+  background: #ffffff !important;
+  border-color: #e2e8f0;
+}
+
 .ea-thead {
-  background: var(--input-bg);
-  color: var(--text-muted);
+  background: var(--muted, #f8fafc);
+  color: var(--text-muted, #64748b);
+  border-bottom: 1px solid var(--border, #e2e8f0);
 }
+
+html:not(.dark) .ea-thead {
+  background: #f8fafc !important;
+}
+
 .ea-row {
-  border-top: 1px solid var(--divider);
+  border-top: 1px solid var(--border, #f1f5f9);
 }
+
 .ea-row:hover {
-  background: var(--input-bg);
+  background: rgba(0, 0, 0, 0.015);
 }
+
+.dark .ea-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
 .ea-avatar {
-  background: var(--badge-bg);
-  color: var(--badge-text);
+  background: rgba(79, 70, 229, 0.1);
+  color: #4f46e5;
 }
+
+.dark .ea-avatar {
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+}
+
 .ea-name {
-  color: var(--text-primary);
+  color: var(--text-primary, #0f172a);
 }
+
 .ea-cell {
-  color: var(--text-secondary);
+  color: var(--text-secondary, #334155);
 }
+
 .ea-cell-muted {
-  color: var(--text-muted);
+  color: var(--text-muted, #64748b);
 }
 
-/* Linked / unlinked chip */
+/* Chips */
 .ea-link-chip {
-  background: var(--success-bg);
-  color: var(--success);
-}
-.ea-unlinked-chip {
-  background: var(--input-bg);
-  color: var(--text-muted);
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
-.ea-action-btn {
-  color: var(--text-muted);
+.dark .ea-link-chip {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.3);
 }
-.ea-action-btn:hover {
-  background: var(--input-bg);
-  color: var(--btn-bg);
+
+.ea-unlinked-chip {
+  background: var(--muted, #f1f5f9);
+  color: var(--text-muted, #64748b);
+  border: 1px solid var(--border, #e2e8f0);
 }
+
+/* Action Buttons */
 .ea-assign-btn {
-  background: var(--badge-bg);
-  color: var(--badge-text);
+  background: #4f46e5;
+  color: #ffffff;
 }
+
 .ea-assign-btn:hover {
-  opacity: 0.85;
+  background: #4338ca;
 }
+
 .ea-unassign-btn {
-  color: var(--danger);
+  color: #ef4444;
+  background: transparent;
 }
+
 .ea-unassign-btn:hover {
-  background: var(--danger-bg);
+  background: rgba(239, 68, 68, 0.08);
 }
+
 .ea-unassign-btn:disabled,
 .ea-assign-btn:disabled {
   opacity: 0.5;
@@ -125,94 +265,39 @@
 
 .ea-empty-state,
 .ea-loading {
-  color: var(--text-muted);
+  color: var(--text-muted, #64748b);
 }
+
 .ea-error {
-  color: var(--danger);
+  color: #ef4444;
 }
 
 /* ── Modal ── */
-.ea-modal-overlay {
-  background: rgba(0, 0, 0, 0.5);
-}
 .ea-modal-panel {
-  background: var(--panel-bg);
-  box-shadow: var(--shadow);
+  background: var(--panel-bg, #ffffff);
 }
-.ea-modal-header {
-  border-bottom: 1px solid var(--divider);
+
+html:not(.dark) .ea-modal-panel {
+  background: #ffffff !important;
 }
+
 .ea-modal-title {
-  color: var(--text-primary);
+  color: var(--text-primary, #0f172a);
 }
+
 .ea-modal-subtitle {
-  color: var(--text-muted);
-}
-.ea-modal-close {
-  color: var(--text-muted);
-}
-.ea-modal-close:hover {
-  background: var(--input-bg);
-  color: var(--text-secondary);
+  color: var(--text-muted, #64748b);
 }
 
-/* ── Form (inside modal) ── */
-.ea-field-label {
-  color: var(--text-secondary);
-}
-.ea-field-required {
-  color: var(--danger);
-}
-.ea-field-error {
-  color: var(--danger);
-}
-.ea-field-hint {
-  color: var(--text-muted);
-}
-.ea-input {
-  background: var(--input-bg);
-  border: 1px solid var(--input-border);
-  color: var(--text-primary);
-}
-.ea-input:focus {
-  outline: none;
-  border-color: var(--input-focus);
-  box-shadow: 0 0 0 4px var(--focus-ring);
-}
-.ea-input-error {
-  border-color: var(--danger) !important;
-}
-
-.ea-form-footer {
-  border-top: 1px solid var(--divider);
-}
-.ea-btn-cancel {
-  color: var(--text-secondary);
-}
-.ea-btn-cancel:hover {
-  color: var(--text-primary);
-}
-
-/* ── Unassign confirm modal ── */
-.ea-unassign-icon-wrap {
-  background: var(--danger-bg);
-}
-.ea-unassign-icon {
-  color: var(--danger);
-}
-.ea-unassign-title {
-  color: var(--text-primary);
-}
-.ea-unassign-desc {
-  color: var(--text-muted);
-}
 .ea-modal-btn-danger {
-  background: var(--danger);
-  color: #fff;
+  background: #ef4444;
+  color: #ffffff;
 }
+
 .ea-modal-btn-danger:hover {
-  opacity: 0.88;
+  background: #dc2626;
 }
+
 .ea-modal-btn-danger:disabled {
   opacity: 0.6;
   cursor: not-allowed;

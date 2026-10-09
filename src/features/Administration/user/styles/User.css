@@ -259,3 +259,85 @@
 .up-btn-cancel:hover {
   color: var(--text-primary);
 }
+
+/* ── Custom Dropdown Styling ── */
+.up-custom-dropdown {
+  position: relative;
+}
+
+.up-dropdown-trigger {
+  background: var(--panel-bg, #ffffff);
+  border: 1px solid var(--input-border, #e2e8f0);
+  color: var(--text-primary, #0f172a);
+  transition: all 0.15s ease;
+}
+
+.up-dropdown-trigger:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+[data-theme="dark"] .up-dropdown-trigger {
+  background: #151929;
+  border-color: #2a2f4a;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .up-dropdown-trigger:hover:not(:disabled) {
+  background: #1e2235;
+  border-color: #3b4266;
+}
+
+.up-dropdown-menu {
+  background: var(--panel-bg, #ffffff) !important;
+  border: 1px solid var(--input-border, #e2e8f0);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] .up-dropdown-menu {
+  background: #151929 !important;
+  border-color: #2a2f4a;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+}
+
+.up-dropdown-item {
+  width: 100%;
+  color: var(--text-secondary, #475569);
+  background: transparent;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.up-dropdown-item:hover {
+  background-color: #f1f5f9 !important;
+  color: var(--text-primary, #0f172a) !important;
+}
+
+.up-dropdown-item-active {
+  background-color: var(--badge-bg, #eef2ff) !important;
+  color: var(--btn-bg, #4f46e5) !important;
+  font-weight: 600;
+}
+
+.up-dropdown-item-active:hover {
+  background-color: #e0e7ff !important;
+  color: var(--btn-bg, #4f46e5) !important;
+}
+
+[data-theme="dark"] .up-dropdown-item {
+  color: var(--text-secondary, #cbd5e1);
+}
+
+[data-theme="dark"] .up-dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .up-dropdown-item-active {
+  background-color: rgba(99, 102, 241, 0.2) !important;
+  color: #a5b4fc !important;
+}
+
+[data-theme="dark"] .up-dropdown-item-active:hover {
+  background-color: rgba(99, 102, 241, 0.28) !important;
+  color: #ffffff !important;
+}

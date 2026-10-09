@@ -9,68 +9,65 @@ import {
   unassignUserFromEmployee,
 } from "./employee.service";
 
-// ---------------- Fetch All ----------------
+// Helper to extract clean error message
+const extractErrorMessage = (error, fallback = "An unexpected error occurred") => {
+  return (
+    error.response?.data?.message ||
+    error.response?.data?.error ||
+    error.message ||
+    fallback
+  );
+};
 
+// ---------------- Fetch All (Supports backend get filters) ----------------
 export const fetchEmployees = createAsyncThunk(
   "employees/fetchEmployees",
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      return await getEmployees();
+      return await getEmployees(params);
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch employees",
-      );
+      return rejectWithValue(extractErrorMessage(error, "Failed to fetch employees"));
     }
   },
 );
 
 // ---------------- Fetch By Id ----------------
-
 export const fetchEmployeeById = createAsyncThunk(
   "employees/fetchEmployeeById",
   async (id, { rejectWithValue }) => {
     try {
       return await getEmployeeById(id);
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch employee",
-      );
+      return rejectWithValue(extractErrorMessage(error, "Failed to fetch employee"));
     }
   },
 );
 
 // ---------------- Create ----------------
-
 export const addEmployee = createAsyncThunk(
   "employees/addEmployee",
   async (employeeData, { rejectWithValue }) => {
     try {
       return await createEmployee(employeeData);
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to create employee",
-      );
+      return rejectWithValue(extractErrorMessage(error, "Failed to create employee"));
     }
   },
 );
 
 // ---------------- Update ----------------
-
 export const editEmployee = createAsyncThunk(
   "employees/editEmployee",
   async ({ id, formData }, { rejectWithValue }) => {
     try {
       return await updateEmployee(id, formData);
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to update employee",
-      );
+      return rejectWithValue(extractErrorMessage(error, "Failed to update employee"));
     }
   },
 );
 
 // ---------------- Delete ----------------
-
 export const removeEmployee = createAsyncThunk(
   "employees/removeEmployee",
   async (id, { rejectWithValue }) => {
@@ -78,9 +75,7 @@ export const removeEmployee = createAsyncThunk(
       await deleteEmployee(id);
       return id;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to delete employee",
-      );
+      return rejectWithValue(extractErrorMessage(error, "Failed to delete employee"));
     }
   },
 );
@@ -92,39 +87,36 @@ export const assignEmployeeUser = createAsyncThunk(
     try {
       return await assignUserToEmployee(employeeId, userId);
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to assign user",
-      );
+      return rejectWithValue(extractErrorMessage(error, "Failed to assign user"));
     }
   },
 );
 
 // ---------------- Unassign User From Employee ----------------
-
 export const unassignEmployeeUser = createAsyncThunk(
   "employees/unassignUser",
   async (employeeId, { rejectWithValue }) => {
     try {
       return await unassignUserFromEmployee(employeeId);
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to unassign user",
-      );
+      return rejectWithValue(extractErrorMessage(error, "Failed to unassign user"));
     }
   },
 );
 
 // ---------------- Initial State ----------------
-
 const initialState = {
   employees: [],
   employee: null,
+  total: 0,
+  page: 1,
+  limit: 20,
+  totalPages: 1,
   loading: false,
   error: null,
 };
 
 // ---------------- Slice ----------------
-
 const employeeSlice = createSlice({
   name: "employees",
   initialState,
@@ -140,7 +132,6 @@ const employeeSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-
       // Fetch Employees
       .addCase(fetchEmployees.pending, (state) => {
         state.loading = true;
@@ -148,7 +139,23 @@ const employeeSlice = createSlice({
       })
       .addCase(fetchEmployees.fulfilled, (state, action) => {
         state.loading = false;
-        state.employees = action.payload;
+        const payload = action.payload || {};
+        const rawList =
+          payload.data?.employees ||
+          payload.employees ||
+          payload.data ||
+          payload;
+
+        state.employees = Array.isArray(rawList) ? rawList : [];
+
+        if (payload.total !== undefined) {
+          state.total = payload.total;
+          state.page = payload.page || 1;
+          state.limit = payload.limit || 20;
+          state.totalPages = payload.totalPages || 1;
+        } else {
+          state.total = state.employees.length;
+        }
       })
       .addCase(fetchEmployees.rejected, (state, action) => {
         state.loading = false;
@@ -161,7 +168,7 @@ const employeeSlice = createSlice({
       })
       .addCase(fetchEmployeeById.fulfilled, (state, action) => {
         state.loading = false;
-        state.employee = action.payload;
+        state.employee = action.payload?.data || action.payload;
       })
       .addCase(fetchEmployeeById.rejected, (state, action) => {
         state.loading = false;
@@ -174,7 +181,11 @@ const employeeSlice = createSlice({
       })
       .addCase(addEmployee.fulfilled, (state, action) => {
         state.loading = false;
-        state.employees.push(action.payload);
+        const newEmp = action.payload?.data || action.payload;
+        if (newEmp && newEmp.id) {
+          state.employees.unshift(newEmp);
+          state.total += 1;
+        }
       })
       .addCase(addEmployee.rejected, (state, action) => {
         state.loading = false;
@@ -187,16 +198,18 @@ const employeeSlice = createSlice({
       })
       .addCase(editEmployee.fulfilled, (state, action) => {
         state.loading = false;
-
-        const index = state.employees.findIndex(
-          (emp) => emp.id === action.payload.id,
-        );
-
-        if (index !== -1) {
-          state.employees[index] = action.payload;
+        const updated = action.payload?.data || action.payload;
+        if (updated && updated.id) {
+          const index = state.employees.findIndex(
+            (emp) => Number(emp.id) === Number(updated.id),
+          );
+          if (index !== -1) {
+            state.employees[index] = { ...state.employees[index], ...updated };
+          }
+          if (state.employee && state.employee.id === updated.id) {
+            state.employee = { ...state.employee, ...updated };
+          }
         }
-
-        state.employee = action.payload;
       })
       .addCase(editEmployee.rejected, (state, action) => {
         state.loading = false;
@@ -210,8 +223,9 @@ const employeeSlice = createSlice({
       .addCase(removeEmployee.fulfilled, (state, action) => {
         state.loading = false;
         state.employees = state.employees.filter(
-          (emp) => emp.id !== action.payload,
+          (emp) => Number(emp.id) !== Number(action.payload),
         );
+        state.total = Math.max(0, state.total - 1);
       })
       .addCase(removeEmployee.rejected, (state, action) => {
         state.loading = false;
@@ -224,17 +238,22 @@ const employeeSlice = createSlice({
       })
       .addCase(assignEmployeeUser.fulfilled, (state, action) => {
         state.loading = false;
+        const updated =
+          action.payload?.data?.employee ||
+          action.payload?.employee ||
+          action.payload?.data ||
+          action.payload;
 
-        const updated = action.payload.data ?? action.payload;
-
-        const index = state.employees.findIndex((emp) => emp.id === updated.id);
-
-        if (index !== -1) {
-          state.employees[index] = updated;
-        }
-
-        if (state.employee && state.employee.id === updated.id) {
-          state.employee = updated;
+        if (updated && updated.id) {
+          const index = state.employees.findIndex(
+            (emp) => Number(emp.id) === Number(updated.id),
+          );
+          if (index !== -1) {
+            state.employees[index] = { ...state.employees[index], ...updated };
+          }
+          if (state.employee && state.employee.id === updated.id) {
+            state.employee = { ...state.employee, ...updated };
+          }
         }
       })
       .addCase(assignEmployeeUser.rejected, (state, action) => {
@@ -248,17 +267,22 @@ const employeeSlice = createSlice({
       })
       .addCase(unassignEmployeeUser.fulfilled, (state, action) => {
         state.loading = false;
+        const updated =
+          action.payload?.data?.employee ||
+          action.payload?.employee ||
+          action.payload?.data ||
+          action.payload;
 
-        const updated = action.payload.data ?? action.payload;
-
-        const index = state.employees.findIndex((emp) => emp.id === updated.id);
-
-        if (index !== -1) {
-          state.employees[index] = updated;
-        }
-
-        if (state.employee && state.employee.id === updated.id) {
-          state.employee = updated;
+        if (updated && updated.id) {
+          const index = state.employees.findIndex(
+            (emp) => Number(emp.id) === Number(updated.id),
+          );
+          if (index !== -1) {
+            state.employees[index] = { ...state.employees[index], ...updated };
+          }
+          if (state.employee && state.employee.id === updated.id) {
+            state.employee = { ...state.employee, ...updated };
+          }
         }
       })
       .addCase(unassignEmployeeUser.rejected, (state, action) => {

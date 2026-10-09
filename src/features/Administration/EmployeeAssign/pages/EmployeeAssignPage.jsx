@@ -1,420 +1,291 @@
-// import React, { useEffect, useMemo, useState } from "react";
-// import { useDispatch, useSelector } from "react-redux";
-// import { Search } from "lucide-react";
-// import EmployeeAssignTable from "../components/EmployeeAssignTable.jsx";
-// import EmployeeAssignModal from "../components/EmployeeAssignModal.jsx";
-// import {
-//     fetchEmployees,
-//     assignEmployeeUser,
-//     unassignEmployeeUser,
-// } from "../../../../redux/employee/employeeSlice.js"; // adjust to your actual path
-// import { fetchUsers } from "../../../../redux/Administration/users/userSlice.js";
-// import "../styles/EmployeeAssign.css";
-// import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
-
-// const EmployeeAssignPage = () => {
-//     const dispatch = useDispatch();
-
-//     const { employees, loading, error } = useSelector((state) => state.employees);
-//     const { users } = useSelector((state) => state.users);
-
-//     const [search, setSearch] = useState("");
-//     const [modalOpen, setModalOpen] = useState(false);
-//     const [selectedEmployee, setSelectedEmployee] = useState(null);
-//     const [submitting, setSubmitting] = useState(false);
-//     const [unassigningId, setUnassigningId] = useState(null);
-// const [selectedSchool, setSelectedSchool] = useState("");
-
-// const { user, loading: authLoading } = useSelector((state) => state.auth);
-
-// const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
-
-// const schoolId = isAdmin ? null : user?.school_id;
-
-// const schools = useSelector((state) => state.schoolProfile?.schools || []);
-// const schoolsLoading = useSelector(
-//     (state) => state.schoolProfile?.loading || false,
-// );
-
-// // Admin picks from a list — fetch it once.
-// useEffect(() => {
-//     if (isAdmin && schools.length === 0) {
-//         dispatch(fetchSchools());
-//     }
-// }, [dispatch, isAdmin, schools.length]);
-
-//     useEffect(() => {
-//         dispatch(fetchEmployees());
-//         dispatch(fetchUsers());
-//     }, [dispatch]);
-
-//     // const filteredEmployees = useMemo(() => {
-//     //     const term = search.trim().toLowerCase();
-//     //     const list = employees || [];
-//     //     if (!term) return list;
-
-//     //     return list.filter((emp) => {
-//     //         const name = `${emp.first_name || ""} ${emp.last_name || ""}`.toLowerCase();
-//     //         return (
-//     //             name.includes(term) ||
-//     //             emp.name?.toLowerCase().includes(term) ||
-//     //             emp.email?.toLowerCase().includes(term)
-//     //         );
-//     //     });
-//     // }, [employees, search]);
-
-// const filteredEmployees = useMemo(() => {
-//     const term = search.trim().toLowerCase();
-
-//     return (employees || []).filter((emp) => {
-//         const fullName =
-//             `${emp.first_name || ""} ${emp.last_name || ""}`.toLowerCase();
-
-//         const matchesSearch =
-//             !term ||
-//             fullName.includes(term) ||
-//             emp.employee_code?.toLowerCase().includes(term) ||
-//             emp.email?.toLowerCase().includes(term);
-
-//         const matchesSchool = isAdmin
-//             ? selectedSchool
-//                 ? String(emp.school_id) === String(selectedSchool)
-//                 : true
-//             : String(emp.school_id) === String(schoolId);
-
-//         return matchesSearch && matchesSchool;
-//     });
-// }, [employees, search, selectedSchool, isAdmin, schoolId]);
-
-//     const openAssignModal = (employee) => {
-//         setSelectedEmployee(employee);
-//         setModalOpen(true);
-//     };
-
-//     const closeModal = () => {
-//         setModalOpen(false);
-//         setSelectedEmployee(null);
-//     };
-
-//     const handleAssignSubmit = async (userId) => {
-//         setSubmitting(true);
-//         try {
-//             await dispatch(
-//                 assignEmployeeUser({ employeeId: selectedEmployee.id, userId }),
-//             ).unwrap();
-//             await dispatch(fetchEmployees());
-//             closeModal();
-//         } catch (err) {
-//             alert(err || "Failed to assign user");
-//         } finally {
-//             setSubmitting(false);
-//         }
-//     };
-
-//     const handleUnassign = async (employee) => {
-//         if (!window.confirm(`Unlink the user account from this employee?`)) return;
-
-//         setUnassigningId(employee.id);
-//         try {
-//             await dispatch(unassignEmployeeUser(employee.id)).unwrap();
-//             await dispatch(fetchEmployees());
-//         } catch (err) {
-//             alert(err || "Failed to unassign user");
-//         } finally {
-//             setUnassigningId(null);
-//         }
-//     };
-
-//     return (
-//         <div className="ea-page min-h-screen p-6">
-//             {/* Header */}
-//             <div className="mb-6">
-//                 <h1 className="ea-title text-2xl font-bold">Employee User Assignment</h1>
-//                 <p className="ea-subtitle text-[13.5px] mt-1">
-//                     Link employees to their login accounts so they can sign in.
-//                 </p>
-//             </div>
-
-//             {/* Toolbar */}
-//             <div className="ea-toolbar flex items-center gap-3 rounded-2xl px-4 py-3 mb-5">
-//                 <div className="relative flex-1 max-w-xs">
-//                     <Search size={15} className="ea-count-text absolute left-3 top-1/2 -translate-y-1/2" />
-//                     <input
-//                         value={search}
-//                         onChange={(e) => setSearch(e.target.value)}
-//                         placeholder="Search employees…"
-//                         className="ea-search-input w-full rounded-lg pl-9 pr-3 py-2 text-[13.5px] transition-all"
-//                     />
-//                 </div>
-//                 {/* School Filter — admin only */}
-//                 {isAdmin && (
-//                     <select
-//                         value={selectedSchool}
-//                         onChange={(e) => setSelectedSchool(e.target.value)}
-//                         className="up-search-input rounded-lg px-3 py-2 text-[13.5px] min-w-[220px]"
-//                         disabled={schoolsLoading}
-//                     >
-//                         <option value="">All Schools</option>
-//                         {schools.map((school) => (
-//                             <option key={school.id} value={school.id}>
-//                                 {school.name}
-//                             </option>
-//                         ))}
-//                     </select>
-//                 )}
-//                 <span className="ea-count-text text-[12.5px] ml-auto">
-//                     {filteredEmployees.length} employee{filteredEmployees.length === 1 ? "" : "s"}
-//                 </span>
-//             </div>
-
-//             {/* Content */}
-//             {loading && (!employees || employees.length === 0) ? (
-//                 <p className="ea-loading px-2 py-10 text-[13.5px]">Loading employees…</p>
-//             ) : error ? (
-//                 <div className="text-center py-10">
-//                     <p className="ea-error text-[13.5px] mb-3">{error}</p>
-//                     <button
-//                         onClick={() => dispatch(fetchEmployees())}
-//                         className="ea-btn-outline px-4 py-2 rounded-lg text-[13px] font-semibold transition-colors"
-//                     >
-//                         Retry
-//                     </button>
-//                 </div>
-//             ) : (
-//                 <EmployeeAssignTable
-//                     employees={filteredEmployees}
-//                     users={users || []}
-//                     onAssign={openAssignModal}
-//                     onUnassign={handleUnassign}
-//                     unassigningId={unassigningId}
-//                 />
-//             )}
-
-//             <EmployeeAssignModal
-//                 isOpen={modalOpen}
-//                 onClose={closeModal}
-//                 employee={selectedEmployee}
-//                 users={users || []}
-//                 employees={employees || []}
-//                 onSubmit={handleAssignSubmit}
-//                 submitting={submitting}
-//             />
-//         </div>
-//     );
-// };
-
-// export default EmployeeAssignPage;
-
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Search } from "lucide-react";
+import { Users, AlertCircle, RefreshCw } from "lucide-react";
+import EmployeeAssignToolbar from "../components/EmployeeAssignToolbar.jsx";
 import EmployeeAssignTable from "../components/EmployeeAssignTable.jsx";
 import EmployeeAssignModal from "../components/EmployeeAssignModal.jsx";
 import UnassignUserModal from "../components/UnassignUserModal.jsx";
 import {
-    fetchEmployees,
-    assignEmployeeUser,
-    unassignEmployeeUser,
-} from "../../../../redux/employee/employeeSlice.js"; // adjust to your actual path
+  fetchEmployees,
+  assignEmployeeUser,
+} from "../../../../redux/employee/employeeSlice.js";
 import { fetchUsers } from "../../../../redux/Administration/users/userSlice.js";
-import "../styles/EmployeeAssign.css";
 import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
+import "../styles/EmployeeAssign.css";
 
 const EmployeeAssignPage = () => {
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
-    const { employees, loading, error } = useSelector((state) => state.employees);
-    const { users } = useSelector((state) => state.users);
+  const { employees = [], loading, error } = useSelector((state) => state.employees);
+  const { users = [] } = useSelector((state) => state.users);
+  const { user: authUser } = useSelector((state) => state.auth);
 
-    const [search, setSearch] = useState("");
+  // Filters state
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [assignmentFilter, setAssignmentFilter] = useState("");
+  const [selectedSchool, setSelectedSchool] = useState("");
 
-    const [assignModalOpen, setAssignModalOpen] = useState(false);
-    const [selectedEmployee, setSelectedEmployee] = useState(null);
-    const [submitting, setSubmitting] = useState(false);
+  // Modals state
+  const [assignModalOpen, setAssignModalOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
-    const [unassignModalOpen, setUnassignModalOpen] = useState(false);
-    const [unassignTarget, setUnassignTarget] = useState(null);
-    const [selectedSchool, setSelectedSchool] = useState("");
+  const [unassignModalOpen, setUnassignModalOpen] = useState(false);
+  const [unassignTarget, setUnassignTarget] = useState(null);
 
-    const { user, loading: authLoading } = useSelector((state) => state.auth);
-
-    const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
-
-    const schoolId = isAdmin ? null : user?.school_id;
-
-    const schools = useSelector((state) => state.schoolProfile?.schools || []);
-    const schoolsLoading = useSelector(
-        (state) => state.schoolProfile?.loading || false,
-    );
-
-    // Admin picks from a list — fetch it once.
-    useEffect(() => {
-        if (isAdmin && schools.length === 0) {
-            dispatch(fetchSchools());
-        }
-    }, [dispatch, isAdmin, schools.length]);
-
-    useEffect(() => {
-        dispatch(fetchEmployees());
-        dispatch(fetchUsers());
-    }, [dispatch]);
-
-    // const filteredEmployees = useMemo(() => {
-    //     const term = search.trim().toLowerCase();
-    //     const list = employees || [];
-    //     if (!term) return list;
-
-    //     return list.filter((emp) => {
-    //         const name = `${emp.first_name || ""} ${emp.last_name || ""}`.toLowerCase();
-    //         return (
-    //             name.includes(term) ||
-    //             emp.name?.toLowerCase().includes(term) ||
-    //             emp.email?.toLowerCase().includes(term)
-    //         );
-    //     });
-    // }, [employees, search]);
-
-
-
-    const filteredEmployees = useMemo(() => {
-        const term = search.trim().toLowerCase();
-
-        return (employees || []).filter((emp) => {
-            const fullName =
-                `${emp.first_name || ""} ${emp.last_name || ""}`.toLowerCase();
-
-            const matchesSearch =
-                !term ||
-                fullName.includes(term) ||
-                emp.employee_code?.toLowerCase().includes(term) ||
-                emp.email?.toLowerCase().includes(term);
-
-            const matchesSchool = isAdmin
-                ? selectedSchool
-                    ? String(emp.school_id) === String(selectedSchool)
-                    : true
-                : String(emp.school_id) === String(schoolId);
-
-            return matchesSearch && matchesSchool;
+  // Comprehensive check for Super Admin status
+  const isAdmin = useMemo(() => {
+    if (!authUser) return true;
+    if (authUser.is_admin || authUser.isAdmin) return true;
+    if (authUser.role && String(authUser.role).toUpperCase().includes("ADMIN")) return true;
+    if (authUser.role_name && String(authUser.role_name).toUpperCase().includes("ADMIN")) return true;
+    if (authUser.roles) {
+      if (Array.isArray(authUser.roles)) {
+        return authUser.roles.some((r) => {
+          const name = typeof r === "object" ? r?.name || "" : String(r);
+          return name.toUpperCase().includes("ADMIN");
         });
-    }, [employees, search, selectedSchool, isAdmin, schoolId]);
+      }
+      return String(authUser.roles).toUpperCase().includes("ADMIN");
+    }
+    // If user has no school_id, they have multi-school access
+    if (!authUser.school_id) return true;
+    return false;
+  }, [authUser]);
 
-    const openAssignModal = (employee) => {
-        setSelectedEmployee(employee);
-        setAssignModalOpen(true);
-    };
+  const schoolId = isAdmin ? null : authUser?.school_id;
 
-    const closeAssignModal = () => {
-        setAssignModalOpen(false);
-        setSelectedEmployee(null);
-    };
+  const schools = useSelector((state) => state.schoolProfile?.schools || []);
+  const schoolsLoading = useSelector(
+    (state) => state.schoolProfile?.loading || false,
+  );
 
-    const handleAssignSubmit = async (userId) => {
-        setSubmitting(true);
-        try {
-            await dispatch(
-                assignEmployeeUser({ employeeId: selectedEmployee.id, userId }),
-            ).unwrap();
-            await dispatch(fetchEmployees());
-            closeAssignModal();
-        } catch (err) {
-            alert(err || "Failed to assign user");
-        } finally {
-            setSubmitting(false);
-        }
-    };
+  // Always fetch schools list so school filter and school names are available
+  useEffect(() => {
+    if (schools.length === 0) {
+      dispatch(fetchSchools());
+    }
+  }, [dispatch, schools.length]);
 
-    const openUnassignModal = (employee) => {
-        setUnassignTarget(employee);
-        setUnassignModalOpen(true);
-    };
+  // Fetch users list once
+  useEffect(() => {
+    dispatch(fetchUsers());
+  }, [dispatch]);
 
-    const closeUnassignModal = () => {
-        setUnassignModalOpen(false);
-        setUnassignTarget(null);
-    };
+  // Debounce search input (350ms)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [search]);
 
-    return (
-        <div className="ea-page min-h-screen p-6">
-            {/* Header */}
-            <div className="mb-6">
-                <h1 className="ea-title text-2xl font-bold">Employee User Assignment</h1>
-                <p className="ea-subtitle text-[13.5px] mt-1">
-                    Link employees to their login accounts so they can sign in.
-                </p>
+  // Helper to load employees with backend get filters
+  const loadEmployees = useCallback(() => {
+    const params = { all: "true" };
+    if (debouncedSearch.trim()) {
+      params.search = debouncedSearch.trim();
+    }
+    // Only send school_id if a specific school is picked; empty string = "All Schools"
+    if (selectedSchool) {
+      params.school_id = selectedSchool;
+    }
+    if (assignmentFilter === "assigned") {
+      params.user_assigned = "true";
+    } else if (assignmentFilter === "unassigned") {
+      params.user_assigned = "false";
+    }
+
+    dispatch(fetchEmployees(params));
+  }, [dispatch, debouncedSearch, selectedSchool, assignmentFilter]);
+
+  // Trigger backend fetch when filter parameters change
+  useEffect(() => {
+    loadEmployees();
+  }, [loadEmployees]);
+
+  // Dual-layer client-side filtering (guarantees accurate display even if backend route fallbacks)
+  const filteredEmployees = useMemo(() => {
+    const term = search.trim().toLowerCase();
+
+    return (employees || []).filter((emp) => {
+      // 1. Search term match
+      const fullName = `${emp.first_name || ""} ${emp.last_name || ""}`.toLowerCase();
+      const code = (emp.employee_code || "").toLowerCase();
+      const email = (emp.email || "").toLowerCase();
+      const phone = (emp.mobile || emp.phone || "").toLowerCase();
+      const dept = (emp.department || emp.department_name || "").toLowerCase();
+      const desig = (emp.designation || emp.designation_name || "").toLowerCase();
+
+      const matchesSearch =
+        !term ||
+        fullName.includes(term) ||
+        code.includes(term) ||
+        email.includes(term) ||
+        phone.includes(term) ||
+        dept.includes(term) ||
+        desig.includes(term);
+
+      // 2. School match:
+      // If a school is selected in the dropdown, filter by that school.
+      // If "All Schools" (selectedSchool is ""), display all schools.
+      const empSchoolId = emp.school_id ?? emp.school?.id;
+      const matchesSchool = selectedSchool
+        ? String(empSchoolId) === String(selectedSchool)
+        : isAdmin
+        ? true
+        : schoolId
+        ? String(empSchoolId) === String(schoolId)
+        : true;
+
+      // 3. Assignment filter match
+      let matchesAssignment = true;
+      const isAssigned = Boolean(emp.user_id || (emp.user && emp.user.id));
+      if (assignmentFilter === "assigned") {
+        matchesAssignment = isAssigned;
+      } else if (assignmentFilter === "unassigned") {
+        matchesAssignment = !isAssigned;
+      }
+
+      return matchesSearch && matchesSchool && matchesAssignment;
+    });
+  }, [employees, search, selectedSchool, assignmentFilter, isAdmin, schoolId]);
+
+  // Modal Handlers
+  const openAssignModal = (employee) => {
+    setSelectedEmployee(employee);
+    setAssignModalOpen(true);
+  };
+
+  const closeAssignModal = () => {
+    setAssignModalOpen(false);
+    setSelectedEmployee(null);
+  };
+
+  const handleAssignSubmit = async (userId) => {
+    if (!selectedEmployee?.id) return;
+    setSubmitting(true);
+    try {
+      await dispatch(
+        assignEmployeeUser({ employeeId: selectedEmployee.id, userId }),
+      ).unwrap();
+      closeAssignModal();
+      loadEmployees();
+    } catch (err) {
+      alert(typeof err === "string" ? err : err?.message || "Failed to assign user");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const openUnassignModal = (employee) => {
+    setUnassignTarget(employee);
+    setUnassignModalOpen(true);
+  };
+
+  const closeUnassignModal = () => {
+    setUnassignModalOpen(false);
+    setUnassignTarget(null);
+  };
+
+  const handleUnassignSuccess = () => {
+    loadEmployees();
+  };
+
+  return (
+    <div className="ea-page min-h-screen p-6">
+      {/* Header */}
+      <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <Users size={20} />
             </div>
-
-            {/* Toolbar */}
-            <div className="ea-toolbar flex items-center gap-3 rounded-2xl px-4 py-3 mb-5">
-                <div className="relative flex-1 max-w-xs">
-                    <Search size={15} className="ea-count-text absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search employees…"
-                        className="ea-search-input w-full rounded-lg pl-9 pr-3 py-2 text-[13.5px] transition-all"
-                    />
-                </div>
-                {/* School Filter — admin only */}
-                {isAdmin && (
-                    <select
-                        value={selectedSchool}
-                        onChange={(e) => setSelectedSchool(e.target.value)}
-                        className="up-search-input rounded-lg px-3 py-2 text-[13.5px] min-w-[220px]"
-                        disabled={schoolsLoading}
-                    >
-                        <option value="">All Schools</option>
-                        {schools.map((school) => (
-                            <option key={school.id} value={school.id}>
-                                {school.name}
-                            </option>
-                        ))}
-                    </select>
-                )}
-                <span className="ea-count-text text-[12.5px] ml-auto">
-                    {filteredEmployees.length} employee{filteredEmployees.length === 1 ? "" : "s"}
-                </span>
-            </div>
-
-            {/* Content */}
-            {loading && (!employees || employees.length === 0) ? (
-                <p className="ea-loading px-2 py-10 text-[13.5px]">Loading employees…</p>
-            ) : error ? (
-                <div className="text-center py-10">
-                    <p className="ea-error text-[13.5px] mb-3">{error}</p>
-                    <button
-                        onClick={() => dispatch(fetchEmployees())}
-                        className="ea-btn-outline px-4 py-2 rounded-lg text-[13px] font-semibold transition-colors"
-                    >
-                        Retry
-                    </button>
-                </div>
-            ) : (
-                <EmployeeAssignTable
-                    employees={filteredEmployees}
-                    users={users || []}
-                    onAssign={openAssignModal}
-                    onUnassign={openUnassignModal}
-                />
-            )}
-
-            <EmployeeAssignModal
-                isOpen={assignModalOpen}
-                onClose={closeAssignModal}
-                employee={selectedEmployee}
-                users={users || []}
-                employees={employees || []}
-                onSubmit={handleAssignSubmit}
-                submitting={submitting}
-            />
-
-            <UnassignUserModal
-                isOpen={unassignModalOpen}
-                onClose={closeUnassignModal}
-                employee={unassignTarget}
-            />
+            <h1 className="ea-title text-2xl font-bold tracking-tight">
+              Employee User Assignment
+            </h1>
+          </div>
+          <p className="ea-subtitle text-[13.5px] mt-1.5 ml-0.5">
+            Link school employees to active user login accounts so they can sign into the portal.
+          </p>
         </div>
-    );
+
+        <button
+          type="button"
+          onClick={loadEmployees}
+          disabled={loading}
+          className="ea-btn-outline inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-[13px] font-medium transition-all self-start md:self-auto cursor-pointer shadow-sm hover:shadow"
+          title="Refresh employees list"
+        >
+          <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+          <span>Refresh</span>
+        </button>
+      </div>
+
+      {/* Toolbar with backend and local filters */}
+      <EmployeeAssignToolbar
+        search={search}
+        onSearchChange={setSearch}
+        assignmentFilter={assignmentFilter}
+        onAssignmentFilterChange={setAssignmentFilter}
+        selectedSchool={selectedSchool}
+        onSchoolChange={setSelectedSchool}
+        schools={schools}
+        schoolsLoading={schoolsLoading}
+        isAdmin={isAdmin}
+        totalCount={filteredEmployees.length}
+      />
+
+      {/* Main Table Content */}
+      {loading && employees.length === 0 ? (
+        <div className="ea-table-card rounded-2xl p-12 text-center shadow-sm border border-border/60">
+          <RefreshCw size={24} className="animate-spin text-primary mx-auto mb-3" />
+          <p className="ea-loading text-[14px]">Loading employees…</p>
+        </div>
+      ) : error && employees.length === 0 ? (
+        <div className="ea-table-card rounded-2xl p-10 text-center shadow-sm border border-border/60">
+          <AlertCircle size={28} className="text-destructive mx-auto mb-2" />
+          <p className="ea-error text-[14px] font-semibold mb-3">{error}</p>
+          <button
+            type="button"
+            onClick={loadEmployees}
+            className="ea-btn-outline px-4 py-2 rounded-xl text-[13px] font-semibold transition-colors cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      ) : (
+        <EmployeeAssignTable
+          employees={filteredEmployees}
+          users={users}
+          schools={schools}
+          isAdmin={isAdmin}
+          onAssign={openAssignModal}
+          onUnassign={openUnassignModal}
+        />
+      )}
+
+      {/* Assign User Modal */}
+      <EmployeeAssignModal
+        isOpen={assignModalOpen}
+        onClose={closeAssignModal}
+        employee={selectedEmployee}
+        users={users}
+        employees={employees}
+        onSubmit={handleAssignSubmit}
+        submitting={submitting}
+      />
+
+      {/* Unassign Confirmation Modal */}
+      <UnassignUserModal
+        isOpen={unassignModalOpen}
+        onClose={closeUnassignModal}
+        employee={unassignTarget}
+        onSuccess={handleUnassignSuccess}
+      />
+    </div>
+  );
 };
 
 export default EmployeeAssignPage;

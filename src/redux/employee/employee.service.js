@@ -1,11 +1,18 @@
 import api from "../../common/services/api";
 
-export const getEmployees = async () => {
+export const getEmployees = async (params = {}) => {
   try {
-    const response = await api.get("/employees");
-    // console.log(response.data);
+    // Default all: "true" so the backend does not cap the list at 20 employees
+    const queryParams = { all: "true", ...params };
+    const response = await api.get("/employees", { params: queryParams });
     return response.data;
   } catch (error) {
+    // If 403 Forbidden (scoped/non-super admin) or 404, fallback to /employees/token
+    if (error.response?.status === 403 || error.response?.status === 404) {
+      const queryParams = { all: "true", ...params };
+      const fallback = await api.get("/employees/token", { params: queryParams });
+      return fallback.data;
+    }
     console.error("Error fetching employees:", error);
     throw error;
   }
@@ -51,13 +58,12 @@ export const deleteEmployee = async (id) => {
   }
 };
 
-export const assignUserToEmployee = async (employeeId, userId) => {
+export const assignUserToEmployee = async ({ employeeId, userId }) => {
   try {
     const response = await api.post("/employees/assign-user", {
       employee_id: employeeId,
       user_id: userId,
     });
-
     return response.data;
   } catch (error) {
     console.error("Error assigning user to employee:", error);
@@ -70,7 +76,6 @@ export const unassignUserFromEmployee = async (employeeId) => {
     const response = await api.post("/employees/unassign-user", {
       employee_id: employeeId,
     });
-
     return response.data;
   } catch (error) {
     console.error("Error unassigning user from employee:", error);

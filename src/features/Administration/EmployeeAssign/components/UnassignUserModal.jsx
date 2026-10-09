@@ -1,117 +1,143 @@
 import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Unlink, X } from "lucide-react";
+import { Unlink, X, AlertCircle } from "lucide-react";
 import { useDispatch } from "react-redux";
-import { fetchEmployees, unassignEmployeeUser } from "../../../../redux/employee/employeeSlice.js";
+import { unassignEmployeeUser } from "../../../../redux/employee/employeeSlice.js";
 
 function employeeLabel(emp) {
-    if (!emp) return "";
-    if (emp.name) return emp.name;
-    return `${emp.first_name || ""} ${emp.last_name || ""}`.trim() || `#${emp.id}`;
+  if (!emp) return "";
+  if (emp.name) return emp.name;
+  return `${emp.first_name || ""} ${emp.last_name || ""}`.trim() || emp.employee_code || `#${emp.id}`;
 }
 
 function getAssignedUsername(emp) {
-    if (!emp) return "";
-    if (emp.user && typeof emp.user === "object") {
-        return emp.user.username || emp.user.email || `#${emp.user.id}`;
-    }
-    return emp.user_id ? `#${emp.user_id}` : "";
+  if (!emp) return "";
+  if (emp.user && typeof emp.user === "object") {
+    return emp.user.username || emp.user.email || `#${emp.user.id}`;
+  }
+  return emp.user_id ? `#${emp.user_id}` : "";
 }
 
 /**
- * Confirm dialog for unlinking a user account from an employee. Same
- * structure/chrome as DeleteSubjectGroupModal — icon, title, description,
- * cancel/confirm footer — just pointed at unassignEmployeeUser instead of
- * a delete thunk.
+ * Confirm dialog for unlinking a user login account from an employee.
  */
-export default function UnassignUserModal({ isOpen, onClose, employee }) {
-    const dispatch = useDispatch();
-    const [unassigning, setUnassigning] = useState(false);
+export default function UnassignUserModal({
+  isOpen,
+  onClose,
+  employee,
+  onSuccess,
+}) {
+  const dispatch = useDispatch();
+  const [unassigning, setUnassigning] = useState(false);
+  const [error, setError] = useState("");
 
-    const handleUnassign = async () => {
-        if (!employee?.id) return;
-        setUnassigning(true);
-        try {
-            await dispatch(unassignEmployeeUser(employee.id)).unwrap();
-            await dispatch(fetchEmployees());
-            onClose();
-        } catch (err) {
-            alert(err?.message ?? String(err));
-        } finally {
-            setUnassigning(false);
-        }
-    };
+  const handleUnassign = async () => {
+    if (!employee?.id) return;
+    setUnassigning(true);
+    setError("");
+    try {
+      await dispatch(unassignEmployeeUser(employee.id)).unwrap();
+      if (onSuccess) {
+        onSuccess(employee);
+      }
+      onClose();
+    } catch (err) {
+      const msg = typeof err === "string" ? err : err?.message || "Failed to unassign user";
+      setError(msg);
+    } finally {
+      setUnassigning(false);
+    }
+  };
 
-    return (
-        <AnimatePresence>
-            {isOpen && (
-                <motion.div
-                    className="ea-modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    onClick={onClose}
-                >
-                    <motion.div
-                        onClick={(e) => e.stopPropagation()}
-                        initial={{ opacity: 0, scale: 0.92, y: 32 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.92, y: 32 }}
-                        transition={{ duration: 0.22 }}
-                        className="ea-modal-panel w-full max-w-sm rounded-2xl overflow-hidden"
-                    >
-                        {/* Header */}
-                        <div className="ea-modal-header flex items-center justify-between px-5 py-4">
-                            <h2 className="ea-unassign-title text-[15px] font-bold">
-                                Unassign User
-                            </h2>
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="ea-modal-close w-7 h-7 rounded-full flex items-center justify-center transition-colors"
-                            >
-                                <X size={15} />
-                            </button>
-                        </div>
+  const handleClose = () => {
+    if (unassigning) return;
+    setError("");
+    onClose();
+  };
 
-                        {/* Body */}
-                        <div className="px-5 py-6 flex flex-col items-center text-center gap-3">
-                            <div className="ea-unassign-icon-wrap w-14 h-14 rounded-full flex items-center justify-center">
-                                <Unlink size={24} className="ea-unassign-icon" />
-                            </div>
-                            <p className="ea-unassign-title text-[15px] font-semibold">
-                                Are you sure?
-                            </p>
-                            <p className="ea-unassign-desc text-[13px] leading-relaxed">
-                                This will unlink{" "}
-                                <span className="font-semibold">{getAssignedUsername(employee)}</span>{" "}
-                                from <span className="font-semibold">{employeeLabel(employee)}</span>.
-                                They won't be able to sign in through this employee record until
-                                a user is assigned again.
-                            </p>
-                        </div>
+  return (
+    <AnimatePresence>
+      {isOpen && employee && (
+        <motion.div
+          className="ea-modal-overlay fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-[2px]"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={handleClose}
+        >
+          <motion.div
+            onClick={(e) => e.stopPropagation()}
+            initial={{ opacity: 0, scale: 0.94, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.94, y: 20 }}
+            transition={{ duration: 0.2 }}
+            className="ea-modal-panel w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl border border-border/80"
+          >
+            {/* Header */}
+            <div className="ea-modal-header flex items-center justify-between px-5 py-4 border-b border-border/60">
+              <h2 className="ea-unassign-title text-[15px] font-bold">
+                Unassign User Account
+              </h2>
+              <button
+                type="button"
+                onClick={handleClose}
+                disabled={unassigning}
+                className="ea-modal-close w-7 h-7 rounded-full flex items-center justify-center transition-colors text-muted-foreground hover:text-foreground"
+              >
+                <X size={15} />
+              </button>
+            </div>
 
-                        {/* Footer */}
-                        <div className="ea-form-footer flex items-center justify-center gap-3 px-5 py-4">
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="ea-btn-cancel flex-1 py-2.5 rounded-lg text-[13.5px] font-semibold transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                disabled={unassigning}
-                                onClick={handleUnassign}
-                                className="ea-modal-btn-danger flex-1 py-2.5 rounded-lg text-[13.5px] font-semibold transition-all active:scale-[0.97]"
-                            >
-                                {unassigning ? "Unassigning…" : "Unassign"}
-                            </button>
-                        </div>
-                    </motion.div>
-                </motion.div>
-            )}
-        </AnimatePresence>
-    );
+            {/* Body */}
+            <div className="px-5 py-6 flex flex-col items-center text-center gap-3">
+              <div className="ea-unassign-icon-wrap w-14 h-14 rounded-full flex items-center justify-center bg-destructive/10 text-destructive">
+                <Unlink size={24} className="ea-unassign-icon" />
+              </div>
+              <p className="ea-unassign-title text-[15px] font-semibold">
+                Unlink this user account?
+              </p>
+              <p className="ea-unassign-desc text-[13px] leading-relaxed text-muted-foreground">
+                This will unlink{" "}
+                <span className="font-semibold text-foreground">
+                  {getAssignedUsername(employee)}
+                </span>{" "}
+                from{" "}
+                <span className="font-semibold text-foreground">
+                  {employeeLabel(employee)}
+                </span>
+                . The user will no longer be linked to this employee profile.
+              </p>
+
+              {error && (
+                <div className="w-full flex items-center gap-2 p-2.5 rounded-lg bg-destructive/10 text-destructive text-[12.5px] text-left">
+                  <AlertCircle size={15} className="shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="ea-form-footer flex items-center justify-center gap-3 px-5 py-4 border-t border-border/60 bg-muted/20">
+              <button
+                type="button"
+                onClick={handleClose}
+                disabled={unassigning}
+                className="ea-btn-cancel flex-1 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors border border-border/60 hover:bg-muted/50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={unassigning}
+                onClick={handleUnassign}
+                className="ea-modal-btn-danger flex-1 py-2.5 rounded-xl text-[13.5px] font-semibold transition-all active:scale-[0.98] shadow-sm disabled:opacity-60"
+              >
+                {unassigning ? "Unassigning…" : "Unassign"}
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 }

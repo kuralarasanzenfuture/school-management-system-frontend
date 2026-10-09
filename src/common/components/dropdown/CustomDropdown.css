@@ -1,0 +1,148 @@
+/* CustomDropdown.css
+   Reusable dropdown styling for entire application
+   Supports light mode (#ffffff) and dark mode with rich hover states
+*/
+
+.custom-dropdown-root {
+  position: relative;
+  display: inline-block;
+  text-align: left;
+}
+
+.custom-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.5rem;
+  font-size: 0.84375rem; /* 13.5px */
+  font-weight: 500;
+  background: var(--panel-bg, #ffffff);
+  border: 1px solid var(--input-border, #e2e8f0);
+  color: var(--text-primary, #0f172a);
+  transition: all 0.15s ease;
+  outline: none;
+  cursor: pointer;
+}
+
+.custom-dropdown-trigger:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.custom-dropdown-trigger:focus,
+.custom-dropdown-trigger.open {
+  border-color: var(--btn-bg, #4f46e5);
+  box-shadow: 0 0 0 3px var(--focus-ring, rgba(79, 70, 229, 0.15));
+}
+
+.custom-dropdown-trigger.error {
+  border-color: var(--danger, #dc2626) !important;
+}
+
+.custom-dropdown-trigger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: #f1f5f9;
+}
+
+/* ── Dark Mode Trigger ── */
+[data-theme="dark"] .custom-dropdown-trigger {
+  background: #151929;
+  border-color: #2a2f4a;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .custom-dropdown-trigger:hover:not(:disabled) {
+  background: #1e2235;
+  border-color: #3b4266;
+}
+
+[data-theme="dark"] .custom-dropdown-trigger:focus,
+[data-theme="dark"] .custom-dropdown-trigger.open {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+[data-theme="dark"] .custom-dropdown-trigger:disabled {
+  background: #121522;
+}
+
+/* ── Floating Menu ── */
+.custom-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 50;
+  min-width: 100%;
+  max-height: 16rem; /* 256px */
+  overflow-y: auto;
+  border-radius: 0.75rem; /* 12px */
+  padding: 0.25rem;
+  background: var(--panel-bg, #ffffff) !important;
+  border: 1px solid var(--input-border, #e2e8f0);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] .custom-dropdown-menu {
+  background: #151929 !important;
+  border-color: #2a2f4a;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Option Item ── */
+.custom-dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 500;
+  color: var(--text-secondary, #475569);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.custom-dropdown-item:hover {
+  background-color: #f1f5f9 !important;
+  color: var(--text-primary, #0f172a) !important;
+}
+
+.custom-dropdown-item.active {
+  background-color: var(--badge-bg, #eef2ff) !important;
+  color: var(--btn-bg, #4f46e5) !important;
+  font-weight: 600;
+}
+
+.custom-dropdown-item.active:hover {
+  background-color: #e0e7ff !important;
+  color: var(--btn-bg, #4f46e5) !important;
+}
+
+/* ── Dark Mode Options ── */
+[data-theme="dark"] .custom-dropdown-item {
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .custom-dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .custom-dropdown-item.active {
+  background-color: rgba(99, 102, 241, 0.2) !important;
+  color: #a5b4fc !important;
+}
+
+[data-theme="dark"] .custom-dropdown-item.active:hover {
+  background-color: rgba(99, 102, 241, 0.28) !important;
+  color: #ffffff !important;
+}

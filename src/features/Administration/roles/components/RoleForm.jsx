@@ -1,6 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { Loader2, ShieldAlert, Lock, Hash, AlignLeft, ToggleLeft } from "lucide-react";
+import React, { useEffect, useState, useRef } from "react";
+import {
+  Loader2,
+  ShieldAlert,
+  Lock,
+  Hash,
+  AlignLeft,
+  ToggleLeft,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
 import { generateRoleCodePreview, isSystemRole } from "../utils/roleUtils.js";
+import { checkRoleName } from "../../../../redux/Administration/roles/roleService.js";
 
 const EMPTY = {
   name: "",
@@ -10,6 +20,7 @@ const EMPTY = {
 
 /**
  * Add / Edit form for a role with validation & system role protection.
+ * Implements real-time availability check via backend check-name API.
  *
  * @param {object|null} initialData - role to edit, or null for creating a new role
  * @param {(payload: {name, description, status}) => void} onSubmit
@@ -24,7 +35,14 @@ export default function RoleForm({
 }) {
   const [data, setData] = useState(EMPTY);
   const [errors, setErrors] = useState({});
+  const [nameCheck, setNameCheck] = useState({
+    checking: false,
+    available: null,
+    exists: null,
+    message: null,
+  });
 
+  const checkTimeoutRef = useRef(null);
   const isSystem = isSystemRole(initialData);
 
   useEffect(() => {
@@ -38,7 +56,105 @@ export default function RoleForm({
         : EMPTY,
     );
     setErrors({});
+    setNameCheck({
+      checking: false,
+      available: null,
+      exists: null,
+      message: null,
+    });
   }, [initialData]);
+
+  // Debounced real-time check against backend API (/roles/check-name)
+  useEffect(() => {
+    if (isSystem) return;
+
+    const trimmedName = data.name.trim();
+
+    if (checkTimeoutRef.current) {
+      clearTimeout(checkTimeoutRef.current);
+    }
+
+    if (trimmedName.length < 2) {
+      setNameCheck({
+        checking: false,
+        available: null,
+        exists: null,
+        message: null,
+      });
+      return;
+    }
+
+    // In edit mode: if name unchanged, mark available
+    if (
+      initialData?.name &&
+      trimmedName.toUpperCase() === initialData.name.trim().toUpperCase()
+    ) {
+      setNameCheck({
+        checking: false,
+        available: true,
+        exists: false,
+        message: "Current role name",
+      });
+      return;
+    }
+
+    if (!/^[A-Z0-9_ ]+$/i.test(trimmedName)) {
+      setNameCheck({
+        checking: false,
+        available: null,
+        exists: null,
+        message: null,
+      });
+      return;
+    }
+
+    setNameCheck((prev) => ({ ...prev, checking: true }));
+
+    checkTimeoutRef.current = setTimeout(async () => {
+      try {
+        const res = await checkRoleName(trimmedName, initialData?.id);
+        if (res.exists) {
+          setNameCheck({
+            checking: false,
+            available: false,
+            exists: true,
+            message: `Role name '${trimmedName}' is already taken`,
+          });
+          setErrors((er) => ({
+            ...er,
+            name: `Role name '${trimmedName}' is already in use`,
+          }));
+        } else {
+          setNameCheck({
+            checking: false,
+            available: true,
+            exists: false,
+            message: "Role name is available",
+          });
+          setErrors((er) => {
+            if (er.name?.includes("already in use")) {
+              const { name, ...rest } = er;
+              return rest;
+            }
+            return er;
+          });
+        }
+      } catch (err) {
+        setNameCheck({
+          checking: false,
+          available: null,
+          exists: null,
+          message: null,
+        });
+      }
+    }, 350);
+
+    return () => {
+      if (checkTimeoutRef.current) {
+        clearTimeout(checkTimeoutRef.current);
+      }
+    };
+  }, [data.name, isSystem, initialData]);
 
   const set = (key) => (e) => {
     let val = e.target.value;
@@ -64,6 +180,8 @@ export default function RoleForm({
         e.name = "Role name cannot exceed 100 characters";
       } else if (!/^[A-Z0-9_ ]+$/.test(trimmedName)) {
         e.name = "Allowed characters: letters, numbers, spaces, and underscores only";
+      } else if (nameCheck.exists) {
+        e.name = nameCheck.message || "Role name is already in use";
       }
     }
 
@@ -79,12 +197,41 @@ export default function RoleForm({
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
+    const trimmedName = data.name.trim();
+
+    // If pre-submit verify needed
+    if (
+      !isSystem &&
+      !nameCheck.available &&
+      (!initialData ||
+        trimmedName.toUpperCase() !== initialData.name.trim().toUpperCase())
+    ) {
+      try {
+        const res = await checkRoleName(trimmedName, initialData?.id);
+        if (res.exists) {
+          setNameCheck({
+            checking: false,
+            available: false,
+            exists: true,
+            message: `Role name '${trimmedName}' is already taken`,
+          });
+          setErrors((er) => ({
+            ...er,
+            name: `Role name '${trimmedName}' is already in use`,
+          }));
+          return;
+        }
+      } catch (err) {
+        console.warn("Pre-submit name verification skipped:", err);
+      }
+    }
+
     onSubmit({
-      name: data.name.trim(),
+      name: trimmedName,
       description: data.description.trim() || null,
       status: data.status,
     });
@@ -114,10 +261,28 @@ export default function RoleForm({
             <Hash size={14} className="opacity-70" />
             Role Name {!isSystem && <span className="rp-field-required">*</span>}
           </label>
-          {isSystem && (
+          {isSystem ? (
             <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-500">
               <Lock size={11} /> Locked
             </span>
+          ) : (
+            <div className="flex items-center gap-1 text-[11px]">
+              {nameCheck.checking && (
+                <span className="inline-flex items-center gap-1 text-muted-foreground animate-pulse">
+                  <Loader2 size={11} className="animate-spin" /> Checking...
+                </span>
+              )}
+              {!nameCheck.checking && nameCheck.available && (
+                <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
+                  <CheckCircle2 size={12} /> Available
+                </span>
+              )}
+              {!nameCheck.checking && nameCheck.exists && (
+                <span className="inline-flex items-center gap-1 text-rose-600 dark:text-rose-400 font-semibold">
+                  <XCircle size={12} /> Already taken
+                </span>
+              )}
+            </div>
           )}
         </div>
 

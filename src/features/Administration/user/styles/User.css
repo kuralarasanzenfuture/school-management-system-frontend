@@ -70,14 +70,25 @@
   box-shadow: var(--card-shadow);
 }
 .up-thead {
-  background: var(--input-bg);
+  background: #f8fafc;
   color: var(--text-muted);
 }
+
+[data-theme="dark"] .up-thead {
+  background: #101424;
+  color: #94a3b8;
+}
+
 .up-row {
   border-top: 1px solid var(--divider);
 }
+
 .up-row:hover {
-  background: var(--input-bg);
+  background: #f8fafc;
+}
+
+[data-theme="dark"] .up-row:hover {
+  background: #1b2138;
 }
 
 .up-avatar {

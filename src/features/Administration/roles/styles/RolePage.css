@@ -130,17 +130,17 @@
   color: var(--text-secondary);
 }
 .rp-tw-menu-item:hover {
-  background: var(--input-bg);
+  background: #f1f5f9;
   color: var(--text-primary);
 }
 .rp-tw-menu-active {
-  background: var(--badge-bg);
-  color: var(--btn-bg);
+  background: var(--badge-bg, #eef2ff);
+  color: var(--btn-bg, #4f46e5);
 }
 
 /* ── Dropdown Selects (Native) ── */
 .rp-select {
-  background: var(--input-bg);
+  background: var(--panel-bg);
   border: 1px solid var(--input-border);
   color: var(--text-primary);
   cursor: pointer;
@@ -169,31 +169,128 @@
   border: 1px solid var(--divider);
 }
 
+[data-theme="dark"] .rp-code-pill {
+  background: rgba(99, 102, 241, 0.16);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.28);
+}
+
 /* ── Table card ── */
 .rp-table-card {
   background: var(--panel-bg);
   border-color: var(--divider);
   box-shadow: var(--card-shadow);
 }
+
 .rp-thead {
-  background: var(--input-bg);
+  background: #f8fafc;
   color: var(--text-muted);
   border-color: var(--divider);
 }
+
+[data-theme="dark"] .rp-thead {
+  background: #101424;
+  color: #94a3b8;
+  border-color: var(--divider);
+}
+
 .rp-row {
   border-top: 1px solid var(--divider);
 }
+
 .rp-row:hover {
-  background: var(--input-bg);
+  background: #f8fafc;
 }
+
+[data-theme="dark"] .rp-row:hover {
+  background: #1b2138;
+}
+
 .rp-name {
   color: var(--text-primary);
 }
+
 .rp-desc {
   color: var(--text-secondary);
 }
+
 .rp-cell-muted {
   color: var(--text-muted);
+}
+
+/* ── Role Type Badges ── */
+.rp-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.rp-type-system {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+[data-theme="dark"] .rp-type-system {
+  background: rgba(245, 158, 11, 0.16);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.rp-type-custom {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+[data-theme="dark"] .rp-type-custom {
+  background: rgba(59, 130, 246, 0.16);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* ── Assigned Users Badge ── */
+.rp-users-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #eef2ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .rp-users-badge {
+  background: rgba(99, 102, 241, 0.16);
+  color: #c7d2fe;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+}
+
+.rp-users-badge-zero {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .rp-users-badge-zero {
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  border: 1px solid transparent;
 }
 
 /* ── Status badges (matches roles.status) ── */
@@ -207,10 +304,12 @@
   align-items: center;
   gap: 4px;
 }
+
 .rp-status-active {
   background: var(--success-bg);
   color: var(--success);
 }
+
 .rp-status-inactive {
   background: var(--danger-bg);
   color: var(--danger);
@@ -220,6 +319,7 @@
 .rp-toggle-switch {
   cursor: pointer;
 }
+
 .rp-toggle-switch:focus {
   outline: none;
   box-shadow: 0 0 0 2px var(--focus-ring);
@@ -228,14 +328,32 @@
 /* ── Action buttons ── */
 .rp-action-btn {
   color: var(--text-muted);
+  border-radius: 8px;
+  padding: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
 }
+
 .rp-action-btn:hover {
-  background: var(--input-bg);
+  background: #f1f5f9;
   color: var(--btn-bg);
 }
+
+[data-theme="dark"] .rp-action-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #a5b4fc;
+}
+
 .rp-action-btn-danger:hover {
   background: var(--danger-bg);
   color: var(--danger);
+}
+
+[data-theme="dark"] .rp-action-btn-danger:hover {
+  background: rgba(225, 29, 72, 0.18);
+  color: #fb7185;
 }
 
 .rp-empty-state,

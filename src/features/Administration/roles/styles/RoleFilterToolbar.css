@@ -33,24 +33,28 @@
 }
 
 .role-filter-pill:hover {
-  background: var(--bg, #f8f9fa);
-  border-color: #d1d5db;
-  color: var(--text-primary, #111827);
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: var(--text-primary, #0f172a);
 }
 
 .role-filter-pill-open {
-  background: var(--panel-bg, #ffffff);
-  border-color: #9ca3af;
-  color: var(--text-primary, #111827);
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: var(--text-primary, #0f172a);
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
 }
 
 .role-filter-pill-active {
-  background: var(--panel-bg, #ffffff);
+  background: var(--badge-bg, #eef2ff);
   border-color: var(--btn-bg, #4f46e5);
   color: var(--btn-bg, #4f46e5);
   font-weight: 600;
   box-shadow: 0 1px 3px 0 rgba(79, 70, 229, 0.12);
+}
+
+.role-filter-pill-active:hover {
+  background: #e0e7ff;
 }
 
 .role-filter-pill-icon {
@@ -216,18 +220,23 @@
 }
 
 .role-filter-menu-item:hover {
-  background: var(--bg, #f8f9fa);
-  color: var(--text-primary, #111827);
+  background: #f1f5f9;
+  color: var(--text-primary, #0f172a);
 }
 
 .role-filter-menu-active {
-  background: var(--bg, #f8f9fa);
-  color: var(--text-primary, #111827);
+  background: var(--badge-bg, #eef2ff);
+  color: var(--btn-bg, #4f46e5);
   font-weight: 600;
 }
 
+.role-filter-menu-active:hover {
+  background: #e0e7ff;
+  color: var(--btn-bg, #4f46e5);
+}
+
 .role-filter-check {
-  color: var(--text-primary, #111827);
+  color: var(--btn-bg, #4f46e5);
   margin-left: auto;
   flex-shrink: 0;
 }
@@ -237,17 +246,22 @@
 }
 
 [data-theme="dark"] .role-filter-menu-item:hover {
-  background: var(--input-bg, #1e2235);
+  background: rgba(255, 255, 255, 0.08);
   color: #ffffff;
 }
 
 [data-theme="dark"] .role-filter-menu-active {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+}
+
+[data-theme="dark"] .role-filter-menu-active:hover {
+  background: rgba(99, 102, 241, 0.28);
   color: #ffffff;
 }
 
 [data-theme="dark"] .role-filter-check {
-  color: #ffffff;
+  color: #a5b4fc;
 }
 
 /* ── Search Input Pill ── */

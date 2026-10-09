@@ -121,10 +121,9 @@ export default function RoleTable({
                 {/* Type */}
                 <td className="px-3.5 py-4">
                   <span
-                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11.5px] font-semibold ${isSystem
-                        ? "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
-                        : "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300"
-                      }`}
+                    className={`rp-type-badge ${
+                      isSystem ? "rp-type-system" : "rp-type-custom"
+                    }`}
                   >
                     {isSystem ? "System" : "Custom"}
                   </span>
@@ -145,10 +144,9 @@ export default function RoleTable({
                 {/* Assigned Users */}
                 <td className="px-3.5 py-4">
                   <span
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] font-medium border ${usersCount > 0
-                        ? "bg-indigo-50/70 text-indigo-700 border-indigo-200 dark:bg-indigo-950/30 dark:text-indigo-300 dark:border-indigo-800"
-                        : "bg-muted text-muted-foreground border-transparent"
-                      }`}
+                    className={
+                      usersCount > 0 ? "rp-users-badge" : "rp-users-badge-zero"
+                    }
                   >
                     <Users size={12} />
                     {usersCount} {usersCount === 1 ? "user" : "users"}

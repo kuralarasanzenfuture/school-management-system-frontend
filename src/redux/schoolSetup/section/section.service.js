@@ -15,17 +15,29 @@ import api from "../../../common/services/api";
 //   }
 // };
 
-export const getSections = async (schoolId, classId) => {
+export const getSections = async (filtersOrSchoolId, classId) => {
   try {
-    const response = await api.get(`/sections/token`, {
-      params: {
-        school_id: schoolId,
-        class_id: classId,
-      },
-    });
+    let params = {};
+    if (filtersOrSchoolId && typeof filtersOrSchoolId === "object") {
+      params = { ...filtersOrSchoolId };
+    } else {
+      if (filtersOrSchoolId) params.school_id = filtersOrSchoolId;
+      if (classId) params.class_id = classId;
+    }
+    const response = await api.get(`/sections/token`, { params });
     return response.data;
   } catch (error) {
     console.error("Error fetching sections:", error);
+    throw error;
+  }
+};
+
+export const updateSectionStatus = async (id, status) => {
+  try {
+    const response = await api.patch(`/sections/status/${id}`, { status });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating section status:", error);
     throw error;
   }
 };

@@ -5,14 +5,21 @@ import {
   createSubject,
   updateSubject,
   deleteSubject,
+  updateSubjectStatus,
 } from "./subject.service.js";
 
 // Fetch All
 export const fetchSubjects = createAsyncThunk(
   "subjects/fetchSubjects",
-  async (schoolId, { rejectWithValue }) => {
+  async (args = {}, { rejectWithValue }) => {
     try {
-      return await getSubjects(schoolId);
+      let params = {};
+      if (args && typeof args === "object") {
+        params = args;
+      } else if (args) {
+        params = { school_id: args };
+      }
+      return await getSubjects(params);
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch subjects",
@@ -63,6 +70,21 @@ export const updateSubjectThunk = createAsyncThunk(
   },
 );
 
+// Toggle Status
+export const toggleSubjectStatus = createAsyncThunk(
+  "subjects/toggleSubjectStatus",
+  async ({ id, status }, { rejectWithValue }) => {
+    try {
+      const res = await updateSubjectStatus(id, status);
+      return { id, status, res };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update subject status",
+      );
+    }
+  },
+);
+
 // Delete
 export const deleteSubjectThunk = createAsyncThunk(
   "subjects/deleteSubject",
@@ -84,6 +106,10 @@ const subjectSlice = createSlice({
   name: "subjects",
   initialState: {
     subjects: [],
+    total: 0,
+    page: 1,
+    limit: 20,
+    totalPages: 1,
     subject: null,
     loading: false,
     error: null,
@@ -103,7 +129,26 @@ const subjectSlice = createSlice({
       })
       .addCase(fetchSubjects.fulfilled, (state, action) => {
         state.loading = false;
-        state.subjects = unwrap(action.payload);
+        const p = action.payload;
+        if (Array.isArray(p)) {
+          state.subjects = p;
+          state.total = p.length;
+        } else if (p && Array.isArray(p.subjects)) {
+          state.subjects = p.subjects;
+          state.total = p.total ?? p.subjects.length;
+          state.page = p.page ?? 1;
+          state.limit = p.limit ?? 20;
+          state.totalPages = p.totalPages ?? 1;
+        } else if (p && Array.isArray(p.data)) {
+          state.subjects = p.data;
+          state.total = p.total ?? p.data.length;
+          state.page = p.page ?? 1;
+          state.limit = p.limit ?? 20;
+          state.totalPages = p.totalPages ?? 1;
+        } else {
+          state.subjects = [];
+          state.total = 0;
+        }
       })
       .addCase(fetchSubjects.rejected, (state, action) => {
         state.loading = false;
@@ -129,7 +174,10 @@ const subjectSlice = createSlice({
       })
       .addCase(createSubjectThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.subjects.push(unwrap(action.payload));
+        const item = unwrap(action.payload);
+        if (item) {
+          state.subjects.unshift(item);
+        }
       })
       .addCase(createSubjectThunk.rejected, (state, action) => {
         state.loading = false;
@@ -142,22 +190,32 @@ const subjectSlice = createSlice({
       })
       .addCase(updateSubjectThunk.fulfilled, (state, action) => {
         state.loading = false;
-
         const updated = unwrap(action.payload);
-
-        const index = state.subjects.findIndex(
-          (item) => item.id === updated.id,
-        );
-
-        if (index !== -1) {
-          state.subjects[index] = updated;
+        if (updated && updated.id) {
+          const index = state.subjects.findIndex(
+            (item) => item.id === updated.id,
+          );
+          if (index !== -1) {
+            state.subjects[index] = {
+              ...state.subjects[index],
+              ...updated,
+            };
+          }
         }
-
         state.subject = updated;
       })
       .addCase(updateSubjectThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+      // Toggle Status
+      .addCase(toggleSubjectStatus.fulfilled, (state, action) => {
+        const { id, status } = action.payload;
+        const target = state.subjects.find((s) => String(s.id) === String(id));
+        if (target) {
+          target.status = status;
+        }
       })
 
       // Delete

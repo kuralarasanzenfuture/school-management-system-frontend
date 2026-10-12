@@ -5,14 +5,15 @@ import {
   createClassSection,
   updateClassSection,
   deleteClassSection,
+  updateClassSectionStatus,
 } from "./classSection.service.js";
 
 // Fetch All
 export const fetchClassSections = createAsyncThunk(
   "classSections/fetchClassSections",
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      return await getAllClassSections();
+      return await getAllClassSections(params);
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch class sections",
@@ -63,6 +64,21 @@ export const editClassSection = createAsyncThunk(
   },
 );
 
+// Toggle Status
+export const toggleClassSectionStatus = createAsyncThunk(
+  "classSections/toggleClassSectionStatus",
+  async ({ id, status }, { rejectWithValue }) => {
+    try {
+      const res = await updateClassSectionStatus(id, status);
+      return { id, status, res };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update status",
+      );
+    }
+  },
+);
+
 // Delete
 export const removeClassSection = createAsyncThunk(
   "classSections/removeClassSection",
@@ -80,6 +96,10 @@ export const removeClassSection = createAsyncThunk(
 
 const initialState = {
   classSections: [],
+  total: 0,
+  page: 1,
+  limit: 20,
+  totalPages: 1,
   classSection: null,
   loading: false,
   error: null,
@@ -106,11 +126,26 @@ const classSectionSlice = createSlice({
       })
       .addCase(fetchClassSections.fulfilled, (state, action) => {
         state.loading = false;
-        state.classSections =
-          action.payload.classSections ||
-          action.payload.data ||
-          action.payload ||
-          [];
+        const p = action.payload;
+        if (Array.isArray(p)) {
+          state.classSections = p;
+          state.total = p.length;
+        } else if (p && Array.isArray(p.classSections)) {
+          state.classSections = p.classSections;
+          state.total = p.total ?? p.classSections.length;
+          state.page = p.page ?? 1;
+          state.limit = p.limit ?? 20;
+          state.totalPages = p.totalPages ?? 1;
+        } else if (p && Array.isArray(p.data)) {
+          state.classSections = p.data;
+          state.total = p.total ?? p.data.length;
+          state.page = p.page ?? 1;
+          state.limit = p.limit ?? 20;
+          state.totalPages = p.totalPages ?? 1;
+        } else {
+          state.classSections = [];
+          state.total = 0;
+        }
       })
       .addCase(fetchClassSections.rejected, (state, action) => {
         state.loading = false;
@@ -150,22 +185,31 @@ const classSectionSlice = createSlice({
       })
       .addCase(editClassSection.fulfilled, (state, action) => {
         state.loading = false;
-
         const updated = action.payload.data || action.payload;
-
-        const index = state.classSections.findIndex(
-          (item) => item.id === updated.id,
-        );
-
-        if (index !== -1) {
-          state.classSections[index] = updated;
+        if (updated && updated.id) {
+          const index = state.classSections.findIndex(
+            (item) => item.id === updated.id,
+          );
+          if (index !== -1) {
+            state.classSections[index] = {
+              ...state.classSections[index],
+              ...updated,
+            };
+          }
         }
-
-        state.classSection = updated;
       })
       .addCase(editClassSection.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+      // Toggle Status
+      .addCase(toggleClassSectionStatus.fulfilled, (state, action) => {
+        const { id, status } = action.payload;
+        const item = state.classSections.find((cs) => String(cs.id) === String(id));
+        if (item) {
+          item.status = status;
+        }
       })
 
       // Delete

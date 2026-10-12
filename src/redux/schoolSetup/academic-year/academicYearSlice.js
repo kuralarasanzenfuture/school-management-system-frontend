@@ -2,20 +2,38 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   getAcademicYears,
   getAcademicYearById,
+  getAcademicYearsBySchool,
   createAcademicYear,
   updateAcademicYear,
+  updateAcademicYearStatus,
   deleteAcademicYear,
 } from "./academicYear.service.js";
 
 // ================= Fetch All =================
 export const fetchAcademicYears = createAsyncThunk(
   "academicYears/fetchAcademicYears",
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      return await getAcademicYears();
+      return await getAcademicYears(params);
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch academic years",
+        error.response?.data?.message || error.message || "Failed to fetch academic years",
+      );
+    }
+  },
+);
+
+// ================= Fetch By School =================
+export const fetchAcademicYearsBySchool = createAsyncThunk(
+  "academicYears/fetchAcademicYearsBySchool",
+  async (arg, { rejectWithValue }) => {
+    try {
+      const schoolId = typeof arg === "object" ? arg.schoolId : arg;
+      const params = typeof arg === "object" ? arg.params : {};
+      return await getAcademicYearsBySchool(schoolId, params);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || "Failed to fetch academic years",
       );
     }
   },
@@ -29,7 +47,7 @@ export const fetchAcademicYearById = createAsyncThunk(
       return await getAcademicYearById(id);
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch academic year",
+        error.response?.data?.message || error.message || "Failed to fetch academic year",
       );
     }
   },
@@ -43,7 +61,7 @@ export const addAcademicYear = createAsyncThunk(
       return await createAcademicYear(academicYearData);
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to create academic year",
+        error.response?.data?.message || error.message || "Failed to create academic year",
       );
     }
   },
@@ -57,7 +75,22 @@ export const editAcademicYear = createAsyncThunk(
       return await updateAcademicYear(id, formData);
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to update academic year",
+        error.response?.data?.message || error.message || "Failed to update academic year",
+      );
+    }
+  },
+);
+
+// ================= Toggle / Update Status =================
+export const toggleAcademicYearStatus = createAsyncThunk(
+  "academicYears/toggleAcademicYearStatus",
+  async ({ id, status }, { rejectWithValue }) => {
+    try {
+      const res = await updateAcademicYearStatus(id, status);
+      return res.data || res.academicYear || res;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || "Failed to update status",
       );
     }
   },
@@ -72,7 +105,7 @@ export const removeAcademicYear = createAsyncThunk(
       return id;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to delete academic year",
+        error.response?.data?.message || error.message || "Failed to delete academic year",
       );
     }
   },
@@ -82,6 +115,10 @@ export const removeAcademicYear = createAsyncThunk(
 const initialState = {
   academicYears: [],
   academicYear: null,
+  total: 0,
+  page: 1,
+  limit: 20,
+  totalPages: 1,
   loading: false,
   error: null,
 };
@@ -108,9 +145,53 @@ const academicYearSlice = createSlice({
       })
       .addCase(fetchAcademicYears.fulfilled, (state, action) => {
         state.loading = false;
-        state.academicYears = action.payload;
+        const p = action.payload;
+        if (Array.isArray(p)) {
+          state.academicYears = p;
+          state.total = p.length;
+        } else if (Array.isArray(p?.data)) {
+          state.academicYears = p.data;
+          state.total = p.total ?? p.data.length;
+          state.page = p.page ?? 1;
+          state.limit = p.limit ?? 20;
+          state.totalPages = p.totalPages ?? 1;
+        } else if (Array.isArray(p?.academicYears)) {
+          state.academicYears = p.academicYears;
+          state.total = p.total ?? p.academicYears.length;
+          state.page = p.page ?? 1;
+          state.limit = p.limit ?? 20;
+          state.totalPages = p.totalPages ?? 1;
+        } else {
+          state.academicYears = [];
+        }
       })
       .addCase(fetchAcademicYears.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Fetch By School
+      .addCase(fetchAcademicYearsBySchool.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAcademicYearsBySchool.fulfilled, (state, action) => {
+        state.loading = false;
+        const p = action.payload;
+        if (Array.isArray(p)) {
+          state.academicYears = p;
+          state.total = p.length;
+        } else if (Array.isArray(p?.data)) {
+          state.academicYears = p.data;
+          state.total = p.total ?? p.data.length;
+        } else if (Array.isArray(p?.academicYears)) {
+          state.academicYears = p.academicYears;
+          state.total = p.total ?? p.academicYears.length;
+        } else {
+          state.academicYears = [];
+        }
+      })
+      .addCase(fetchAcademicYearsBySchool.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
@@ -121,7 +202,8 @@ const academicYearSlice = createSlice({
       })
       .addCase(fetchAcademicYearById.fulfilled, (state, action) => {
         state.loading = false;
-        state.academicYear = action.payload;
+        state.academicYear =
+          action.payload?.academicYear || action.payload?.data || action.payload;
       })
       .addCase(fetchAcademicYearById.rejected, (state, action) => {
         state.loading = false;
@@ -134,7 +216,12 @@ const academicYearSlice = createSlice({
       })
       .addCase(addAcademicYear.fulfilled, (state, action) => {
         state.loading = false;
-        state.academicYears.push(action.payload);
+        const newYear =
+          action.payload?.data || action.payload?.academicYear || action.payload;
+        if (newYear && newYear.id) {
+          state.academicYears.push(newYear);
+          state.total = (state.total || 0) + 1;
+        }
       })
       .addCase(addAcademicYear.rejected, (state, action) => {
         state.loading = false;
@@ -147,20 +234,39 @@ const academicYearSlice = createSlice({
       })
       .addCase(editAcademicYear.fulfilled, (state, action) => {
         state.loading = false;
-
-        const index = state.academicYears.findIndex(
-          (item) => item.id === action.payload.id,
-        );
-
-        if (index !== -1) {
-          state.academicYears[index] = action.payload;
+        const updated =
+          action.payload?.data || action.payload?.academicYear || action.payload;
+        if (updated && updated.id) {
+          const index = state.academicYears.findIndex(
+            (item) => item.id === updated.id,
+          );
+          if (index !== -1) {
+            state.academicYears[index] = updated;
+          }
+          state.academicYear = updated;
         }
-
-        state.academicYear = action.payload;
       })
       .addCase(editAcademicYear.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+      // Toggle Status
+      .addCase(toggleAcademicYearStatus.fulfilled, (state, action) => {
+        const updated = action.payload;
+        if (!updated?.id) return;
+        const index = state.academicYears.findIndex(
+          (item) => item.id === updated.id,
+        );
+        if (index !== -1) {
+          state.academicYears[index] = {
+            ...state.academicYears[index],
+            ...updated,
+          };
+        }
+        if (state.academicYear?.id === updated.id) {
+          state.academicYear = { ...state.academicYear, ...updated };
+        }
       })
 
       // Delete
@@ -172,6 +278,7 @@ const academicYearSlice = createSlice({
         state.academicYears = state.academicYears.filter(
           (item) => item.id !== action.payload,
         );
+        state.total = Math.max(0, (state.total || 1) - 1);
       })
       .addCase(removeAcademicYear.rejected, (state, action) => {
         state.loading = false;

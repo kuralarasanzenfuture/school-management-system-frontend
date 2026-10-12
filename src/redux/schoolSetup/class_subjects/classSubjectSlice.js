@@ -1,5 +1,3 @@
-// src/redux/classSubject/classSubjectSlice.js
-
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   getAllClassSubjects,
@@ -13,9 +11,15 @@ import {
 // Fetch All
 export const fetchClassSubjects = createAsyncThunk(
   "classSubjects/fetchClassSubjects",
-  async (_, { rejectWithValue }) => {
+  async (args = {}, { rejectWithValue }) => {
     try {
-      return await getAllClassSubjects();
+      let params = {};
+      if (args && typeof args === "object") {
+        params = args;
+      } else if (args) {
+        params = { school_id: args };
+      }
+      return await getAllClassSubjects(params);
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch class subjects",
@@ -59,7 +63,7 @@ export const addBulkAssignSubjects = createAsyncThunk(
       return await bulkAssignSubjects(data);
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to create class section",
+        error.response?.data?.message || "Failed to bulk assign subjects",
       );
     }
   },
@@ -100,6 +104,10 @@ const classSubjectSlice = createSlice({
   name: "classSubjects",
   initialState: {
     classSubjects: [],
+    total: 0,
+    page: 1,
+    limit: 20,
+    totalPages: 1,
     classSubject: null,
     loading: false,
     error: null,
@@ -119,7 +127,26 @@ const classSubjectSlice = createSlice({
       })
       .addCase(fetchClassSubjects.fulfilled, (state, action) => {
         state.loading = false;
-        state.classSubjects = unwrap(action.payload);
+        const p = action.payload;
+        if (Array.isArray(p)) {
+          state.classSubjects = p;
+          state.total = p.length;
+        } else if (p && Array.isArray(p.classSubjects)) {
+          state.classSubjects = p.classSubjects;
+          state.total = p.total ?? p.classSubjects.length;
+          state.page = p.page ?? 1;
+          state.limit = p.limit ?? 20;
+          state.totalPages = p.totalPages ?? 1;
+        } else if (p && Array.isArray(p.data)) {
+          state.classSubjects = p.data;
+          state.total = p.total ?? p.data.length;
+          state.page = p.page ?? 1;
+          state.limit = p.limit ?? 20;
+          state.totalPages = p.totalPages ?? 1;
+        } else {
+          state.classSubjects = [];
+          state.total = 0;
+        }
       })
       .addCase(fetchClassSubjects.rejected, (state, action) => {
         state.loading = false;
@@ -145,7 +172,10 @@ const classSubjectSlice = createSlice({
       })
       .addCase(createClassSubjectThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.classSubjects.push(unwrap(action.payload));
+        const item = unwrap(action.payload);
+        if (item) {
+          state.classSubjects.unshift(item);
+        }
       })
       .addCase(createClassSubjectThunk.rejected, (state, action) => {
         state.loading = false;
@@ -156,7 +186,7 @@ const classSubjectSlice = createSlice({
       .addCase(addBulkAssignSubjects.pending, (state) => {
         state.loading = true;
       })
-      .addCase(addBulkAssignSubjects.fulfilled, (state, action) => {
+      .addCase(addBulkAssignSubjects.fulfilled, (state) => {
         state.loading = false;
       })
       .addCase(addBulkAssignSubjects.rejected, (state, action) => {
@@ -170,17 +200,18 @@ const classSubjectSlice = createSlice({
       })
       .addCase(updateClassSubjectThunk.fulfilled, (state, action) => {
         state.loading = false;
-
         const updated = unwrap(action.payload);
-
-        const index = state.classSubjects.findIndex(
-          (item) => item.id === updated.id,
-        );
-
-        if (index !== -1) {
-          state.classSubjects[index] = updated;
+        if (updated && updated.id) {
+          const index = state.classSubjects.findIndex(
+            (item) => item.id === updated.id,
+          );
+          if (index !== -1) {
+            state.classSubjects[index] = {
+              ...state.classSubjects[index],
+              ...updated,
+            };
+          }
         }
-
         state.classSubject = updated;
       })
       .addCase(updateClassSubjectThunk.rejected, (state, action) => {

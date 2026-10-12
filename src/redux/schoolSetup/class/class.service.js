@@ -1,12 +1,22 @@
 import api from "../../../common/services/api";
 
-const getClasses = async () => {
+const getClasses = async (params = {}) => {
   try {
-    const response = await api.get("/classes/token");
+    const response = await api.get("/classes/token", { params });
     return response.data;
   } catch (error) {
     console.error("Error fetching classes:", error);
-    throw error; // Rethrow the error to be handled by the caller
+    throw error;
+  }
+};
+
+const getAllClasses = async (params = {}) => {
+  try {
+    const response = await api.get("/classes", { params });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching all classes:", error);
+    throw error;
   }
 };
 
@@ -16,17 +26,17 @@ const getClassById = async (id) => {
     return response.data;
   } catch (error) {
     console.error("Error fetching class:", error);
-    throw error; // Rethrow the error to be handled by the caller
+    throw error;
   }
 };
 
-const getClassesBySchoolId = async (schoolId) => {
+const getClassesBySchoolId = async (schoolId, params = {}) => {
   try {
-    const response = await api.get(`/classes/school/${schoolId}`);
+    const response = await api.get(`/classes/school/${schoolId}`, { params });
     return response.data;
   } catch (error) {
-    console.error("Error fetching classes:", error);
-    throw error; // Rethrow the error to be handled by the caller
+    console.error("Error fetching classes by school:", error);
+    throw error;
   }
 };
 
@@ -36,7 +46,7 @@ const createClass = async (classData) => {
     return response.data;
   } catch (error) {
     console.error("Error creating class:", error);
-    throw error; // Rethrow the error to be handled by the caller
+    throw error;
   }
 };
 
@@ -46,7 +56,17 @@ const updateClass = async (id, formData) => {
     return response.data;
   } catch (error) {
     console.error("Error updating class:", error);
-    throw error; // Rethrow the error to be handled by the caller
+    throw error;
+  }
+};
+
+const updateClassStatus = async (id, status) => {
+  try {
+    const response = await api.patch(`/classes/status/${id}`, { status });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating class status:", error);
+    throw error;
   }
 };
 
@@ -56,17 +76,21 @@ const deleteClass = async (id) => {
     return response.data;
   } catch (error) {
     console.error("Error deleting class:", error);
-    throw error; // Rethrow the error to be handled by the caller
+    throw error;
   }
 };
 
-const checkClassExists = async (schoolId, name) => {
+const checkClassExists = async (schoolId, name, excludeId = null) => {
   try {
+    const params = {
+      school_id: schoolId,
+      name,
+    };
+    if (excludeId) {
+      params.id = excludeId;
+    }
     const response = await api.get("/classes/check-class", {
-      params: {
-        school_id: schoolId,
-        name,
-      },
+      params,
     });
 
     return response.data;
@@ -76,12 +100,35 @@ const checkClassExists = async (schoolId, name) => {
   }
 };
 
+const checkClassExistsByToken = async (name, excludeId = null, schoolId = null) => {
+  try {
+    const params = { name };
+    if (excludeId) {
+      params.id = excludeId;
+    }
+    if (schoolId) {
+      params.school_id = schoolId;
+    }
+    const response = await api.get("/classes/check-class/token", {
+      params,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error checking class existence by token:", error);
+    throw error;
+  }
+};
+
 export {
   getClasses,
+  getAllClasses,
   getClassById,
   getClassesBySchoolId,
   createClass,
   updateClass,
+  updateClassStatus,
   deleteClass,
   checkClassExists,
+  checkClassExistsByToken,
 };

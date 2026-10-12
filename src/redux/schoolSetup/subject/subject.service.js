@@ -1,12 +1,14 @@
 import api from "../../../common/services/api";
 
-export const getSubjects = async (schoolId) => {
+export const getSubjects = async (filtersOrSchoolId) => {
   try {
-    const response = await api.get(`/subjects/token`, {
-      params: {
-        school_id: schoolId,
-      },
-    });
+    let params = {};
+    if (filtersOrSchoolId && typeof filtersOrSchoolId === "object") {
+      params = { ...filtersOrSchoolId };
+    } else if (filtersOrSchoolId) {
+      params.school_id = filtersOrSchoolId;
+    }
+    const response = await api.get(`/subjects/token`, { params });
     return response.data;
   } catch (error) {
     console.error("Error fetching subjects:", error);
@@ -40,6 +42,16 @@ export const updateSubject = async (subjectId, subjectData) => {
     return response.data;
   } catch (error) {
     console.error("Error updating subject:", error);
+    throw error;
+  }
+};
+
+export const updateSubjectStatus = async (id, status) => {
+  try {
+    const response = await api.patch(`/subjects/status/${id}`, { status });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating subject status:", error);
     throw error;
   }
 };

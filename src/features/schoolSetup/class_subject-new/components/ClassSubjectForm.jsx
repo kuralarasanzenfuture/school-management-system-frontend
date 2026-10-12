@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
+import CustomDropdown from "../../../../common/components/dropdown/CustomDropdown.jsx";
 import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
 import { fetchClassSections } from "../../../../redux/schoolSetup/class-sections/classSectionSlice.js";
 import { fetchEmployees } from "../../../../redux/employee/employeeSlice.js";
@@ -149,6 +150,49 @@ export default function ClassSubjectForm({
 
   const needsSchoolFirst = isAdmin && !effectiveSchoolId;
 
+  const schoolOptions = useMemo(() => {
+    const list = Array.isArray(schools)
+      ? schools
+      : Array.isArray(schools?.data)
+        ? schools.data
+        : [];
+    return list.map((s) => ({ value: String(s.id), label: s.name }));
+  }, [schools]);
+
+  const classSectionOptions = useMemo(() => {
+    return filteredClassSections.map((cs) => ({
+      value: String(cs.id),
+      label: classSectionLabel(cs),
+    }));
+  }, [filteredClassSections]);
+
+  const subjectOptions = useMemo(() => {
+    return filteredSubjects.map((s) => ({
+      value: String(s.id),
+      label: `${s.name}${s.code ? ` (${s.code})` : ""}`,
+    }));
+  }, [filteredSubjects]);
+
+  const subjectGroupOptions = useMemo(() => {
+    return [
+      { value: "", label: "None" },
+      ...filteredSubjectGroups.map((sg) => ({
+        value: String(sg.id),
+        label: sg.name,
+      })),
+    ];
+  }, [filteredSubjectGroups]);
+
+  const teacherOptions = useMemo(() => {
+    return [
+      { value: "", label: "None" },
+      ...filteredEmployees.map((emp) => ({
+        value: String(emp.id),
+        label: `${emp.first_name || ""} ${emp.last_name || ""}`.trim(),
+      })),
+    ];
+  }, [filteredEmployees]);
+
   const validate = () => {
     const e = {};
     if (isAdmin && !data.school_id) e.school_id = "Please select a school";
@@ -194,21 +238,31 @@ export default function ClassSubjectForm({
           <label className="cx-field-label text-[13px] font-medium">
             School <span className="cx-field-required">*</span>
           </label>
-          <select
-            className={inputCls("school_id")}
-            value={data.school_id}
-            onChange={set("school_id")}
+          <CustomDropdown
+            className="w-full"
+            options={schoolOptions}
+            value={data.school_id ? String(data.school_id) : ""}
+            onChange={(val) => {
+              setData((d) => ({
+                ...d,
+                school_id: val,
+                class_section_id: "",
+                subject_id: "",
+                subject_group_id: "",
+                employee_id: "",
+              }));
+              if (errors.school_id) {
+                setErrors((er) => ({ ...er, school_id: null }));
+              }
+            }}
+            placeholder={
+              schoolsLoading ? "Loading schools..." : "Select a school"
+            }
+            searchable={schoolOptions.length > 5}
+            searchPlaceholder="Search schools..."
             disabled={schoolsLoading}
-          >
-            <option value="">
-              {schoolsLoading ? "Loading schools..." : "Select a school"}
-            </option>
-            {schools.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </select>
+            hasError={Boolean(errors.school_id)}
+          />
           <div className="h-4">
             {errors.school_id && (
               <p className="cx-field-error text-[11px]">{errors.school_id}</p>
@@ -221,25 +275,28 @@ export default function ClassSubjectForm({
         <label className="cx-field-label text-[13px] font-medium">
           Class Section <span className="cx-field-required">*</span>
         </label>
-        <select
-          className={inputCls("class_section_id")}
-          value={data.class_section_id}
-          onChange={set("class_section_id")}
-          disabled={classSectionsLoading || needsSchoolFirst}
-        >
-          <option value="">
-            {needsSchoolFirst
+        <CustomDropdown
+          className="w-full"
+          options={classSectionOptions}
+          value={data.class_section_id ? String(data.class_section_id) : ""}
+          onChange={(val) => {
+            setData((d) => ({ ...d, class_section_id: val }));
+            if (errors.class_section_id) {
+              setErrors((er) => ({ ...er, class_section_id: null }));
+            }
+          }}
+          placeholder={
+            needsSchoolFirst
               ? "Select a school first"
               : classSectionsLoading
                 ? "Loading..."
-                : "Select Class Section"}
-          </option>
-          {filteredClassSections.map((cs) => (
-            <option key={cs.id} value={cs.id}>
-              {classSectionLabel(cs)}
-            </option>
-          ))}
-        </select>
+                : "Select Class Section"
+          }
+          searchable={classSectionOptions.length > 5}
+          searchPlaceholder="Search class section..."
+          disabled={classSectionsLoading || needsSchoolFirst}
+          hasError={Boolean(errors.class_section_id)}
+        />
         <div className="h-4">
           {errors.class_section_id && (
             <p className="cx-field-error text-[11px]">
@@ -254,26 +311,28 @@ export default function ClassSubjectForm({
           <label className="cx-field-label text-[13px] font-medium">
             Subject <span className="cx-field-required">*</span>
           </label>
-          <select
-            className={inputCls("subject_id")}
-            value={data.subject_id}
-            onChange={set("subject_id")}
-            disabled={subjectsLoading || needsSchoolFirst}
-          >
-            <option value="">
-              {needsSchoolFirst
+          <CustomDropdown
+            className="w-full"
+            options={subjectOptions}
+            value={data.subject_id ? String(data.subject_id) : ""}
+            onChange={(val) => {
+              setData((d) => ({ ...d, subject_id: val }));
+              if (errors.subject_id) {
+                setErrors((er) => ({ ...er, subject_id: null }));
+              }
+            }}
+            placeholder={
+              needsSchoolFirst
                 ? "Select a school first"
                 : subjectsLoading
                   ? "Loading..."
-                  : "Select Subject"}
-            </option>
-            {filteredSubjects.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-                {s.code ? ` (${s.code})` : ""}
-              </option>
-            ))}
-          </select>
+                  : "Select Subject"
+            }
+            searchable={subjectOptions.length > 5}
+            searchPlaceholder="Search subject..."
+            disabled={subjectsLoading || needsSchoolFirst}
+            hasError={Boolean(errors.subject_id)}
+          />
           <div className="h-4">
             {errors.subject_id && (
               <p className="cx-field-error text-[11px]">{errors.subject_id}</p>
@@ -305,50 +364,48 @@ export default function ClassSubjectForm({
           <label className="cx-field-label text-[13px] font-medium">
             Subject Group
           </label>
-          <select
-            className="cx-select w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200"
-            value={data.subject_group_id}
-            onChange={set("subject_group_id")}
-            disabled={subjectGroupsLoading || needsSchoolFirst}
-          >
-            <option value="">
-              {needsSchoolFirst
+          <CustomDropdown
+            className="w-full"
+            options={subjectGroupOptions}
+            value={data.subject_group_id ? String(data.subject_group_id) : ""}
+            onChange={(val) => {
+              setData((d) => ({ ...d, subject_group_id: val }));
+            }}
+            placeholder={
+              needsSchoolFirst
                 ? "Select a school first"
                 : subjectGroupsLoading
                   ? "Loading..."
-                  : "None"}
-            </option>
-            {filteredSubjectGroups.map((sg) => (
-              <option key={sg.id} value={sg.id}>
-                {sg.name}
-              </option>
-            ))}
-          </select>
+                  : "None"
+            }
+            searchable={subjectGroupOptions.length > 5}
+            searchPlaceholder="Search subject group..."
+            disabled={subjectGroupsLoading || needsSchoolFirst}
+          />
         </div>
 
         <div className="flex flex-col gap-1.5">
           <label className="cx-field-label text-[13px] font-medium">
             Teacher
           </label>
-          <select
-            className="cx-select w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200"
-            value={data.employee_id}
-            onChange={set("employee_id")}
-            disabled={employeesLoading || needsSchoolFirst}
-          >
-            <option value="">
-              {needsSchoolFirst
+          <CustomDropdown
+            className="w-full"
+            options={teacherOptions}
+            value={data.employee_id ? String(data.employee_id) : ""}
+            onChange={(val) => {
+              setData((d) => ({ ...d, employee_id: val }));
+            }}
+            placeholder={
+              needsSchoolFirst
                 ? "Select a school first"
                 : employeesLoading
                   ? "Loading..."
-                  : "None"}
-            </option>
-            {filteredEmployees.map((emp) => (
-              <option key={emp.id} value={emp.id}>
-                {emp.first_name} {emp.last_name || ""}
-              </option>
-            ))}
-          </select>
+                  : "None"
+            }
+            searchable={teacherOptions.length > 5}
+            searchPlaceholder="Search teacher..."
+            disabled={employeesLoading || needsSchoolFirst}
+          />
         </div>
       </div>
 

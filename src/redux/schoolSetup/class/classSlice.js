@@ -5,6 +5,7 @@ import {
   getClassesBySchoolId,
   createClass,
   updateClass,
+  updateClassStatus,
   deleteClass,
 } from "./class.service.js";
 
@@ -13,9 +14,9 @@ import {
 // ==============================
 export const fetchClasses = createAsyncThunk(
   "classes/fetchClasses",
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      return await getClasses();
+      return await getClasses(params);
     } catch (err) {
       return rejectWithValue(
         err.response?.data || { message: err.message }
@@ -45,9 +46,11 @@ export const fetchClassById = createAsyncThunk(
 // ==============================
 export const fetchClassesBySchool = createAsyncThunk(
   "classes/fetchClassesBySchool",
-  async (schoolId, { rejectWithValue }) => {
+  async (arg, { rejectWithValue }) => {
     try {
-      return await getClassesBySchoolId(schoolId);
+      const schoolId = typeof arg === "object" ? arg.schoolId : arg;
+      const params = typeof arg === "object" ? arg.params : {};
+      return await getClassesBySchoolId(schoolId, params);
     } catch (err) {
       return rejectWithValue(
         err.response?.data || { message: err.message }
@@ -89,6 +92,23 @@ export const editClass = createAsyncThunk(
 );
 
 // ==============================
+// Toggle/Update Class Status
+// ==============================
+export const toggleClassStatus = createAsyncThunk(
+  "classes/toggleClassStatus",
+  async ({ id, status }, { rejectWithValue }) => {
+    try {
+      const res = await updateClassStatus(id, status);
+      return res.data || res.class || res;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data || { message: err.message }
+      );
+    }
+  }
+);
+
+// ==============================
 // Delete Class
 // ==============================
 export const removeClass = createAsyncThunk(
@@ -110,6 +130,10 @@ const classSlice = createSlice({
   initialState: {
     classes: [],
     classDetails: null,
+    total: 0,
+    page: 1,
+    limit: 20,
+    totalPages: 1,
     loading: false,
     error: null,
   },
@@ -130,8 +154,25 @@ const classSlice = createSlice({
       })
       .addCase(fetchClasses.fulfilled, (state, action) => {
         state.loading = false;
-        state.classes =
-          action.payload.classes || action.payload || [];
+        const p = action.payload;
+        if (Array.isArray(p)) {
+          state.classes = p;
+          state.total = p.length;
+        } else if (Array.isArray(p?.data)) {
+          state.classes = p.data;
+          state.total = p.total ?? p.data.length;
+          state.page = p.page ?? 1;
+          state.limit = p.limit ?? 20;
+          state.totalPages = p.totalPages ?? 1;
+        } else if (Array.isArray(p?.classes)) {
+          state.classes = p.classes;
+          state.total = p.total ?? p.classes.length;
+          state.page = p.page ?? 1;
+          state.limit = p.limit ?? 20;
+          state.totalPages = p.totalPages ?? 1;
+        } else {
+          state.classes = [];
+        }
       })
       .addCase(fetchClasses.rejected, (state, action) => {
         state.loading = false;
@@ -148,7 +189,7 @@ const classSlice = createSlice({
       .addCase(fetchClassById.fulfilled, (state, action) => {
         state.loading = false;
         state.classDetails =
-          action.payload.class || action.payload;
+          action.payload?.class || action.payload?.data || action.payload;
       })
       .addCase(fetchClassById.rejected, (state, action) => {
         state.loading = false;
@@ -164,8 +205,19 @@ const classSlice = createSlice({
       })
       .addCase(fetchClassesBySchool.fulfilled, (state, action) => {
         state.loading = false;
-        state.classes =
-          action.payload.classes || action.payload || [];
+        const p = action.payload;
+        if (Array.isArray(p)) {
+          state.classes = p;
+          state.total = p.length;
+        } else if (Array.isArray(p?.data)) {
+          state.classes = p.data;
+          state.total = p.total ?? p.data.length;
+        } else if (Array.isArray(p?.classes)) {
+          state.classes = p.classes;
+          state.total = p.total ?? p.classes.length;
+        } else {
+          state.classes = [];
+        }
       })
       .addCase(fetchClassesBySchool.rejected, (state, action) => {
         state.loading = false;
@@ -181,11 +233,12 @@ const classSlice = createSlice({
       })
       .addCase(addClass.fulfilled, (state, action) => {
         state.loading = false;
-
         const newClass =
-          action.payload.class || action.payload;
-
-        state.classes.push(newClass);
+          action.payload?.class || action.payload?.data || action.payload;
+        if (newClass && newClass.id) {
+          state.classes.push(newClass);
+          state.total = (state.total || 0) + 1;
+        }
       })
       .addCase(addClass.rejected, (state, action) => {
         state.loading = false;
@@ -201,24 +254,40 @@ const classSlice = createSlice({
       })
       .addCase(editClass.fulfilled, (state, action) => {
         state.loading = false;
-
         const updated =
-          action.payload.class || action.payload;
-
-        const index = state.classes.findIndex(
-          (item) => item.id === updated.id
-        );
-
-        if (index !== -1) {
-          state.classes[index] = updated;
+          action.payload?.class || action.payload?.data || action.payload;
+        if (updated && updated.id) {
+          const index = state.classes.findIndex(
+            (item) => item.id === updated.id
+          );
+          if (index !== -1) {
+            state.classes[index] = updated;
+          }
+          state.classDetails = updated;
         }
-
-        state.classDetails = updated;
       })
       .addCase(editClass.rejected, (state, action) => {
         state.loading = false;
         state.error =
           action.payload?.message || "Failed to update class";
+      })
+
+      // ==============================
+      // Toggle Status
+      // ==============================
+      .addCase(toggleClassStatus.fulfilled, (state, action) => {
+        const updated = action.payload;
+        if (!updated?.id) return;
+        const index = state.classes.findIndex((item) => item.id === updated.id);
+        if (index !== -1) {
+          state.classes[index] = {
+            ...state.classes[index],
+            ...updated,
+          };
+        }
+        if (state.classDetails?.id === updated.id) {
+          state.classDetails = { ...state.classDetails, ...updated };
+        }
       })
 
       // ==============================
@@ -229,10 +298,10 @@ const classSlice = createSlice({
       })
       .addCase(removeClass.fulfilled, (state, action) => {
         state.loading = false;
-
         state.classes = state.classes.filter(
           (item) => item.id !== action.payload
         );
+        state.total = Math.max(0, (state.total || 1) - 1);
       })
       .addCase(removeClass.rejected, (state, action) => {
         state.loading = false;

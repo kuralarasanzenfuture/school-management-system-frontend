@@ -1,8 +1,8 @@
 import api from "../../../common/services/api";
 
-export const getAllClassSections = async () => {
+export const getAllClassSections = async (params = {}) => {
   try {
-    const response = await api.get(`/class-sections/token`);
+    const response = await api.get(`/class-sections/token`, { params });
     return response.data;
   } catch (error) {
     console.error("Error fetching class sections:", error);
@@ -36,6 +36,16 @@ export const updateClassSection = async (id, classSectionData) => {
     return response.data;
   } catch (error) {
     console.error("Error updating class section:", error);
+    throw error;
+  }
+};
+
+export const updateClassSectionStatus = async (id, status) => {
+  try {
+    const response = await api.patch(`/class-sections/status/${id}`, { status });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating class section status:", error);
     throw error;
   }
 };

@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Loader2 } from "lucide-react";
 import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
+import CustomDropdown from "../../../../common/components/dropdown/CustomDropdown.jsx";
 
 const EMPTY = {
   school_id: "",
   start_date: "",
   end_date: "",
-  is_current: false,
   status: "active",
+  remarks: "",
 };
 
 /**
@@ -27,7 +28,6 @@ export default function AcademicYearForm({
   const isEdit = Boolean(initialData?.id);
   const dispatch = useDispatch();
 
-  // adjust these selector paths to match your actual redux state shape
   const schools = useSelector((state) => state.schoolProfile?.schools || []);
   const schoolsLoading = useSelector(
     (state) => state.schoolProfile?.loading || false,
@@ -38,29 +38,34 @@ export default function AcademicYearForm({
 
   // Admin picks from a list — fetch it once.
   useEffect(() => {
-    if (isAdmin) {
+    if (isAdmin && schools.length === 0) {
       dispatch(fetchSchools());
     }
-  }, [isAdmin, dispatch]);
+  }, [isAdmin, schools.length, dispatch]);
 
   useEffect(() => {
     setData(
       initialData
         ? {
-            school_id: initialData.school_id ?? schoolId ?? "",
+            school_id: initialData.school_id ? String(initialData.school_id) : (schoolId ? String(schoolId) : ""),
             start_date: initialData.start_date
               ? initialData.start_date.slice(0, 10)
               : "",
             end_date: initialData.end_date
               ? initialData.end_date.slice(0, 10)
               : "",
-            is_current: Boolean(initialData.is_current),
             status: initialData.status || "active",
+            remarks: initialData.remarks || "",
           }
-        : { ...EMPTY, school_id: isAdmin ? "" : (schoolId ?? "") },
+        : { ...EMPTY, school_id: isAdmin ? "" : (schoolId ? String(schoolId) : "") },
     );
     setErrors({});
   }, [initialData, schoolId, isAdmin]);
+
+  const schoolOptions = useMemo(
+    () => schools.map((s) => ({ value: String(s.id), label: s.name })),
+    [schools],
+  );
 
   const set = (key) => (e) => {
     setData((d) => ({ ...d, [key]: e.target.value }));
@@ -89,6 +94,10 @@ export default function AcademicYearForm({
       }
     }
 
+    if (data.remarks && data.remarks.length > 255) {
+      e.remarks = "Remarks cannot exceed 255 characters";
+    }
+
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -98,13 +107,11 @@ export default function AcademicYearForm({
     if (!validate()) return;
 
     onSubmit({
-      // admin: whatever they picked in the dropdown
-      // non-admin: the single school they belong to
-      school_id: isAdmin ? data.school_id : schoolId,
+      school_id: isAdmin ? Number(data.school_id) : Number(schoolId),
       start_date: data.start_date,
       end_date: data.end_date,
-      is_current: data.is_current,
       status: data.status,
+      remarks: data.remarks?.trim() || null,
     });
   };
 
@@ -115,21 +122,19 @@ export default function AcademicYearForm({
           <label className="ay-field-label text-[13px] font-medium">
             School <span className="ay-field-required">*</span>
           </label>
-          <select
-            className={`ay-input w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200 ${errors.school_id ? "ay-input-error" : ""}`}
+          <CustomDropdown
+            options={schoolOptions}
             value={data.school_id}
-            onChange={set("school_id")}
+            onChange={(val) => {
+              setData((d) => ({ ...d, school_id: val }));
+              if (errors.school_id) setErrors((er) => ({ ...er, school_id: null }));
+            }}
+            placeholder={schoolsLoading ? "Loading schools..." : "Select a school"}
+            searchable={schoolOptions.length > 5}
+            searchPlaceholder="Search schools..."
             disabled={schoolsLoading}
-          >
-            <option value="">
-              {schoolsLoading ? "Loading schools..." : "Select a school"}
-            </option>
-            {schools.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </select>
+            hasError={Boolean(errors.school_id)}
+          />
           <div className="h-4">
             {errors.school_id && (
               <p className="ay-field-error text-[11px]">{errors.school_id}</p>
@@ -182,27 +187,10 @@ export default function AcademicYearForm({
         </div>
       )}
 
-      <label
-        className={`ay-checkbox-row flex items-center gap-2 rounded-lg px-3.5 py-2.5 text-[13.5px] font-medium cursor-pointer transition-colors ${
-          data.is_current ? "ay-checkbox-row-checked" : ""
-        }`}
-      >
-        <input
-          type="checkbox"
-          className="ay-checkbox w-4 h-4 rounded"
-          checked={data.is_current}
-          onChange={(e) =>
-            setData((d) => ({ ...d, is_current: e.target.checked }))
-          }
-          disabled
-        />
-        Set as the current academic year
-      </label>
-
       <div className="flex flex-col gap-1.5">
         <label className="ay-field-label text-[13px] font-medium">Status</label>
         <div className="flex gap-2">
-          {["active", "inactive"].map((s) => (
+          {["active", "inactive", "archived"].map((s) => (
             <button
               key={s}
               type="button"
@@ -221,6 +209,23 @@ export default function AcademicYearForm({
         </div>
       </div>
 
+      <div className="flex flex-col gap-1.5">
+        <label className="ay-field-label text-[13px] font-medium">Remarks</label>
+        <input
+          type="text"
+          className="ay-input w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200"
+          placeholder="Optional notes or remarks (max 255 chars)…"
+          value={data.remarks}
+          onChange={set("remarks")}
+          maxLength={255}
+        />
+        <div className="h-4">
+          {errors.remarks && (
+            <p className="ay-field-error text-[11px]">{errors.remarks}</p>
+          )}
+        </div>
+      </div>
+
       <div className="ay-form-footer flex items-center justify-end gap-3 pt-4 mt-1">
         <button
           type="button"
@@ -234,8 +239,15 @@ export default function AcademicYearForm({
           disabled={submitting}
           className="ay-btn-primary inline-flex items-center gap-2 text-[13.5px] font-semibold px-5 py-2.5 rounded-lg transition-colors"
         >
-          {submitting && <Loader2 size={14} className="animate-spin" />}
-          {isEdit ? "Update Academic Year" : "Create Academic Year"}
+          {submitting ? (
+            <>
+              <Loader2 size={16} className="animate-spin" /> Saving…
+            </>
+          ) : isEdit ? (
+            "Save Changes"
+          ) : (
+            "Add Academic Year"
+          )}
         </button>
       </div>
     </form>

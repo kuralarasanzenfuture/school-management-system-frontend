@@ -175,11 +175,12 @@
 // }
 
 // ------------------------------------------------------------------
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { Loader2 } from "lucide-react";
 import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
 import { useDispatch, useSelector } from "react-redux";
 import { checkClassExists } from "../../../../redux/schoolSetup/class/class.service.js";
+import CustomDropdown from "../../../../common/components/dropdown/CustomDropdown.jsx";
 
 const EMPTY = {
   school_id: "",
@@ -297,7 +298,11 @@ export default function ClassForm({
     const timer = setTimeout(async () => {
       setCheckingName(true);
       try {
-        const result = await checkClassExists(effectiveSchoolId, value);
+        const result = await checkClassExists(
+          effectiveSchoolId,
+          value,
+          initialData?.id
+        );
         // Normalize whatever shape the API returns — a plain boolean, or
         // an object like { exists: true }. Treating any truthy *object*
         // (including { exists: false }) as "exists" was the original bug.
@@ -342,6 +347,11 @@ export default function ClassForm({
     });
   };
 
+  const schoolOptions = useMemo(
+    () => schools.map((s) => ({ value: String(s.id), label: s.name })),
+    [schools]
+  );
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       {isAdmin && (
@@ -349,21 +359,19 @@ export default function ClassForm({
           <label className="cp-field-label text-[13px] font-medium">
             School <span className="cp-field-required">*</span>
           </label>
-          <select
-            className={`cp-input w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200 ${errors.school_id ? "cp-input-error" : ""}`}
-            value={data.school_id}
-            onChange={set("school_id")}
+          <CustomDropdown
+            options={schoolOptions}
+            value={data.school_id ? String(data.school_id) : ""}
+            onChange={(val) => {
+              setData((d) => ({ ...d, school_id: val }));
+              if (errors.school_id) setErrors((er) => ({ ...er, school_id: null }));
+            }}
+            placeholder={schoolsLoading ? "Loading schools..." : "Select a school"}
+            searchable={schoolOptions.length > 5}
+            searchPlaceholder="Search schools..."
             disabled={schoolsLoading}
-          >
-            <option value="">
-              {schoolsLoading ? "Loading schools..." : "Select a school"}
-            </option>
-            {schools.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </select>
+            hasError={Boolean(errors.school_id)}
+          />
           <div className="h-4">
             {errors.school_id && (
               <p className="cp-field-error text-[11px]">{errors.school_id}</p>

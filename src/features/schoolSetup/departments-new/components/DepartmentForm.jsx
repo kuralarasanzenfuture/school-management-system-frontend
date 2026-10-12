@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useMemo } from "react";
+import CustomDropdown from "../../../../common/components/dropdown/CustomDropdown.jsx";
 import {
   handleRestrictedInput,
   toUpperCase,
@@ -44,6 +45,15 @@ export default function DepartmentForm({
   handleChange,
   setFormData,
 }) {
+  const schoolOptions = useMemo(() => {
+    const list = Array.isArray(schools)
+      ? schools
+      : Array.isArray(schools?.data)
+        ? schools.data
+        : [];
+    return list.map((s) => ({ value: String(s.id), label: s.name }));
+  }, [schools]);
+
   const inputClass = (fieldKey) =>
     `dp-input w-full rounded-lg px-3.5 py-2.5 text-[14px] ${errors[fieldKey] ? "dp-input-error" : ""}`;
 
@@ -51,21 +61,21 @@ export default function DepartmentForm({
     <div className="px-6 py-5 flex flex-col gap-4">
       {isAdmin && (
         <Field label="School" required error={errors.school_id}>
-          <select
-            className={inputClass("school_id")}
-            value={formData.school_id}
-            onChange={handleChange("school_id")}
+          <CustomDropdown
+            className="w-full"
+            options={schoolOptions}
+            value={formData.school_id ? String(formData.school_id) : ""}
+            onChange={(val) => {
+              setFormData((d) => ({ ...d, school_id: val }));
+            }}
+            placeholder={
+              schoolsLoading ? "Loading schools..." : "Select a school"
+            }
+            searchable={schoolOptions.length > 5}
+            searchPlaceholder="Search schools..."
             disabled={schoolsLoading}
-          >
-            <option value="">
-              {schoolsLoading ? "Loading schools..." : "Select a school"}
-            </option>
-            {schools.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </select>
+            hasError={Boolean(errors.school_id)}
+          />
         </Field>
       )}
 

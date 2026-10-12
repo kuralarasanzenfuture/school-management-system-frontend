@@ -1,8 +1,8 @@
 import api from "../../../common/services/api";
 
-const getDepartments = async () => {
+const getDepartments = async (params = {}) => {
   try {
-    const response = await api.get("/departments/token");
+    const response = await api.get("/departments/token", { params });
     return response.data;
   } catch (error) {
     console.error("Error fetching departments:", error);
@@ -60,13 +60,27 @@ const deleteDepartment = async (id) => {
   }
 };
 
-export const checkDepartmentExist = async (schoolId, departmentName) => {
+const updateDepartmentStatus = async (id, status) => {
   try {
+    const response = await api.patch(`/departments/status/${id}`, { status });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating department status:", error);
+    throw error;
+  }
+};
+
+export const checkDepartmentExist = async (schoolId, departmentName, excludeId = null) => {
+  try {
+    const params = {
+      school_id: schoolId,
+      name: departmentName,
+    };
+    if (excludeId) {
+      params.id = excludeId;
+    }
     const response = await api.get("/departments/check-department", {
-      params: {
-        school_id: schoolId,
-        name: departmentName,
-      },
+      params,
     });
 
     return response.data;
@@ -82,5 +96,6 @@ export {
   getDepartmentsBySchoolId,
   createDepartment,
   updateDepartment,
+  updateDepartmentStatus,
   deleteDepartment,
 };

@@ -450,3 +450,12 @@
   background: var(--danger-bg);
   color: var(--danger);
 }
+
+/* ── Toggle Switch ── */
+.dp-toggle-switch {
+  cursor: pointer;
+}
+.dp-toggle-switch:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}

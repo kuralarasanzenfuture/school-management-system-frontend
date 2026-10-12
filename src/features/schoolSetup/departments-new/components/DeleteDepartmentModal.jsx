@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Trash2, X } from "lucide-react";
+import { Trash2, X, Loader2 } from "lucide-react";
 import { useDispatch } from "react-redux";
+import toast from "react-hot-toast";
 import { removeDepartment } from "../../../../redux/schoolSetup/department/departmentSlice.js";
 
 export default function DeleteDepartmentModal({ isOpen, onClose, department }) {
@@ -13,9 +14,11 @@ export default function DeleteDepartmentModal({ isOpen, onClose, department }) {
     setDeleting(true);
     try {
       await dispatch(removeDepartment(department.id)).unwrap();
+      toast.success(`Department '${department.name}' deleted successfully`);
       onClose();
     } catch (deletionError) {
-      alert(deletionError?.message ?? String(deletionError));
+      const msg = deletionError?.message ?? String(deletionError);
+      toast.error(msg || "Failed to delete department");
     } finally {
       setDeleting(false);
     }
@@ -81,8 +84,9 @@ export default function DeleteDepartmentModal({ isOpen, onClose, department }) {
                 type="button"
                 disabled={deleting}
                 onClick={handleDelete}
-                className="dp-modal-btn-danger flex-1 py-2.5 rounded-lg text-[13.5px] font-semibold transition-all active:scale-[0.97]"
+                className="dp-modal-btn-danger flex-1 py-2.5 rounded-lg text-[13.5px] font-semibold transition-all active:scale-[0.97] inline-flex items-center justify-center gap-2"
               >
+                {deleting && <Loader2 size={15} className="animate-spin" />}
                 {deleting ? "Deleting…" : "Delete"}
               </button>
             </div>

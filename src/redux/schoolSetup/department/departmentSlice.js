@@ -5,6 +5,7 @@ import {
   getDepartmentsBySchoolId,
   createDepartment,
   updateDepartment,
+  updateDepartmentStatus,
   deleteDepartment,
 } from "./departmentService.js";
 
@@ -15,9 +16,22 @@ import {
 // Get All Departments
 export const fetchDepartments = createAsyncThunk(
   "departments/fetchDepartments",
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      return await getDepartments();
+      return await getDepartments(params);
+    } catch (err) {
+      return rejectWithValue(err.response?.data || { message: err.message });
+    }
+  },
+);
+
+// Toggle Department Status (PATCH /departments/status/:id)
+export const toggleDepartmentStatus = createAsyncThunk(
+  "departments/toggleDepartmentStatus",
+  async ({ id, status }, { rejectWithValue }) => {
+    try {
+      const res = await updateDepartmentStatus(id, status);
+      return res.data || res;
     } catch (err) {
       return rejectWithValue(err.response?.data || { message: err.message });
     }
@@ -116,7 +130,16 @@ const departmentSlice = createSlice({
       })
       .addCase(fetchDepartments.fulfilled, (state, action) => {
         state.loading = false;
-        state.departments = action.payload.departments || action.payload || [];
+        const p = action.payload;
+        if (Array.isArray(p)) {
+          state.departments = p;
+        } else if (Array.isArray(p?.data)) {
+          state.departments = p.data;
+        } else if (Array.isArray(p?.departments)) {
+          state.departments = p.departments;
+        } else {
+          state.departments = [];
+        }
       })
       .addCase(fetchDepartments.rejected, (state, action) => {
         state.loading = false;
@@ -131,7 +154,8 @@ const departmentSlice = createSlice({
       })
       .addCase(fetchDepartmentById.fulfilled, (state, action) => {
         state.loading = false;
-        state.department = action.payload.department || action.payload;
+        state.department =
+          action.payload.department || action.payload.data || action.payload;
       })
       .addCase(fetchDepartmentById.rejected, (state, action) => {
         state.loading = false;
@@ -146,7 +170,16 @@ const departmentSlice = createSlice({
       })
       .addCase(fetchDepartmentsBySchool.fulfilled, (state, action) => {
         state.loading = false;
-        state.departments = action.payload.departments || action.payload || [];
+        const p = action.payload;
+        if (Array.isArray(p)) {
+          state.departments = p;
+        } else if (Array.isArray(p?.data)) {
+          state.departments = p.data;
+        } else if (Array.isArray(p?.departments)) {
+          state.departments = p.departments;
+        } else {
+          state.departments = [];
+        }
       })
       .addCase(fetchDepartmentsBySchool.rejected, (state, action) => {
         state.loading = false;
@@ -211,6 +244,24 @@ const departmentSlice = createSlice({
       .addCase(removeDepartment.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Failed to delete department";
+      })
+
+      // ==========================
+      // Toggle Department Status
+      // ==========================
+      .addCase(toggleDepartmentStatus.fulfilled, (state, action) => {
+        const updated = action.payload;
+        if (!updated?.id) return;
+        const index = state.departments.findIndex((d) => d.id === updated.id);
+        if (index !== -1) {
+          state.departments[index] = {
+            ...state.departments[index],
+            ...updated,
+          };
+        }
+        if (state.department?.id === updated.id) {
+          state.department = { ...state.department, ...updated };
+        }
       });
   },
 });

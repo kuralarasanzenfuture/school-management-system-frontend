@@ -9,6 +9,7 @@ import {
 } from "../../../../redux/schoolSetup/department/departmentSlice.js";
 import { checkDepartmentExist } from "../../../../redux/schoolSetup/department/departmentService.js";
 import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
+import toast from "react-hot-toast";
 import DepartmentForm from "./DepartmentForm.jsx";
 
 const DEBOUNCE_MS = 500;
@@ -174,13 +175,20 @@ export default function AddDepartmentModal({
         await dispatch(
           editDepartment({ id: department.id, formData: payload }),
         ).unwrap();
+        toast.success(`Department '${payload.name}' updated successfully!`);
       } else {
         await dispatch(addDepartment(payload)).unwrap();
+        toast.success(`Department '${payload.name}' created successfully!`);
       }
       dispatch(fetchDepartments());
       onClose();
     } catch (submissionError) {
-      alert(submissionError?.message ?? String(submissionError));
+      const msg =
+        submissionError?.message ??
+        (typeof submissionError === "string"
+          ? submissionError
+          : "Failed to save department");
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }

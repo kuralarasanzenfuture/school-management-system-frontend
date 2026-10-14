@@ -2,17 +2,32 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
     fetchEmployeeSalaryComponents,
+    toggleEmployeeSalaryComponentStatus,
 } from "../../../../redux/employee_salary_component/employeeSalaryComponentSlice.js";
 import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
 import SalaryComponentTable from "../components/SalaryComponentTable.jsx";
 import SalaryComponentModal from "../components/SalaryComponentModal.jsx";
 import DeleteSalaryComponentModal from "../components/DeleteSalaryComponentModal.jsx";
+import SalaryComponentStatusModal from "../components/SalaryComponentStatusModal.jsx";
+import CustomDropdown from "../../../../common/components/dropdown/CustomDropdown.jsx";
 import "../styles/SalaryComponent.css";
 import {
     DollarSign, Plus, Search, List, LayoutGrid,
-    TrendingUp, TrendingDown, CheckCircle, Zap,
-    Pencil, Trash2, Check, X,
+    TrendingUp, TrendingDown, CheckCircle,
+    Pencil, Trash2, Loader2,
 } from "lucide-react";
+
+const TYPE_OPTIONS = [
+    { value: "", label: "All Types" },
+    { value: "earning", label: "Earning" },
+    { value: "deduction", label: "Deduction" },
+];
+
+const STATUS_OPTIONS = [
+    { value: "", label: "All Statuses" },
+    { value: "active", label: "Active" },
+    { value: "inactive", label: "Inactive" },
+];
 
 /* ── Stat card ── */
 function StatCard({ icon: Icon, iconBgClass, iconColorClass, value, label }) {
@@ -29,16 +44,6 @@ function StatCard({ icon: Icon, iconBgClass, iconColorClass, value, label }) {
     );
 }
 
-/* ── Bool pill for grid cards ── */
-function BoolPill({ value, yesLabel = "Yes", noLabel = "No" }) {
-    return (
-        <span className={`sc-pill ${value ? "sc-pill-yes" : "sc-pill-no"}`}>
-            {value ? <Check size={11} /> : <X size={11} />}
-            {value ? yesLabel : noLabel}
-        </span>
-    );
-}
-
 export default function SalaryComponentPage() {
     const dispatch = useDispatch();
 
@@ -49,20 +54,45 @@ export default function SalaryComponentPage() {
     const schools = useSelector((state) => state.schoolProfile?.schools ?? []);
     const schoolsLoading = useSelector((state) => state.schoolProfile?.loading ?? false);
 
+    const schoolList = useMemo(() => {
+        const raw = Array.isArray(schools)
+            ? schools
+            : schools?.schools || schools?.data || [];
+        return Array.isArray(raw) ? raw : [];
+    }, [schools]);
+
+    const schoolOptions = useMemo(
+        () => [
+            { value: "", label: "All Schools" },
+            ...schoolList.map((school) => ({
+                value: String(school.id),
+                label: school.name,
+            })),
+        ],
+        [schoolList],
+    );
+
     const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
     const schoolId = isAdmin ? null : user?.school_id;
 
     /* ── Local filter state ── */
     const [searchQuery, setSearchQuery] = useState("");
-    const [typeFilter, setTypeFilter] = useState("All");
-    const [statusFilter, setStatusFilter] = useState("All");
+    const [typeFilter, setTypeFilter] = useState("");
+    const [statusFilter, setStatusFilter] = useState("");
     const [selectedSchool, setSelectedSchool] = useState("");
-    const [viewMode, setViewMode] = useState("table");
+    const [viewMode, setViewMode] = useState("grid");
 
     /* ── Modal state ── */
     const [showModal, setShowModal] = useState(false);
     const [editTarget, setEditTarget] = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
+
+    /* ── Status toggle modal state ── */
+    const [statusModalOpen, setStatusModalOpen] = useState(false);
+    const [statusTargetComponent, setStatusTargetComponent] = useState(null);
+    const [targetStatus, setTargetStatus] = useState("");
+    const [statusSubmitting, setStatusSubmitting] = useState(false);
+    const [togglingId, setTogglingId] = useState(null);
 
     /* ── Fetch ── */
     useEffect(() => {
@@ -70,12 +100,48 @@ export default function SalaryComponentPage() {
     }, [dispatch]);
 
     useEffect(() => {
-        if (isAdmin && schools.length === 0) dispatch(fetchSchools());
-    }, [dispatch, isAdmin, schools.length]);
+        if (isAdmin && schoolList.length === 0) dispatch(fetchSchools());
+    }, [dispatch, isAdmin, schoolList.length]);
+
+    /* ── Status toggle request ── */
+    const handleStatusToggleRequest = (component, nextStatus) => {
+        setStatusTargetComponent(component);
+        setTargetStatus(
+            nextStatus || (component.status === "active" ? "inactive" : "active"),
+        );
+        setStatusModalOpen(true);
+    };
+
+    const closeStatusModal = () => {
+        setStatusModalOpen(false);
+        setStatusTargetComponent(null);
+        setTargetStatus("");
+    };
+
+    const handleConfirmStatusChange = async (componentId, next) => {
+        setStatusSubmitting(true);
+        setTogglingId(componentId);
+        try {
+            await dispatch(
+                toggleEmployeeSalaryComponentStatus({
+                    id: componentId,
+                    status: next,
+                }),
+            ).unwrap();
+            closeStatusModal();
+        } catch (err) {
+            alert(err || "Failed to update salary component status");
+        } finally {
+            setStatusSubmitting(false);
+            setTogglingId(null);
+        }
+    };
 
     /* ── Filter ── */
     const filtered = useMemo(() => {
-        let result = components ?? [];
+        let result = Array.isArray(components)
+            ? components
+            : components?.data || components?.components || [];
 
         /* school scope */
         result = result.filter((comp) =>
@@ -86,18 +152,18 @@ export default function SalaryComponentPage() {
                 : String(comp.school_id) === String(schoolId),
         );
 
-        if (typeFilter !== "All")
-            result = result.filter((comp) => comp.component_type === typeFilter);
+        if (typeFilter && typeFilter !== "All")
+            result = result.filter((comp) => (comp.component_type || comp.type) === typeFilter);
 
-        if (statusFilter !== "All")
+        if (statusFilter && statusFilter !== "All")
             result = result.filter((comp) => comp.status === statusFilter);
 
         const query = searchQuery.trim().toLowerCase();
         if (query)
             result = result.filter(
                 (comp) =>
-                    comp.name.toLowerCase().includes(query) ||
-                    comp.code.toLowerCase().includes(query) ||
+                    (comp.name ?? "").toLowerCase().includes(query) ||
+                    (comp.code ?? "").toLowerCase().includes(query) ||
                     (comp.description ?? "").toLowerCase().includes(query),
             );
 
@@ -105,30 +171,31 @@ export default function SalaryComponentPage() {
     }, [components, isAdmin, schoolId, selectedSchool, typeFilter, statusFilter, searchQuery]);
 
     /* ── Stat counts ── */
-    const scopedComponents = useMemo(() =>
-        (components ?? []).filter((comp) =>
+    const scopedComponents = useMemo(() => {
+        const raw = Array.isArray(components)
+            ? components
+            : components?.data || components?.components || [];
+        return raw.filter((comp) =>
             isAdmin
                 ? selectedSchool ? String(comp.school_id) === String(selectedSchool) : true
                 : String(comp.school_id) === String(schoolId),
-        ),
-        [components, isAdmin, schoolId, selectedSchool],
-    );
+        );
+    }, [components, isAdmin, schoolId, selectedSchool]);
 
     const totalCount = scopedComponents.length;
-    const earningCount = scopedComponents.filter((c) => c.component_type === "earning").length;
-    const deductionCount = scopedComponents.filter((c) => c.component_type === "deduction").length;
+    const earningCount = scopedComponents.filter((c) => (c.component_type || c.type) === "earning").length;
+    const deductionCount = scopedComponents.filter((c) => (c.component_type || c.type) === "deduction").length;
     const activeCount = scopedComponents.filter((c) => c.status === "active").length;
 
     /* ── Handlers ── */
     const handleSearch = (e) => setSearchQuery(e.target.value);
-    const handleSchoolChange = (e) => { setSelectedSchool(e.target.value); setSearchQuery(""); };
 
     const openAddModal = () => { setEditTarget(null); setShowModal(true); };
     const openEditModal = (comp) => { setEditTarget(comp); setShowModal(true); };
     const closeModal = () => { setShowModal(false); setEditTarget(null); };
 
     const effectiveSchoolId = isAdmin
-        ? selectedSchool ? Number(selectedSchool) : null
+        ? (selectedSchool ? Number(selectedSchool) : null)
         : Number(schoolId);
 
     return (
@@ -139,7 +206,7 @@ export default function SalaryComponentPage() {
                 <div>
                     <h1 className="sc-title text-2xl font-bold">Salary Components</h1>
                     <p className="sc-subtitle text-[13.5px] mt-1">
-                        Manage earnings, deductions and benefit components for payroll.
+                        Manage earnings and deduction components for employee payroll.
                     </p>
                 </div>
                 <button
@@ -173,32 +240,35 @@ export default function SalaryComponentPage() {
 
                 {/* Admin school filter */}
                 {isAdmin && (
-                    <select value={selectedSchool} onChange={handleSchoolChange}
+                    <CustomDropdown
+                        options={schoolOptions}
+                        value={selectedSchool}
+                        onChange={(val) => { setSelectedSchool(val); setSearchQuery(""); }}
+                        placeholder={schoolsLoading ? "Loading schools…" : "All Schools"}
+                        searchable={schoolOptions.length > 5}
+                        searchPlaceholder="Search schools…"
                         disabled={schoolsLoading}
-                        className="sc-select rounded-lg px-3.5 py-2.5 text-[13.5px] min-w-[200px]">
-                        <option value="">All Schools</option>
-                        {schools.map((s) => (
-                            <option key={s.id} value={s.id}>{s.name}</option>
-                        ))}
-                    </select>
+                        className="min-w-[200px]"
+                    />
                 )}
 
                 {/* Type filter */}
-                <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}
-                    className="sc-select rounded-lg px-3.5 py-2.5 text-[13.5px]">
-                    <option value="All">All Types</option>
-                    <option value="earning">Earning</option>
-                    <option value="deduction">Deduction</option>
-                    <option value="benefit">Benefit</option>
-                </select>
+                <CustomDropdown
+                    options={TYPE_OPTIONS}
+                    value={typeFilter}
+                    onChange={(val) => setTypeFilter(val)}
+                    placeholder="All Types"
+                    className="min-w-[145px]"
+                />
 
                 {/* Status filter */}
-                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-                    className="sc-select rounded-lg px-3.5 py-2.5 text-[13.5px]">
-                    <option value="All">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                </select>
+                <CustomDropdown
+                    options={STATUS_OPTIONS}
+                    value={statusFilter}
+                    onChange={(val) => setStatusFilter(val)}
+                    placeholder="All Statuses"
+                    className="min-w-[145px]"
+                />
 
                 {/* Count + view toggle */}
                 <div className="ml-auto flex items-center gap-3">
@@ -209,10 +279,12 @@ export default function SalaryComponentPage() {
                     </span>
                     <div className="sc-toggle-group flex rounded-lg overflow-hidden">
                         <button onClick={() => setViewMode("table")}
+                            title="Table view"
                             className={`p-2 ${viewMode === "table" ? "sc-toggle-btn-active" : "sc-toggle-btn"}`}>
                             <List size={15} />
                         </button>
                         <button onClick={() => setViewMode("grid")}
+                            title="Grid card view"
                             className={`p-2 ${viewMode === "grid" ? "sc-toggle-btn-active" : "sc-toggle-btn"}`}>
                             <LayoutGrid size={15} />
                         </button>
@@ -240,6 +312,8 @@ export default function SalaryComponentPage() {
                     components={filtered}
                     onEdit={openEditModal}
                     onDelete={(comp) => setDeleteTarget(comp)}
+                    onToggleStatus={handleStatusToggleRequest}
+                    togglingId={togglingId}
                     showSchoolColumn={isAdmin && !selectedSchool}
                 />
             )}
@@ -254,68 +328,114 @@ export default function SalaryComponentPage() {
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                             {filtered.map((comp) => (
-                                <div key={comp.id} className="sc-card rounded-2xl p-5 flex flex-col gap-3">
+                                <div key={comp.id} className="sc-card rounded-2xl p-5 flex flex-col justify-between gap-4">
 
-                                    {/* Card header */}
-                                    <div className="flex items-start justify-between">
-                                        <div className="min-w-0 flex-1">
-                                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                    {/* Top Section */}
+                                    <div>
+                                        <div className="flex items-start justify-between gap-2 mb-2.5">
+                                            <div className="flex items-center gap-2 flex-wrap">
                                                 <span className="sc-code">{comp.code}</span>
-                                                <span className={`sc-type sc-type-${comp.type}`}>{comp.type}</span>
+                                                <span className={`sc-type ${
+                                                    (comp.component_type || comp.type) === "earning"
+                                                        ? "sc-type-earning"
+                                                        : "sc-type-deduction"
+                                                }`}>
+                                                    {(comp.component_type || comp.type) === "earning"
+                                                        ? "+ Earning"
+                                                        : "- Deduction"}
+                                                </span>
                                             </div>
-                                            <p className="sc-cell-primary text-[14px] font-bold leading-tight truncate">
-                                                {comp.name}
+                                            <div className="flex items-center gap-1 shrink-0">
+                                                <button
+                                                    onClick={() => openEditModal(comp)}
+                                                    className="sc-action-btn w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                                                    title="Edit Component"
+                                                >
+                                                    <Pencil size={13} />
+                                                </button>
+                                                <button
+                                                    onClick={() => setDeleteTarget(comp)}
+                                                    className="sc-action-btn sc-action-btn-danger w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                                                    title="Delete Component"
+                                                >
+                                                    <Trash2 size={13} />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <p className="sc-cell-primary text-[15px] font-bold leading-tight">
+                                            {comp.name}
+                                        </p>
+                                        {isAdmin && comp.school_name && (
+                                            <p className="sc-cell-muted text-[12px] mt-1 truncate">
+                                                {comp.school_name}
                                             </p>
-                                            {isAdmin && comp.school_name && (
-                                                <p className="sc-cell-muted text-[11.5px] mt-0.5 truncate">
-                                                    {comp.school_name}
-                                                </p>
-                                            )}
-                                            {comp.description && (
-                                                <p className="sc-cell-muted text-[12px] mt-1 line-clamp-2 leading-relaxed">
-                                                    {comp.description}
-                                                </p>
-                                            )}
-                                        </div>
-                                        <div className="flex items-center gap-1 ml-2 shrink-0">
-                                            <button onClick={() => openEditModal(comp)}
-                                                className="sc-action-btn w-7 h-7 rounded-lg flex items-center justify-center transition-colors">
-                                                <Pencil size={13} />
-                                            </button>
-                                            <button onClick={() => setDeleteTarget(comp)}
-                                                className="sc-action-btn sc-action-btn-danger w-7 h-7 rounded-lg flex items-center justify-center transition-colors">
-                                                <Trash2 size={13} />
-                                            </button>
-                                        </div>
+                                        )}
+                                        {comp.description && (
+                                            <p className="sc-cell-muted text-[12px] mt-1.5 line-clamp-2 leading-relaxed">
+                                                {comp.description}
+                                            </p>
+                                        )}
                                     </div>
 
-                                    {/* Value */}
-                                    <div className="sc-card-divider h-px" />
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <p className="sc-cell-muted text-[11px] uppercase tracking-wide mb-0.5">
-                                                {comp.calculation_type === "percentage" ? "Percentage" : "Fixed Amount"}
-                                            </p>
-                                            <p className="sc-cell-primary text-[20px] font-bold">
-                                                {comp.calculation_type === "percentage" ? "" : "₹"}
-                                                {Number(comp.value).toLocaleString("en-IN")}
-                                                {comp.calculation_type === "percentage" ? "%" : ""}
-                                            </p>
-                                        </div>
-                                        <span className={`sc-status sc-status-${comp.status}`}>{comp.status}</span>
-                                    </div>
+                                    {/* Bottom Section: Calculation & Status Switch */}
+                                    <div>
+                                        <div className="sc-card-divider h-px mb-3" />
+                                        <div className="flex items-center justify-between gap-2">
+                                            <div>
+                                                <p className="sc-cell-muted text-[10.5px] uppercase tracking-wider font-semibold mb-1">
+                                                    Calculation Type
+                                                </p>
+                                                <span
+                                                    className={`sc-badge ${
+                                                        comp.calculation_type === "percentage"
+                                                            ? "sc-badge-percentage"
+                                                            : "sc-badge-fixed"
+                                                    }`}
+                                                >
+                                                    {comp.calculation_type === "percentage"
+                                                        ? "% Percentage"
+                                                        : "₹ Fixed Amount"}
+                                                </span>
+                                            </div>
 
-                                    {/* Pills */}
-                                    <div className="sc-card-divider h-px" />
-                                    <div className="flex flex-wrap gap-1.5">
-                                        <BoolPill
-                                            value={Boolean(Number(comp.is_taxable))}
-                                            yesLabel="Taxable"
-                                            noLabel="Tax-free"
-                                        />
-                                        <span className={`sc-calc ${comp.calculation_type === "percentage" ? "sc-calc-percentage" : "sc-calc-fixed"}`}>
-                                            {comp.calculation_type === "percentage" ? "% Based" : "Fixed"}
-                                        </span>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    type="button"
+                                                    role="switch"
+                                                    aria-checked={comp.status === "active"}
+                                                    disabled={togglingId === comp.id}
+                                                    onClick={() =>
+                                                        handleStatusToggleRequest(
+                                                            comp,
+                                                            comp.status === "active" ? "inactive" : "active",
+                                                        )
+                                                    }
+                                                    className={`sc-toggle-switch ${
+                                                        comp.status === "active"
+                                                            ? "sc-toggle-active"
+                                                            : "sc-toggle-inactive"
+                                                    }`}
+                                                    title={`Click to ${comp.status === "active" ? "deactivate" : "activate"}`}
+                                                >
+                                                    {togglingId === comp.id ? (
+                                                        <Loader2 size={12} className="animate-spin text-white mx-auto" />
+                                                    ) : (
+                                                        <span
+                                                            aria-hidden="true"
+                                                            className={`sc-toggle-knob ${
+                                                                comp.status === "active"
+                                                                    ? "sc-toggle-knob-active"
+                                                                    : "sc-toggle-knob-inactive"
+                                                            }`}
+                                                        />
+                                                    )}
+                                                </button>
+                                                <span className={`sc-status sc-status-${comp.status}`}>
+                                                    {comp.status}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -335,6 +455,14 @@ export default function SalaryComponentPage() {
                 isOpen={Boolean(deleteTarget)}
                 onClose={() => setDeleteTarget(null)}
                 component={deleteTarget}
+            />
+            <SalaryComponentStatusModal
+                isOpen={statusModalOpen}
+                onClose={closeStatusModal}
+                component={statusTargetComponent}
+                targetStatus={targetStatus}
+                onConfirm={handleConfirmStatusChange}
+                submitting={statusSubmitting}
             />
         </div>
     );

@@ -4,6 +4,7 @@ import {
   getEmployeeSalaryComponentById,
   createEmployeeSalaryComponent,
   updateEmployeeSalaryComponent,
+  updateEmployeeSalaryComponentStatus,
   deleteEmployeeSalaryComponent,
   checkExistingEmployeeSalaryComponent,
 } from "./employeeSalaryComponent.service.js";
@@ -12,9 +13,9 @@ import {
 
 export const fetchEmployeeSalaryComponents = createAsyncThunk(
   "employeeSalaryComponents/fetchAll",
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      return await getAllEmployeeSalaryComponents();
+      return await getAllEmployeeSalaryComponents(params);
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message ||
@@ -67,6 +68,23 @@ export const editEmployeeSalaryComponent = createAsyncThunk(
       return rejectWithValue(
         error.response?.data?.message ||
           "Failed to update employee salary component",
+      );
+    }
+  },
+);
+
+// ================= Toggle Status =================
+
+export const toggleEmployeeSalaryComponentStatus = createAsyncThunk(
+  "employeeSalaryComponents/toggleStatus",
+  async ({ id, status }, { rejectWithValue }) => {
+    try {
+      const response = await updateEmployeeSalaryComponentStatus(id, status);
+      return { id, status, response };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to update employee salary component status",
       );
     }
   },
@@ -152,7 +170,20 @@ const employeeSalaryComponentSlice = createSlice({
       })
       .addCase(fetchEmployeeSalaryComponents.fulfilled, (state, action) => {
         state.loading = false;
-        state.employeeSalaryComponents = action.payload?.data || action.payload;
+        const p = action.payload;
+        if (Array.isArray(p)) {
+          state.employeeSalaryComponents = p;
+        } else if (Array.isArray(p?.data)) {
+          state.employeeSalaryComponents = p.data;
+        } else if (Array.isArray(p?.rows)) {
+          state.employeeSalaryComponents = p.rows;
+        } else if (Array.isArray(p?.salaryComponents)) {
+          state.employeeSalaryComponents = p.salaryComponents;
+        } else if (Array.isArray(p?.components)) {
+          state.employeeSalaryComponents = p.components;
+        } else {
+          state.employeeSalaryComponents = [];
+        }
       })
       .addCase(fetchEmployeeSalaryComponents.rejected, (state, action) => {
         state.loading = false;
@@ -167,7 +198,9 @@ const employeeSalaryComponentSlice = createSlice({
       .addCase(fetchEmployeeSalaryComponentById.fulfilled, (state, action) => {
         state.loading = false;
         state.selectedEmployeeSalaryComponent =
-          action.payload?.data || action.payload;
+          action.payload?.data ||
+          action.payload?.salaryComponent ||
+          action.payload;
       })
       .addCase(fetchEmployeeSalaryComponentById.rejected, (state, action) => {
         state.loading = false;
@@ -183,7 +216,10 @@ const employeeSalaryComponentSlice = createSlice({
       .addCase(addEmployeeSalaryComponent.fulfilled, (state, action) => {
         state.submitting = false;
 
-        const item = action.payload?.data || action.payload;
+        const item =
+          action.payload?.data ||
+          action.payload?.salaryComponent ||
+          action.payload;
 
         if (item) {
           state.employeeSalaryComponents.unshift(item);
@@ -203,22 +239,45 @@ const employeeSalaryComponentSlice = createSlice({
       .addCase(editEmployeeSalaryComponent.fulfilled, (state, action) => {
         state.submitting = false;
 
-        const updated = action.payload?.data || action.payload;
+        const updated =
+          action.payload?.new_data ||
+          action.payload?.updatedSalaryComponent ||
+          action.payload?.salaryComponent ||
+          action.payload?.data ||
+          action.payload;
 
-        const index = state.employeeSalaryComponents.findIndex(
-          (item) => item.id === updated.id,
-        );
+        if (updated?.id) {
+          const index = state.employeeSalaryComponents.findIndex(
+            (item) => item.id === updated.id,
+          );
 
-        if (index !== -1) {
-          state.employeeSalaryComponents[index] = updated;
+          if (index !== -1) {
+            state.employeeSalaryComponents[index] = updated;
+          }
+
+          state.selectedEmployeeSalaryComponent = updated;
         }
-
-        state.selectedEmployeeSalaryComponent = updated;
       })
       .addCase(editEmployeeSalaryComponent.rejected, (state, action) => {
         state.submitting = false;
         state.error = action.payload;
       })
+
+      // ================= Toggle Status =================
+
+      .addCase(
+        toggleEmployeeSalaryComponentStatus.fulfilled,
+        (state, action) => {
+          const { id, status } = action.payload;
+          const item = state.employeeSalaryComponents.find((c) => c.id === id);
+          if (item) {
+            item.status = status;
+          }
+          if (state.selectedEmployeeSalaryComponent?.id === id) {
+            state.selectedEmployeeSalaryComponent.status = status;
+          }
+        },
+      )
 
       // ================= Delete =================
 

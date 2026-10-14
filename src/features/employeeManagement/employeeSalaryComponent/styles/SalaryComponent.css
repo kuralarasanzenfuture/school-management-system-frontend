@@ -471,3 +471,73 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* ── Toggle switch ── */
+.sc-toggle-switch {
+  position: relative;
+  display: inline-flex;
+  height: 20px;
+  width: 36px;
+  flex-shrink: 0;
+  cursor: pointer;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  transition: background-color 0.2s ease-in-out;
+  outline: none;
+  align-items: center;
+  padding: 0 1px;
+}
+.sc-toggle-switch:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--btn-bg);
+}
+.sc-toggle-switch:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.sc-toggle-active {
+  background-color: #10b981;
+}
+.sc-toggle-inactive {
+  background-color: #cbd5e1;
+}
+:root.dark .sc-toggle-inactive,
+[data-theme="dark"] .sc-toggle-inactive {
+  background-color: #475569;
+}
+
+.sc-toggle-knob {
+  pointer-events: none;
+  display: inline-block;
+  height: 14px;
+  width: 14px;
+  border-radius: 9999px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease-in-out;
+}
+.sc-toggle-knob-active {
+  transform: translateX(16px);
+}
+.sc-toggle-knob-inactive {
+  transform: translateX(0px);
+}
+
+/* ── Status modal ── */
+.sc-status-info-box {
+  background: var(--input-bg);
+  border: 1px solid var(--divider);
+}
+
+.sc-status-warning-deactivate {
+  background: var(--danger-bg);
+  border: 1px solid var(--divider);
+  color: var(--danger);
+}
+
+.sc-status-warning-activate {
+  background: var(--success-bg);
+  border: 1px solid var(--divider);
+  color: var(--success);
+}
+

@@ -1,10 +1,14 @@
 import api from "../../common/services/api";
 
-export const getAllEmployeeSalaryComponents = async () => {
+export const getAllEmployeeSalaryComponents = async (params = {}) => {
   try {
-    const response = await api.get(`/employee-salary-components`);
+    const response = await api.get(`/employee-salary-components/token`, { params });
     return response.data;
   } catch (error) {
+    if (error.response?.status === 403 || error.response?.status === 404) {
+      const fallback = await api.get(`/employee-salary-components`, { params });
+      return fallback.data;
+    }
     console.error("Error fetching employee salary components:", error);
     throw error;
   }
@@ -36,6 +40,19 @@ export const updateEmployeeSalaryComponent = async (id, data) => {
     return response.data;
   } catch (error) {
     console.error("Error updating employee salary component:", error);
+    throw error;
+  }
+};
+
+export const updateEmployeeSalaryComponentStatus = async (id, status) => {
+  try {
+    const response = await api.patch(
+      `/employee-salary-components/status/${id}`,
+      { status },
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating employee salary component status:", error);
     throw error;
   }
 };

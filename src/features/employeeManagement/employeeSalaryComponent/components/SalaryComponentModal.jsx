@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, CircleCheck, DollarSign } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,7 +8,23 @@ import {
     fetchEmployeeSalaryComponents,
 } from "../../../../redux/employee_salary_component/employeeSalaryComponentSlice.js";
 import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
+import CustomDropdown from "../../../../common/components/dropdown/CustomDropdown.jsx";
 import "../styles/SalaryComponent.css";
+
+const COMPONENT_TYPE_OPTIONS = [
+    { value: "earning", label: "Earning" },
+    { value: "deduction", label: "Deduction" },
+];
+
+const CALCULATION_TYPE_OPTIONS = [
+    { value: "fixed", label: "Fixed Amount (₹)" },
+    { value: "percentage", label: "Percentage (%)" },
+];
+
+const STATUS_OPTIONS = [
+    { value: "active", label: "Active" },
+    { value: "inactive", label: "Inactive" },
+];
 
 const INIT = {
     school_id: "",
@@ -17,8 +33,6 @@ const INIT = {
     description: "",
     type: "earning",
     calculation_type: "fixed",
-    // value: "",
-    // is_taxable: false,
     status: "active",
 };
 
@@ -34,19 +48,6 @@ function Field({ label, required, error, hint, children }) {
             <div className="h-4">
                 {error && <p className="sc-field-error">{error}</p>}
             </div>
-        </div>
-    );
-}
-
-/* ── Toggle switch ── */
-function Toggle({ id, checked, onChange, label }) {
-    return (
-        <div className="sc-sw-wrap">
-            <label className="sc-sw" htmlFor={id}>
-                <input id={id} type="checkbox" checked={checked} onChange={onChange} />
-                <span className="sc-sw-knob" />
-            </label>
-            <label htmlFor={id} className="sc-sw-label">{label}</label>
         </div>
     );
 }
@@ -69,6 +70,22 @@ export default function SalaryComponentModal({
     const schools = useSelector((state) => state.schoolProfile?.schools ?? []);
     const schoolsLoading = useSelector((state) => state.schoolProfile?.loading ?? false);
 
+    const schoolList = useMemo(() => {
+        const raw = Array.isArray(schools)
+            ? schools
+            : schools?.schools || schools?.data || [];
+        return Array.isArray(raw) ? raw : [];
+    }, [schools]);
+
+    const schoolOptions = useMemo(
+        () =>
+            schoolList.map((s) => ({
+                value: String(s.id),
+                label: s.name,
+            })),
+        [schoolList],
+    );
+
     const [formData, setFormData] = useState(INIT);
     const [errors, setErrors] = useState({});
     const [submitting, setSubmitting] = useState(false);
@@ -83,14 +100,12 @@ export default function SalaryComponentModal({
         if (!isOpen) return;
         if (isEdit && component) {
             setFormData({
-                school_id: component.school_id ?? "",
+                school_id: component.school_id ? String(component.school_id) : "",
                 name: component.name ?? "",
                 code: component.code ?? "",
                 description: component.description ?? "",
-                type: component.type ?? "earning",
+                type: component.component_type ?? component.type ?? "earning",
                 calculation_type: component.calculation_type ?? "fixed",
-                // value: component.value != null ? String(component.value) : "",
-                // is_taxable: Boolean(Number(component.is_taxable ?? 0)),
                 status: component.status ?? "active",
             });
         } else {
@@ -104,7 +119,7 @@ export default function SalaryComponentModal({
 
     /* ── Unified handler ── */
     const handleChange = (key) => (e) => {
-        const value = e.target.type === "checkbox" ? e.target.checked : e.target.value;
+        const value = e.target.value;
         setFormData((prev) => ({ ...prev, [key]: value }));
         setErrors((prev) => (prev[key] ? { ...prev, [key]: null } : prev));
     };
@@ -118,12 +133,8 @@ export default function SalaryComponentModal({
             errs.name = "Component name is required";
         if (!formData.code.trim())
             errs.code = "Code is required";
-        else if (!/^[A-Z0-9_-]{1,20}$/.test(formData.code.toUpperCase()))
+        else if (!/^[A-Z0-9_-]{1,30}$/.test(formData.code.toUpperCase()))
             errs.code = "Use uppercase letters, numbers, _ or – only";
-        // if (!formData.value || isNaN(Number(formData.value)) || Number(formData.value) < 0)
-        //     errs.value = "Enter a valid positive value";
-        // if (formData.calculation_type === "percentage" && Number(formData.value) > 100)
-        //     errs.value = "Percentage cannot exceed 100";
         setErrors(errs);
         return Object.keys(errs).length === 0;
     };
@@ -144,8 +155,6 @@ export default function SalaryComponentModal({
             description: formData.description.trim() || null,
             component_type: formData.type,
             calculation_type: formData.calculation_type,
-            // value: Number(formData.value),
-            // is_taxable: formData.is_taxable,
             status: formData.status,
         };
 
@@ -179,6 +188,7 @@ export default function SalaryComponentModal({
                         exit={{ opacity: 0, scale: 0.92, y: 32 }}
                         transition={{ duration: 0.22 }}
                         className="sc-modal w-full max-w-xl rounded-2xl overflow-hidden"
+                        style={{ background: "var(--panel-bg)" }}
                     >
                         {/* Header */}
                         <div className="sc-modal-header flex items-center justify-between px-6 py-4">
@@ -187,11 +197,13 @@ export default function SalaryComponentModal({
                                     <DollarSign size={18} className="sc-icon-total" />
                                 </div>
                                 <div>
-                                    <h2 className="sc-modal-title text-[16px] font-bold tracking-tight">
-                                        {isEdit ? "Edit Salary Component" : "New Salary Component"}
+                                    <h2 className="sc-modal-title text-[16px] font-bold">
+                                        {isEdit ? "Edit Salary Component" : "Add Salary Component"}
                                     </h2>
                                     <p className="sc-cell-muted text-[12px]">
-                                        {isEdit ? "Update component details" : "Define an earning or deduction component"}
+                                        {isEdit
+                                            ? "Update details of this salary component"
+                                            : "Define a new component for payroll calculation"}
                                     </p>
                                 </div>
                             </div>
@@ -203,19 +215,23 @@ export default function SalaryComponentModal({
 
                         {/* Body */}
                         <div className="px-6 py-5 overflow-y-auto max-h-[70vh] flex flex-col gap-5">
-
                             {/* Admin school selector */}
                             {isAdmin && (
                                 <Field label="School" required error={errors.school_id}>
-                                    <select className={fi(errors.school_id)} value={formData.school_id}
-                                        onChange={handleChange("school_id")} disabled={schoolsLoading}>
-                                        <option value="">
-                                            {schoolsLoading ? "Loading schools…" : "Select a school"}
-                                        </option>
-                                        {schools.map((s) => (
-                                            <option key={s.id} value={s.id}>{s.name}</option>
-                                        ))}
-                                    </select>
+                                    <CustomDropdown
+                                        options={schoolOptions}
+                                        value={formData.school_id ? String(formData.school_id) : ""}
+                                        onChange={(val) => {
+                                            setFormData((prev) => ({ ...prev, school_id: val }));
+                                            if (errors.school_id) setErrors((prev) => ({ ...prev, school_id: null }));
+                                        }}
+                                        placeholder={schoolsLoading ? "Loading schools…" : "Select a school"}
+                                        searchable={schoolOptions.length > 5}
+                                        searchPlaceholder="Search schools…"
+                                        disabled={schoolsLoading}
+                                        hasError={Boolean(errors.school_id)}
+                                        className="w-full"
+                                    />
                                 </Field>
                             )}
 
@@ -229,7 +245,7 @@ export default function SalaryComponentModal({
                                     hint="Unique short code e.g. BASIC, HRA, PF">
                                     <input className={fi(errors.code)} placeholder="e.g. BASIC"
                                         value={formData.code} onChange={handleChange("code")}
-                                        maxLength={20} style={{ textTransform: "uppercase" }} />
+                                        maxLength={30} style={{ textTransform: "uppercase" }} />
                                 </Field>
                                 <div className="sm:col-span-2">
                                     <Field label="Description">
@@ -241,43 +257,36 @@ export default function SalaryComponentModal({
                             </div>
 
                             {/* Type & Calculation */}
-                            <p className="sc-section-label pb-1.5">Component Configuration</p>
+                            <p className="sc-section-label pb-1.5 font-semibold text-[13px] border-b border-[var(--divider)]">Component Configuration</p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1">
                                 <Field label="Component Type" required>
-                                    <select className={fi(false)} value={formData.type}
-                                        onChange={handleChange("type")}>
-                                        <option value="earning">Earning</option>
-                                        <option value="deduction">Deduction</option>
-                                        {/* <option value="benefit">Benefit</option> */}
-                                    </select>
+                                    <CustomDropdown
+                                        options={COMPONENT_TYPE_OPTIONS}
+                                        value={formData.type}
+                                        onChange={(val) => setFormData((prev) => ({ ...prev, type: val }))}
+                                        placeholder="Select component type"
+                                        className="w-full"
+                                    />
                                 </Field>
                                 <Field label="Calculation Type" required>
-                                    <select className={fi(false)} value={formData.calculation_type}
-                                        onChange={handleChange("calculation_type")}>
-                                        <option value="fixed">Fixed Amount (₹)</option>
-                                        <option value="percentage">Percentage (%)</option>
-                                    </select>
+                                    <CustomDropdown
+                                        options={CALCULATION_TYPE_OPTIONS}
+                                        value={formData.calculation_type}
+                                        onChange={(val) => setFormData((prev) => ({ ...prev, calculation_type: val }))}
+                                        placeholder="Select calculation type"
+                                        className="w-full"
+                                    />
                                 </Field>
-                                {/* <Field label={formData.calculation_type === "percentage" ? "Percentage Value (%)" : "Fixed Amount (₹)"}
-                                    required error={errors.value}
-                                    hint={formData.calculation_type === "percentage" ? "Enter a value between 0–100" : "Enter amount in rupees"}>
-                                    <input type="number" min="0" step="0.01"
-                                        className={fi(errors.value)}
-                                        placeholder={formData.calculation_type === "percentage" ? "e.g. 12.5" : "e.g. 5000"}
-                                        value={formData.value} onChange={handleChange("value")} />
-                                </Field> */}
                                 <Field label="Status">
-                                    <select className={fi(false)} value={formData.status} onChange={handleChange("status")}>
-                                        <option value="active">Active</option>
-                                        <option value="inactive">Inactive</option>
-                                    </select>
+                                    <CustomDropdown
+                                        options={STATUS_OPTIONS}
+                                        value={formData.status}
+                                        onChange={(val) => setFormData((prev) => ({ ...prev, status: val }))}
+                                        placeholder="Select status"
+                                        className="w-full"
+                                    />
                                 </Field>
                             </div>
-
-                            {/* Options */}
-                            {/* <p className="sc-section-label pb-1.5">Tax & Options</p>
-                            <Toggle id="is_taxable" checked={formData.is_taxable}
-                                onChange={handleChange("is_taxable")} label="This component is taxable" /> */}
                         </div>
 
                         {/* Footer */}

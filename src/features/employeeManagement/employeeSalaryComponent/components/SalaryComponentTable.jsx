@@ -1,53 +1,14 @@
 import React from "react";
-import { Pencil, Trash2, Check, X } from "lucide-react";
+import { Pencil, Trash2, Loader2 } from "lucide-react";
 import Pagination from "../../../../common/components/table/Pagination";
 import usePagination from "../../../../common/components/table/usePagination";
 import "../styles/SalaryComponent.css";
 
 function TypeBadge({ type }) {
-    const cls = {
-        earning: "sc-type-earning",
-        deduction: "sc-type-deduction",
-        benefit: "sc-type-benefit",
-    }[type] ?? "sc-type-earning";
-    return <span className={`sc-type ${cls}`}>{type}</span>;
-}
-
-function CalcBadge({ calcType, value }) {
-    const isPercent = calcType === "percentage";
+    const isEarning = type === "earning";
     return (
-        <div className="flex flex-col items-start gap-0.5">
-            <span className={`sc-calc ${isPercent ? "sc-calc-percentage" : "sc-calc-fixed"}`}>
-                {isPercent ? "%" : "₹"} {Number(value).toLocaleString("en-IN")}
-            </span>
-            <span className="sc-cell-muted text-[11px]">{isPercent ? "Percentage" : "Fixed"}</span>
-        </div>
-    );
-}
-
-function ValueType({ type, value }) {
-    return (
-        <span className="sc-cell-muted text-[11px]">
-            {type === "percentage"
-                ? `${value}%`
-                : `₹${value}`}
-        </span>
-    );
-}
-
-// const valueType = (type, value) => (
-//   <span className="sc-cell-muted text-[11px]">
-//     {type === "percentage"
-//       ? `${value}%`
-//       : `₹${value}`}
-//   </span>
-// );
-
-function BoolPill({ value, yesLabel = "Yes", noLabel = "No" }) {
-    return (
-        <span className={`sc-pill ${value ? "sc-pill-yes" : "sc-pill-no"}`}>
-            {value ? <Check size={11} /> : <X size={11} />}
-            {value ? yesLabel : noLabel}
+        <span className={`sc-type ${isEarning ? "sc-type-earning" : "sc-type-deduction"}`}>
+            {isEarning ? "+ Earning" : "- Deduction"}
         </span>
     );
 }
@@ -56,6 +17,8 @@ export default function SalaryComponentTable({
     components = [],
     onEdit,
     onDelete,
+    onToggleStatus,
+    togglingId,
     showSchoolColumn = false,
     initialPageSize = 10,
     pageSizeOptions = [5, 10, 20, 50],
@@ -69,8 +32,7 @@ export default function SalaryComponentTable({
         setPageSize,
     } = usePagination({ data: components, initialSize: initialPageSize });
 
-    const colSpan = showSchoolColumn ? 8 : 7;
-    console.log(pagedData)
+    const colSpan = showSchoolColumn ? 7 : 6;
 
     return (
         <div className="sc-table-card rounded-2xl overflow-hidden">
@@ -82,8 +44,7 @@ export default function SalaryComponentTable({
                             <th className={`${showSchoolColumn ? "px-3" : "px-5"} py-3 font-semibold`}>Component</th>
                             <th className="px-3 py-3 font-semibold">Code</th>
                             <th className="px-3 py-3 font-semibold">Type</th>
-                            <th className="px-3 py-3 font-semibold">Value Type</th>
-                            {/* <th className="px-3 py-3 font-semibold text-center">Taxable</th> */}
+                            <th className="px-3 py-3 font-semibold">Calculation Type</th>
                             <th className="px-3 py-3 font-semibold text-center">Status</th>
                             <th className="px-3 py-3 font-semibold text-right pr-5">Actions</th>
                         </tr>
@@ -124,66 +85,65 @@ export default function SalaryComponentTable({
 
                                     {/* Type */}
                                     <td className="px-3 py-3.5">
-                                        <TypeBadge type={comp.component_type} />
+                                        <TypeBadge type={comp.component_type || comp.type} />
                                     </td>
 
-                                    {/* Value + calc type */}
-                                    {/* <td className="px-3 py-3.5">
-                                        <CalcBadge calcType={comp.calculation_type} value={comp.value} />
-                                    </td> */}
-                                    {/* <td className="px-3 py-3.5">
-                                        <ValueType
-                                            type={comp.calculation_type}
-                                            value={comp.value}
-                                        />
-                                    </td> */}
-
-                                    {/* <td className="px-3 py-3.5">
-                                        <span className="sc-cell-muted text-[11px]">
-                                            {comp.calculation_type === "percentage" ? "Percentage(%)" : "Fixed ₹"}
-                                        </span>
-                                    </td> */}
-
-                                    {/* <td className="px-3 py-3.5">
-                                        <span
-                                            className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${comp.calculation_type === "percentage"
-                                                    ? "bg-blue-100 text-blue-700"
-                                                    : "bg-emerald-100 text-emerald-700"
-                                                }`}
-                                        >
-                                            {comp.calculation_type === "percentage"
-                                                ? "Percentage (%)"
-                                                : "Fixed (₹)"}
-                                        </span>
-                                    </td> */}
-
+                                    {/* Calculation Type */}
                                     <td className="px-3 py-3.5">
                                         <span
-                                            className={`sc-badge ${comp.calculation_type === "percentage"
+                                            className={`sc-badge ${
+                                                comp.calculation_type === "percentage"
                                                     ? "sc-badge-percentage"
                                                     : "sc-badge-fixed"
-                                                }`}
+                                            }`}
                                         >
                                             {comp.calculation_type === "percentage"
-                                                ? "Percentage (%)"
-                                                : "Fixed (₹)"}
+                                                ? "% Percentage"
+                                                : "₹ Fixed Amount"}
                                         </span>
                                     </td>
-
-                                    {/* Taxable */}
-                                    {/* <td className="px-3 py-3.5 text-center">
-                                        <BoolPill
-                                            value={Boolean(Number(comp.is_taxable))}
-                                            yesLabel="Taxable"
-                                            noLabel="Tax-free"
-                                        />
-                                    </td> */}
 
                                     {/* Status */}
                                     <td className="px-3 py-3.5 text-center">
-                                        <span className={`sc-status sc-status-${comp.status}`}>
-                                            {comp.status}
-                                        </span>
+                                        <div className="flex items-center justify-center gap-2">
+                                            {togglingId === comp.id ? (
+                                                <Loader2 size={16} className="animate-spin text-primary" />
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    role="switch"
+                                                    aria-checked={comp.status === "active"}
+                                                    disabled={togglingId === comp.id}
+                                                    onClick={() =>
+                                                        onToggleStatus &&
+                                                        onToggleStatus(
+                                                            comp,
+                                                            comp.status === "active" ? "inactive" : "active"
+                                                        )
+                                                    }
+                                                    title={`Click to ${
+                                                        comp.status === "active" ? "deactivate" : "activate"
+                                                    } component`}
+                                                    className={`sc-toggle-switch ${
+                                                        comp.status === "active"
+                                                            ? "sc-toggle-active"
+                                                            : "sc-toggle-inactive"
+                                                    }`}
+                                                >
+                                                    <span
+                                                        aria-hidden="true"
+                                                        className={`sc-toggle-knob ${
+                                                            comp.status === "active"
+                                                                ? "sc-toggle-knob-active"
+                                                                : "sc-toggle-knob-inactive"
+                                                        }`}
+                                                    />
+                                                </button>
+                                            )}
+                                            <span className={`sc-status sc-status-${comp.status}`}>
+                                                {comp.status}
+                                            </span>
+                                        </div>
                                     </td>
 
                                     {/* Actions */}
@@ -201,7 +161,6 @@ export default function SalaryComponentTable({
                                             </button>
                                         </div>
                                     </td>
-
                                 </tr>
                             ))
                         )}
@@ -209,13 +168,14 @@ export default function SalaryComponentTable({
                 </table>
             </div>
 
+            {/* Pagination footer */}
             <Pagination
                 currentPage={currentPage}
-                totalItems={totalItems}
                 pageSize={pageSize}
-                pageSizeOptions={pageSizeOptions}
+                totalItems={totalItems}
                 onPageChange={setPage}
                 onPageSizeChange={setPageSize}
+                pageSizeOptions={pageSizeOptions}
             />
         </div>
     );

@@ -1,5 +1,5 @@
 import React from "react";
-import { Pencil, Trash2, Clock, Timer, Star, Moon } from "lucide-react";
+import { Pencil, Trash2, Clock, Timer, Star, Moon, Loader2 } from "lucide-react";
 import {
     formatTime,
     shiftTimelinePosition,
@@ -16,7 +16,9 @@ export default function EmployeeShiftCard({
     shift,
     onEdit,
     onDelete,
+    onToggleStatus,
     deleting,
+    togglingId,
 }) {
     const isActive = shift.status === "active";
     const pos = shiftTimelinePosition(shift.start_time, shift.end_time);
@@ -40,7 +42,37 @@ export default function EmployeeShiftCard({
                             </span>
                         )}
                     </div>
-                    <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                        {togglingId === shift.id ? (
+                            <Loader2 size={16} className="animate-spin text-primary" />
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    onToggleStatus &&
+                                    onToggleStatus(
+                                        shift,
+                                        shift.status === "active" ? "inactive" : "active",
+                                    )
+                                }
+                                title={`Click to ${
+                                    shift.status === "active" ? "deactivate" : "activate"
+                                } shift`}
+                                className={`es-toggle-switch relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                                    shift.status === "active"
+                                        ? "bg-emerald-500"
+                                        : "bg-slate-300 dark:bg-slate-700"
+                                }`}
+                            >
+                                <span
+                                    aria-hidden="true"
+                                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                                        shift.status === "active" ? "translate-x-4" : "translate-x-0"
+                                    }`}
+                                />
+                            </button>
+                        )}
+
                         <span
                             className={`es-status ${isActive ? "es-status-active" : "es-status-inactive"}`}
                         >
@@ -53,6 +85,7 @@ export default function EmployeeShiftCard({
                         )}
                     </div>
                 </div>
+
                 <div className="flex items-center gap-1 shrink-0">
                     <button
                         onClick={() => onEdit(shift)}

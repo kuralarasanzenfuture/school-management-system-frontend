@@ -258,6 +258,12 @@
   color: var(--danger);
 }
 
+.es-toggle-switch:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+
 /* ── Row action buttons (table) ── */
 .es-action-btn {
   color: var(--text-secondary);

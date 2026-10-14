@@ -4,6 +4,7 @@ import {
   getEmployeeLeaveTypeById,
   createEmployeeLeaveType,
   updateEmployeeLeaveType,
+  updateEmployeeLeaveTypeStatus,
   deleteEmployeeLeaveType,
 } from "./employeeLeaveType.service.js";
 
@@ -13,9 +14,9 @@ import {
 
 export const fetchEmployeeLeaveTypes = createAsyncThunk(
   "employeeLeaveTypes/fetchAll",
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      return await getEmployeeLeaveTypes();
+      return await getEmployeeLeaveTypes(params);
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch leave types",
@@ -58,6 +59,21 @@ export const editEmployeeLeaveType = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to update leave type",
+      );
+    }
+  },
+);
+
+export const toggleEmployeeLeaveTypeStatus = createAsyncThunk(
+  "employeeLeaveTypes/toggleStatus",
+  async ({ id, status }, { rejectWithValue }) => {
+    try {
+      const response = await updateEmployeeLeaveTypeStatus(id, status);
+      return { id, status, response };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to update employee leave type status",
       );
     }
   },
@@ -116,7 +132,18 @@ const employeeLeaveTypeSlice = createSlice({
       })
       .addCase(fetchEmployeeLeaveTypes.fulfilled, (state, action) => {
         state.loading = false;
-        state.employeeLeaveTypes = action.payload?.data || action.payload;
+        const p = action.payload;
+        if (Array.isArray(p)) {
+          state.employeeLeaveTypes = p;
+        } else if (Array.isArray(p?.data)) {
+          state.employeeLeaveTypes = p.data;
+        } else if (Array.isArray(p?.rows)) {
+          state.employeeLeaveTypes = p.rows;
+        } else if (Array.isArray(p?.leaveTypes)) {
+          state.employeeLeaveTypes = p.leaveTypes;
+        } else {
+          state.employeeLeaveTypes = [];
+        }
       })
       .addCase(fetchEmployeeLeaveTypes.rejected, (state, action) => {
         state.loading = false;
@@ -133,7 +160,7 @@ const employeeLeaveTypeSlice = createSlice({
       .addCase(fetchEmployeeLeaveTypeById.fulfilled, (state, action) => {
         state.loading = false;
         state.selectedEmployeeLeaveType =
-          action.payload?.data || action.payload;
+          action.payload?.data || action.payload?.leaveType || action.payload;
       })
       .addCase(fetchEmployeeLeaveTypeById.rejected, (state, action) => {
         state.loading = false;
@@ -150,7 +177,10 @@ const employeeLeaveTypeSlice = createSlice({
       .addCase(addEmployeeLeaveType.fulfilled, (state, action) => {
         state.submitting = false;
 
-        const newItem = action.payload?.data || action.payload;
+        const newItem =
+          action.payload?.leaveType ||
+          action.payload?.data ||
+          action.payload;
 
         if (newItem) {
           state.employeeLeaveTypes.unshift(newItem);
@@ -171,21 +201,42 @@ const employeeLeaveTypeSlice = createSlice({
       .addCase(editEmployeeLeaveType.fulfilled, (state, action) => {
         state.submitting = false;
 
-        const updated = action.payload?.data || action.payload;
+        const updated =
+          action.payload?.new_data ||
+          action.payload?.updatedLeaveType ||
+          action.payload?.leaveType ||
+          action.payload?.data ||
+          action.payload;
 
-        const index = state.employeeLeaveTypes.findIndex(
-          (item) => item.id === updated.id,
-        );
+        if (updated?.id) {
+          const index = state.employeeLeaveTypes.findIndex(
+            (item) => item.id === updated.id,
+          );
 
-        if (index !== -1) {
-          state.employeeLeaveTypes[index] = updated;
+          if (index !== -1) {
+            state.employeeLeaveTypes[index] = updated;
+          }
+
+          state.selectedEmployeeLeaveType = updated;
         }
-
-        state.selectedEmployeeLeaveType = updated;
       })
       .addCase(editEmployeeLeaveType.rejected, (state, action) => {
         state.submitting = false;
         state.error = action.payload;
+      })
+
+      // ======================
+      // Toggle Status
+      // ======================
+      .addCase(toggleEmployeeLeaveTypeStatus.fulfilled, (state, action) => {
+        const { id, status } = action.payload;
+        const item = state.employeeLeaveTypes.find((lt) => lt.id === id);
+        if (item) {
+          item.status = status;
+        }
+        if (state.selectedEmployeeLeaveType?.id === id) {
+          state.selectedEmployeeLeaveType.status = status;
+        }
       })
 
       // ======================

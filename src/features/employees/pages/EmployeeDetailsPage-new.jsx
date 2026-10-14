@@ -675,9 +675,10 @@ import {
 } from "lucide-react";
 import * as XLSX from "xlsx";
 
-import { fetchEmployeeById } from "../../../redux/employee/employeeSlice";
+import { fetchEmployeeById, editEmployee } from "../../../redux/employee/employeeSlice";
 import api from "../../../common/services/api.js";
 import EmployeeAttendanceTab from "../components/EmployeeAttendanceTab.jsx";
+import EmployeeModal from "../components/EmployeeModal.jsx";
 import "../styles/EmployeeDetailsPage-new.css";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -1079,6 +1080,8 @@ export default function EmployeeDetailsPage() {
   const [notImage, setNotImage] = useState({});
   const [downloading, setDownloading] = useState({});
   const [activeTab, setActiveTab] = useState("profile");
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editSubmitting, setEditSubmitting] = useState(false);
 
   /* ── Fetch employee ── */
   const loadEmployee = useCallback(() => {
@@ -1095,6 +1098,24 @@ export default function EmployeeDetailsPage() {
   useEffect(() => {
     loadEmployee();
   }, [loadEmployee]);
+
+  const handleEditSubmit = async (payload) => {
+    setEditSubmitting(true);
+    try {
+      await dispatch(
+        editEmployee({
+          id: employee.id,
+          formData: payload,
+        }),
+      ).unwrap();
+      loadEmployee();
+      setEditModalOpen(false);
+    } catch (err) {
+      alert(err || "Failed to update employee");
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
 
   const age = useMemo(() => computeAge(employee?.dob), [employee]);
   const photoUrl = useMemo(() => resolveUrl(findDoc(employee, "photo_url") || findDoc(employee, "photo")), [employee]);
@@ -1185,7 +1206,7 @@ export default function EmployeeDetailsPage() {
           <button onClick={handleExcelExport} className="ed-btn-outline inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors">
             <Download size={16} /> Export Excel
           </button>
-          <button onClick={() => navigate(`/employees?edit=${employee.id}`)}
+          <button onClick={() => setEditModalOpen(true)}
             className="ed-btn-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors">
             <Pencil size={15} /> Edit Employee
           </button>
@@ -1290,6 +1311,17 @@ export default function EmployeeDetailsPage() {
             </div>
           </div>
         </div>
+      )}
+      {/* ── Edit Modal ── */}
+      {employee && (
+        <EmployeeModal
+          isOpen={editModalOpen}
+          onClose={() => setEditModalOpen(false)}
+          employee={employee}
+          schoolId={employee.school_id}
+          onSubmit={handleEditSubmit}
+          submitting={editSubmitting}
+        />
       )}
     </div>
   );

@@ -12,9 +12,9 @@ const initialState = {
 // ================= GET ALL =================
 export const getStudents = createAsyncThunk(
   "students/getAll",
-  async (_, thunkAPI) => {
+  async (params = {}, thunkAPI) => {
     try {
-      return await studentService.getStudents();
+      return await studentService.getStudents(params);
     } catch (err) {
       return thunkAPI.rejectWithValue(
         err.response?.data?.message || err.message,
@@ -59,10 +59,24 @@ export const updateStudent = createAsyncThunk(
       return await studentService.updateStudent({ id, formData });
     } catch (err) {
       return thunkAPI.rejectWithValue(
-        err.response?.data?.message || err.message
+        err.response?.data?.message || err.message,
       );
     }
-  }
+  },
+);
+
+// ================= UPDATE STATUS =================
+export const updateStudentStatus = createAsyncThunk(
+  "students/updateStatus",
+  async ({ id, status }, thunkAPI) => {
+    try {
+      return await studentService.updateStudentStatus({ id, status });
+    } catch (err) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || err.message,
+      );
+    }
+  },
 );
 
 // ================= DELETE =================
@@ -106,7 +120,16 @@ const studentSlice = createSlice({
 
       .addCase(getStudents.fulfilled, (state, action) => {
         state.loading = false;
-        state.students = action.payload;
+        const payload = action.payload;
+        state.students = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.data)
+            ? payload.data
+            : [];
+        state.total = payload?.total ?? state.students.length;
+        state.page = payload?.page ?? 1;
+        state.limit = payload?.limit ?? 20;
+        state.totalPages = payload?.totalPages ?? 1;
       })
 
       .addCase(getStudents.rejected, (state, action) => {
@@ -171,6 +194,33 @@ const studentSlice = createSlice({
       })
 
       .addCase(updateStudent.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // ================= UPDATE STATUS =================
+
+      .addCase(updateStudentStatus.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+
+      .addCase(updateStudentStatus.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        const updated = action.payload?.data || action.payload;
+        if (updated?.id) {
+          state.students = state.students.map((student) =>
+            student.id === updated.id ? { ...student, ...updated } : student,
+          );
+          if (state.student?.id === updated.id) {
+            state.student = { ...state.student, ...updated };
+          }
+        }
+      })
+
+      .addCase(updateStudentStatus.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

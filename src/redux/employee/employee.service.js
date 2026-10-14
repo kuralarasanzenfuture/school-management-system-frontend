@@ -4,13 +4,13 @@ export const getEmployees = async (params = {}) => {
   try {
     // Default all: "true" so the backend does not cap the list at 20 employees
     const queryParams = { all: "true", ...params };
-    const response = await api.get("/employees", { params: queryParams });
+    const response = await api.get("/employees/token", { params: queryParams });
     return response.data;
   } catch (error) {
-    // If 403 Forbidden (scoped/non-super admin) or 404, fallback to /employees/token
-    if (error.response?.status === 403 || error.response?.status === 404) {
+    // Fallback to /employees if /employees/token is 404
+    if (error.response?.status === 404) {
       const queryParams = { all: "true", ...params };
-      const fallback = await api.get("/employees/token", { params: queryParams });
+      const fallback = await api.get("/employees", { params: queryParams });
       return fallback.data;
     }
     console.error("Error fetching employees:", error);

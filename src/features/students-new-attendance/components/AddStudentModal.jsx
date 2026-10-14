@@ -21,6 +21,8 @@ import {
   createStudent,
   updateStudent,
 } from "../../../redux/student/studentSlice";
+import CustomDropdown from "../../../common/components/dropdown/CustomDropdown";
+import { IMAGE_BASE_URL, getFullImageUrl } from "../../../config/env.js";
 import "../styles/AddStudentModal.css";
 import {
   aadharNumber,
@@ -113,8 +115,6 @@ const DOC_KEYS = [
   { key: "previous_marksheets", label: "Previous Marksheet" },
 ];
 
-const IMAGE_BASE_URL = "http://localhost:5000";
-
 export default function AddStudentModal({ isOpen, onClose, student = null }) {
   const dispatch = useDispatch();
   const isEdit = Boolean(student?.id);
@@ -157,6 +157,48 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
       dispatch(fetchSchools());
     }
   }, [dispatch, isAdmin, schools.length]);
+
+  const schoolOptions = useMemo(() => {
+    const list = Array.isArray(schools)
+      ? schools
+      : Array.isArray(schools?.data)
+        ? schools.data
+        : [];
+    return list.map((s) => ({ value: String(s.id), label: s.name }));
+  }, [schools]);
+
+  const genderOptions = useMemo(
+    () => [
+      { value: "male", label: "Male" },
+      { value: "female", label: "Female" },
+      { value: "other", label: "Other" },
+    ],
+    [],
+  );
+
+  const bloodGroupOptions = useMemo(
+    () => [
+      { value: "A+", label: "A+" },
+      { value: "A-", label: "A-" },
+      { value: "B+", label: "B+" },
+      { value: "B-", label: "B-" },
+      { value: "AB+", label: "AB+" },
+      { value: "AB-", label: "AB-" },
+      { value: "O+", label: "O+" },
+      { value: "O-", label: "O-" },
+    ],
+    [],
+  );
+
+  const relationshipOptions = useMemo(
+    () => [
+      { value: "FATHER", label: "Father" },
+      { value: "MOTHER", label: "Mother" },
+      { value: "UNCLE", label: "Uncle" },
+      { value: "GUARDIAN", label: "Guardian" },
+    ],
+    [],
+  );
 
   /* ── Hydrate form in edit mode ── */
   useEffect(() => {
@@ -626,10 +668,10 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
         >
           <motion.div
             onClick={(clickEvent) => clickEvent.stopPropagation()}
-            initial={{ opacity: 0, scale: 0.9, y: 40 }}
+            initial={{ opacity: 0, scale: 0.92, y: 32 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 40 }}
-            transition={{ duration: 0.25 }}
+            exit={{ opacity: 0, scale: 0.92, y: 32 }}
+            transition={{ duration: 0.22 }}
             className="sm-panel w-full max-w-3xl rounded-3xl max-h-[95vh] overflow-hidden flex flex-col"
           >
             {/* ── Success screen ── */}
@@ -831,23 +873,30 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                               required
                               error={errors.school_id}
                             >
-                              <select
-                                className={tInput(errors.school_id)}
-                                value={data.school_id}
-                                onChange={set("school_id")}
-                                disabled={schoolsLoading}
-                              >
-                                <option value="">
-                                  {schoolsLoading
+                              <CustomDropdown
+                                className="w-full"
+                                options={schoolOptions}
+                                value={
+                                  data.school_id ? String(data.school_id) : ""
+                                }
+                                onChange={(val) => {
+                                  setData((d) => ({ ...d, school_id: val }));
+                                  if (errors.school_id)
+                                    setErrors((er) => ({
+                                      ...er,
+                                      school_id: null,
+                                    }));
+                                }}
+                                placeholder={
+                                  schoolsLoading
                                     ? "Loading schools..."
-                                    : "Select a school"}
-                                </option>
-                                {schools.map((s) => (
-                                  <option key={s.id} value={s.id}>
-                                    {s.name}
-                                  </option>
-                                ))}
-                              </select>
+                                    : "Select a school"
+                                }
+                                searchable={schoolOptions.length > 5}
+                                searchPlaceholder="Search schools..."
+                                disabled={schoolsLoading}
+                                hasError={Boolean(errors.school_id)}
+                              />
                             </Field>
                           )}
 
@@ -912,37 +961,29 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                             />
                           </Field>
                           <Field label="Gender" required error={errors.gender}>
-                            <select
-                              className={tInput(errors.gender)}
+                            <CustomDropdown
+                              className="w-full"
+                              options={genderOptions}
                               value={data.gender}
-                              onChange={set("gender")}
-                            >
-                              <option value="">Select Gender</option>
-                              <option value="male">Male</option>
-                              <option value="female">Female</option>
-                              <option value="other">Other</option>
-                            </select>
+                              onChange={(val) => {
+                                setData((d) => ({ ...d, gender: val }));
+                                if (errors.gender)
+                                  setErrors((er) => ({ ...er, gender: null }));
+                              }}
+                              placeholder="Select Gender"
+                              hasError={Boolean(errors.gender)}
+                            />
                           </Field>
                           <Field label="Blood Group">
-                            <select
-                              className={tInput()}
+                            <CustomDropdown
+                              className="w-full"
+                              options={bloodGroupOptions}
                               value={data.blood_group}
-                              onChange={set("blood_group")}
-                            >
-                              <option value="">Select Blood Group</option>
-                              {[
-                                "A+",
-                                "A-",
-                                "B+",
-                                "B-",
-                                "AB+",
-                                "AB-",
-                                "O+",
-                                "O-",
-                              ].map((bloodType) => (
-                                <option key={bloodType}>{bloodType}</option>
-                              ))}
-                            </select>
+                              onChange={(val) =>
+                                setData((d) => ({ ...d, blood_group: val }))
+                              }
+                              placeholder="Select Blood Group"
+                            />
                           </Field>
                           <Field
                             label="Mobile Number"
@@ -1093,17 +1134,18 @@ export default function AddStudentModal({ isOpen, onClose, student = null }) {
                             />
                           </Field>
                           <Field label="Relationship with Emergency Contact">
-                            <select
-                              className={tInput()}
+                            <CustomDropdown
+                              className="w-full"
+                              options={relationshipOptions}
                               value={data.emergency_relationship}
-                              onChange={set("emergency_relationship")}
-                            >
-                              <option value="">Select</option>
-                              <option value="FATHER">Father</option>
-                              <option value="MOTHER">Mother</option>
-                              <option value="UNCLE">Uncle</option>
-                              <option value="GUARDIAN">Guardian</option>
-                            </select>
+                              onChange={(val) =>
+                                setData((d) => ({
+                                  ...d,
+                                  emergency_relationship: val,
+                                }))
+                              }
+                              placeholder="Select"
+                            />
                           </Field>
                         </div>
                       )}

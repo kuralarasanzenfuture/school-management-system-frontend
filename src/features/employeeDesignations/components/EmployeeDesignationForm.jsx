@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Loader2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchSchools } from "../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
+import CustomDropdown from "../../../common/components/dropdown/CustomDropdown.jsx";
 
 const EMPTY = {
   name: "",
@@ -49,6 +50,16 @@ export default function EmployeeDesignationForm({
       dispatch(fetchSchools());
     }
   }, [isAdmin, dispatch]);
+
+  const schoolOptions = useMemo(() => {
+    const list = Array.isArray(schools)
+      ? schools
+      : schools?.schools || schools?.data || [];
+    return list.map((s) => ({
+      value: String(s.id),
+      label: s.name,
+    }));
+  }, [schools]);
 
   // useEffect(() => {
   //   setData(
@@ -114,21 +125,20 @@ export default function EmployeeDesignationForm({
           <label className="ay-field-label text-[13px] font-medium">
             School <span className="ay-field-required">*</span>
           </label>
-          <select
-            className={`ay-input w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200 ${errors.school_id ? "ay-input-error" : ""}`}
-            value={data.school_id}
-            onChange={set("school_id")}
+          <CustomDropdown
+            options={schoolOptions}
+            value={data.school_id ? String(data.school_id) : ""}
+            onChange={(val) => {
+              setData((d) => ({ ...d, school_id: val }));
+              if (errors.school_id) setErrors((er) => ({ ...er, school_id: null }));
+            }}
+            placeholder={schoolsLoading ? "Loading schools..." : "Select a school"}
+            searchable={schoolOptions.length > 5}
+            searchPlaceholder="Search schools..."
             disabled={schoolsLoading}
-          >
-            <option value="">
-              {schoolsLoading ? "Loading schools..." : "Select a school"}
-            </option>
-            {schools.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </select>
+            hasError={Boolean(errors.school_id)}
+            className="w-full"
+          />
           <div className="h-4">
             {errors.school_id && (
               <p className="ay-field-error text-[11px]">{errors.school_id}</p>
@@ -169,9 +179,7 @@ export default function EmployeeDesignationForm({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="edp-field-label text-[13px] font-medium">
-          Status
-        </label>
+        <label className="edp-field-label text-[13px] font-medium">Status</label>
         <div className="flex gap-2">
           {["active", "inactive"].map((s) => (
             <button

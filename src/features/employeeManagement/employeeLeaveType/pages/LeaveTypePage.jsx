@@ -1,16 +1,33 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchEmployeeLeaveTypes } from "../../../../redux/employeeLeaveType/employeeLeaveTypeSlice.js";
+import {
+    fetchEmployeeLeaveTypes,
+    toggleEmployeeLeaveTypeStatus,
+} from "../../../../redux/employeeLeaveType/employeeLeaveTypeSlice.js";
 import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
 import LeaveTypeTable from "../components/LeaveTypeTable.jsx";
 import LeaveTypeModal from "../components/LeaveTypeModal.jsx";
 import DeleteLeaveTypeModal from "../components/DeleteLeaveTypeModal.jsx";
+import LeaveTypeStatusModal from "../components/LeaveTypeStatusModal.jsx";
+import CustomDropdown from "../../../../common/components/dropdown/CustomDropdown.jsx";
 import "../styles/LeaveType.css";
 import {
     FileText, Plus, Search, List, LayoutGrid,
     CheckCircle, XCircle, DollarSign, RotateCcw,
-    Pencil, Trash2, Check, X,
+    Pencil, Trash2, Check, X, Loader2,
 } from "lucide-react";
+
+const STATUS_OPTIONS = [
+    { value: "", label: "All Statuses" },
+    { value: "active", label: "Active" },
+    { value: "inactive", label: "Inactive" },
+];
+
+const PAID_OPTIONS = [
+    { value: "", label: "All Types" },
+    { value: "Paid", label: "Paid" },
+    { value: "Unpaid", label: "Unpaid" },
+];
 
 /* ── Stat card ── */
 function StatCard({ icon: Icon, iconBgClass, iconColorClass, value, label }) {
@@ -48,12 +65,30 @@ export default function LeaveTypePage() {
     const schools = useSelector((state) => state.schoolProfile?.schools ?? []);
     const schoolsLoading = useSelector((state) => state.schoolProfile?.loading ?? false);
 
+    const schoolList = useMemo(() => {
+        const raw = Array.isArray(schools)
+            ? schools
+            : schools?.schools || schools?.data || [];
+        return Array.isArray(raw) ? raw : [];
+    }, [schools]);
+
+    const schoolOptions = useMemo(
+        () => [
+            { value: "", label: "All Schools" },
+            ...schoolList.map((school) => ({
+                value: String(school.id),
+                label: school.name,
+            })),
+        ],
+        [schoolList],
+    );
+
     const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
     const schoolId = isAdmin ? null : user?.school_id;
 
     const [searchQuery, setSearchQuery] = useState("");
-    const [statusFilter, setStatusFilter] = useState("All");
-    const [paidFilter, setPaidFilter] = useState("All");
+    const [statusFilter, setStatusFilter] = useState("");
+    const [paidFilter, setPaidFilter] = useState("");
     const [selectedSchool, setSelectedSchool] = useState("");
     const [viewMode, setViewMode] = useState("table");
 
@@ -61,15 +96,58 @@ export default function LeaveTypePage() {
     const [editTarget, setEditTarget] = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
 
+    /* Status confirmation modal state (matching EmployeeShift & Designation) */
+    const [statusModalOpen, setStatusModalOpen] = useState(false);
+    const [statusTargetLeaveType, setStatusTargetLeaveType] = useState(null);
+    const [targetStatus, setTargetStatus] = useState("");
+    const [statusSubmitting, setStatusSubmitting] = useState(false);
+    const [togglingId, setTogglingId] = useState(null);
+
     /* ── Fetch ── */
     useEffect(() => { dispatch(fetchEmployeeLeaveTypes()); }, [dispatch]);
     useEffect(() => {
-        if (isAdmin && schools.length === 0) dispatch(fetchSchools());
-    }, [dispatch, isAdmin, schools.length]);
+        if (isAdmin && schoolList.length === 0) dispatch(fetchSchools());
+    }, [dispatch, isAdmin, schoolList.length]);
+
+    /* ── Status toggle request ── */
+    const handleStatusToggleRequest = (leaveType, nextStatus) => {
+        setStatusTargetLeaveType(leaveType);
+        setTargetStatus(
+            nextStatus || (leaveType.status === "active" ? "inactive" : "active"),
+        );
+        setStatusModalOpen(true);
+    };
+
+    const closeStatusModal = () => {
+        setStatusModalOpen(false);
+        setStatusTargetLeaveType(null);
+        setTargetStatus("");
+    };
+
+    const handleConfirmStatusChange = async (leaveTypeId, next) => {
+        setStatusSubmitting(true);
+        setTogglingId(leaveTypeId);
+        try {
+            await dispatch(
+                toggleEmployeeLeaveTypeStatus({
+                    id: leaveTypeId,
+                    status: next,
+                }),
+            ).unwrap();
+            closeStatusModal();
+        } catch (err) {
+            alert(err || "Failed to update leave type status");
+        } finally {
+            setStatusSubmitting(false);
+            setTogglingId(null);
+        }
+    };
 
     /* ── Filter ── */
     const filtered = useMemo(() => {
-        let result = leaveTypes ?? [];
+        let result = Array.isArray(leaveTypes)
+            ? leaveTypes
+            : leaveTypes?.data || leaveTypes?.leaveTypes || [];
 
         // School
         result = result.filter((lt) =>
@@ -79,11 +157,11 @@ export default function LeaveTypePage() {
         );
 
         // Status
-        if (statusFilter !== "All")
+        if (statusFilter && statusFilter !== "All")
             result = result.filter((lt) => lt.status === statusFilter);
 
         // Paid
-        if (paidFilter !== "All")
+        if (paidFilter && paidFilter !== "All")
             result = result.filter((lt) =>
                 paidFilter === "Paid" ? Boolean(Number(lt.is_paid)) : !Boolean(Number(lt.is_paid)),
             );
@@ -102,14 +180,14 @@ export default function LeaveTypePage() {
     }, [leaveTypes, isAdmin, schoolId, selectedSchool, statusFilter, paidFilter, searchQuery]);
 
     /* ── Stat counts ── */
-    const totalCount = leaveTypes.length;
-    const activeCount = leaveTypes.filter((lt) => lt.status === "active").length;
-    const paidCount = leaveTypes.filter((lt) => Boolean(Number(lt.is_paid))).length;
-    const carryFwdCount = leaveTypes.filter((lt) => Boolean(Number(lt.carry_forward))).length;
+    const list = Array.isArray(leaveTypes) ? leaveTypes : leaveTypes?.data || [];
+    const totalCount = list.length;
+    const activeCount = list.filter((lt) => lt.status === "active").length;
+    const paidCount = list.filter((lt) => Boolean(Number(lt.is_paid))).length;
+    const carryFwdCount = list.filter((lt) => Boolean(Number(lt.carry_forward))).length;
 
     /* ── Handlers ── */
     const handleSearch = (e) => setSearchQuery(e.target.value);
-    const handleSchool = (e) => setSelectedSchool(e.target.value);
 
     const openAddModal = () => { setEditTarget(null); setShowModal(true); };
     const openEditModal = (lt) => { setEditTarget(lt); setShowModal(true); };
@@ -161,30 +239,35 @@ export default function LeaveTypePage() {
 
                 {/* Admin school filter */}
                 {isAdmin && (
-                    <select value={selectedSchool} onChange={handleSchool} disabled={schoolsLoading}
-                        className="lt-select rounded-lg px-3.5 py-2.5 text-[13.5px] min-w-[200px]">
-                        <option value="">All Schools</option>
-                        {schools.map((school) => (
-                            <option key={school.id} value={school.id}>{school.name}</option>
-                        ))}
-                    </select>
+                    <CustomDropdown
+                        options={schoolOptions}
+                        value={selectedSchool}
+                        onChange={(val) => setSelectedSchool(val)}
+                        placeholder={schoolsLoading ? "Loading schools…" : "All Schools"}
+                        searchable={schoolOptions.length > 5}
+                        searchPlaceholder="Search schools…"
+                        disabled={schoolsLoading}
+                        className="min-w-[200px]"
+                    />
                 )}
 
                 {/* Status filter */}
-                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-                    className="lt-select rounded-lg px-3.5 py-2.5 text-[13.5px]">
-                    <option value="All">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                </select>
+                <CustomDropdown
+                    options={STATUS_OPTIONS}
+                    value={statusFilter}
+                    onChange={(val) => setStatusFilter(val)}
+                    placeholder="All Statuses"
+                    className="min-w-[145px]"
+                />
 
                 {/* Paid filter */}
-                <select value={paidFilter} onChange={(e) => setPaidFilter(e.target.value)}
-                    className="lt-select rounded-lg px-3.5 py-2.5 text-[13.5px]">
-                    <option value="All">All Types</option>
-                    <option value="Paid">Paid</option>
-                    <option value="Unpaid">Unpaid</option>
-                </select>
+                <CustomDropdown
+                    options={PAID_OPTIONS}
+                    value={paidFilter}
+                    onChange={(val) => setPaidFilter(val)}
+                    placeholder="All Types"
+                    className="min-w-[130px]"
+                />
 
                 {/* Count + view toggle */}
                 <div className="ml-auto flex items-center gap-3">
@@ -224,6 +307,8 @@ export default function LeaveTypePage() {
                     leaveTypes={filtered}
                     onEdit={openEditModal}
                     onDelete={(lt) => setDeleteTarget(lt)}
+                    onToggleStatus={handleStatusToggleRequest}
+                    togglingId={togglingId}
                     showSchoolColumn={isAdmin && !selectedSchool}
                 />
             )}
@@ -245,6 +330,32 @@ export default function LeaveTypePage() {
                                         <div>
                                             <div className="flex items-center gap-2 mb-1">
                                                 <span className="lt-code">{lt.code}</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        handleStatusToggleRequest(
+                                                            lt,
+                                                            lt.status === "active" ? "inactive" : "active"
+                                                        )
+                                                    }
+                                                    title={`Click to ${
+                                                        lt.status === "active" ? "deactivate" : "activate"
+                                                    } leave type`}
+                                                    className={`lt-toggle-switch relative inline-flex h-4 w-7 shrink-0 cursor-pointer rounded-full border border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                                                        lt.status === "active"
+                                                            ? "bg-emerald-500"
+                                                            : "bg-slate-300 dark:bg-slate-700"
+                                                    }`}
+                                                >
+                                                    <span
+                                                        aria-hidden="true"
+                                                        className={`pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                                                            lt.status === "active"
+                                                                ? "translate-x-3"
+                                                                : "translate-x-0"
+                                                        }`}
+                                                    />
+                                                </button>
                                                 <span className={`lt-status lt-status-${lt.status}`}>{lt.status}</span>
                                             </div>
                                             <p className="lt-cell-primary text-[14px] font-bold leading-tight">{lt.name}</p>
@@ -321,6 +432,14 @@ export default function LeaveTypePage() {
                 isOpen={Boolean(deleteTarget)}
                 onClose={() => setDeleteTarget(null)}
                 leaveType={deleteTarget}
+            />
+            <LeaveTypeStatusModal
+                isOpen={statusModalOpen}
+                onClose={closeStatusModal}
+                leaveType={statusTargetLeaveType}
+                targetStatus={targetStatus}
+                onConfirm={handleConfirmStatusChange}
+                submitting={statusSubmitting}
             />
         </div>
     );

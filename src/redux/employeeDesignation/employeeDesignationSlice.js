@@ -4,6 +4,7 @@ import {
   getEmployeeDesignationById,
   createEmployeeDesignation,
   updateEmployeeDesignation,
+  updateEmployeeDesignationStatus,
   deleteEmployeeDesignation,
 } from "./employeeDesignation.service.js";
 
@@ -11,9 +12,9 @@ import {
 
 export const fetchEmployeeDesignations = createAsyncThunk(
   "employeeDesignations/fetchEmployeeDesignations",
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      return await getEmployeeDesignations();
+      return await getEmployeeDesignations(params);
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message ||
@@ -70,6 +71,23 @@ export const editEmployeeDesignation = createAsyncThunk(
   },
 );
 
+// ---------------- Toggle Status ----------------
+
+export const toggleEmployeeDesignationStatus = createAsyncThunk(
+  "employeeDesignations/toggleStatus",
+  async ({ id, status }, { rejectWithValue }) => {
+    try {
+      const response = await updateEmployeeDesignationStatus(id, status);
+      return { id, status, response };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to update employee designation status",
+      );
+    }
+  },
+);
+
 // ---------------- Delete ----------------
 
 export const removeEmployeeDesignation = createAsyncThunk(
@@ -92,6 +110,11 @@ export const removeEmployeeDesignation = createAsyncThunk(
 const initialState = {
   employeeDesignations: [],
   employeeDesignation: null,
+  filters: {
+    search: "",
+    school_id: "",
+    status: "",
+  },
   loading: false,
   error: null,
 };
@@ -110,6 +133,18 @@ const employeeDesignationSlice = createSlice({
     clearEmployeeDesignationError(state) {
       state.error = null;
     },
+
+    setDesignationFilters(state, action) {
+      state.filters = { ...state.filters, ...action.payload };
+    },
+
+    resetDesignationFilters(state) {
+      state.filters = {
+        search: "",
+        school_id: "",
+        status: "",
+      };
+    },
   },
 
   extraReducers: (builder) => {
@@ -122,8 +157,18 @@ const employeeDesignationSlice = createSlice({
       })
       .addCase(fetchEmployeeDesignations.fulfilled, (state, action) => {
         state.loading = false;
-        state.employeeDesignations = action.payload;
-        // state.employeeDesignations = action.payload.designations; or use in page
+        const p = action.payload;
+        if (Array.isArray(p)) {
+          state.employeeDesignations = p;
+        } else if (Array.isArray(p?.data)) {
+          state.employeeDesignations = p.data;
+        } else if (Array.isArray(p?.rows)) {
+          state.employeeDesignations = p.rows;
+        } else if (Array.isArray(p?.designations)) {
+          state.employeeDesignations = p.designations;
+        } else {
+          state.employeeDesignations = [];
+        }
       })
       .addCase(fetchEmployeeDesignations.rejected, (state, action) => {
         state.loading = false;
@@ -178,6 +223,18 @@ const employeeDesignationSlice = createSlice({
         state.error = action.payload;
       })
 
+      // Toggle Status
+      .addCase(toggleEmployeeDesignationStatus.fulfilled, (state, action) => {
+        const { id, status } = action.payload;
+        const item = state.employeeDesignations.find((d) => d.id === id);
+        if (item) {
+          item.status = status;
+        }
+        if (state.employeeDesignation?.id === id) {
+          state.employeeDesignation.status = status;
+        }
+      })
+
       // Delete
       .addCase(removeEmployeeDesignation.pending, (state) => {
         state.loading = true;
@@ -195,7 +252,11 @@ const employeeDesignationSlice = createSlice({
   },
 });
 
-export const { clearEmployeeDesignation, clearEmployeeDesignationError } =
-  employeeDesignationSlice.actions;
+export const {
+  clearEmployeeDesignation,
+  clearEmployeeDesignationError,
+  setDesignationFilters,
+  resetDesignationFilters,
+} = employeeDesignationSlice.actions;
 
 export default employeeDesignationSlice.reducer;

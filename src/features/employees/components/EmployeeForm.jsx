@@ -4348,7 +4348,7 @@
 
 /* ---------------------------------------------------------------------*/
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, Upload, Check, Eye, X, FileText } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEmployeeDesignations } from "../../../redux/employeeDesignation/employeeDesignationSlice.js";
@@ -4362,6 +4362,7 @@ import {
   pincode,
 } from "../../../common/utils/inputHandlers.js";
 import { fetchSchools } from "../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
+import CustomDropdown from "../../../common/components/dropdown/CustomDropdown.jsx";
 
 const EMPTY = {
   school_id: "",
@@ -4547,9 +4548,123 @@ export default function EmployeeForm({
     }
   }, [isAdmin, dispatch]);
 
+  const designationList = useMemo(() => {
+    const raw = Array.isArray(employeeDesignations)
+      ? employeeDesignations
+      : employeeDesignations?.data || employeeDesignations?.designations || [];
+    return Array.isArray(raw) ? raw : [];
+  }, [employeeDesignations]);
+
+  const departmentList = useMemo(() => {
+    const raw = Array.isArray(departments)
+      ? departments
+      : departments?.data || departments?.departments || [];
+    return Array.isArray(raw) ? raw : [];
+  }, [departments]);
+
+  const schoolList = useMemo(() => {
+    const raw = Array.isArray(schools)
+      ? schools
+      : schools?.schools || schools?.data || [];
+    return Array.isArray(raw) ? raw : [];
+  }, [schools]);
+
+  const schoolDropdownOptions = useMemo(() => [
+    { value: "", label: schoolsLoading ? "Loading schools..." : "Select a school" },
+    ...schoolList.map((s) => ({
+      value: String(s.id),
+      label: s.name,
+    })),
+  ], [schoolList, schoolsLoading]);
+
   const isEdit = Boolean(initialData?.id);
   const [data, setData] = useState(EMPTY);
   const [errors, setErrors] = useState({});
+
+  const designationDropdownOptions = useMemo(() => {
+    const opts = [
+      { value: "", label: designationsLoading ? "Loading..." : "Select Designation" },
+      ...designationList.map((d) => ({
+        value: d.name,
+        label: d.name,
+      })),
+    ];
+    if (data.designation && !designationList.some((d) => d.name === data.designation)) {
+      opts.push({ value: data.designation, label: data.designation });
+    }
+    return opts;
+  }, [designationList, designationsLoading, data.designation]);
+
+  const departmentDropdownOptions = useMemo(() => {
+    const opts = [
+      { value: "", label: departmentsLoading ? "Loading..." : "Select Department" },
+      ...departmentList.map((d) => ({
+        value: d.name,
+        label: d.name,
+      })),
+    ];
+    if (data.department && !departmentList.some((d) => d.name === data.department)) {
+      opts.push({ value: data.department, label: data.department });
+    }
+    return opts;
+  }, [departmentList, departmentsLoading, data.department]);
+
+  const genderOptions = useMemo(() => [
+    { value: "", label: "Select…" },
+    { value: "male", label: "Male" },
+    { value: "female", label: "Female" },
+    { value: "other", label: "Other" },
+  ], []);
+
+  const bloodGroupOptions = useMemo(() => [
+    { value: "", label: "Select Blood Group" },
+    { value: "A+", label: "A+" },
+    { value: "A-", label: "A-" },
+    { value: "B+", label: "B+" },
+    { value: "B-", label: "B-" },
+    { value: "AB+", label: "AB+" },
+    { value: "AB-", label: "AB-" },
+    { value: "O+", label: "O+" },
+    { value: "O-", label: "O-" },
+  ], []);
+
+  const relationshipOptions = useMemo(() => [
+    { value: "", label: "Select…" },
+    ...RELATIONSHIPS.map((r) => ({
+      value: r,
+      label: r.charAt(0).toUpperCase() + r.slice(1),
+    })),
+  ], []);
+
+  const accountTypeOptions = useMemo(() => {
+    const opts = [
+      { value: "", label: "Select Account Type" },
+      { value: "SAVINGS", label: "Savings" },
+      { value: "CURRENT", label: "Current" },
+      { value: "SALARY", label: "Salary" },
+      { value: "FD", label: "Fixed Deposit (FD)" },
+      { value: "RD", label: "Recurring Deposit (RD)" },
+      { value: "NRE", label: "NRE" },
+      { value: "NRO", label: "NRO" },
+      { value: "FCNR", label: "FCNR" },
+      { value: "JOINT", label: "Joint" },
+      { value: "MINOR", label: "Minor" },
+    ];
+    if (
+      data.account_type &&
+      !opts.some(
+        (o) =>
+          o.value &&
+          o.value.toLowerCase() === String(data.account_type).toLowerCase(),
+      )
+    ) {
+      opts.push({
+        value: data.account_type,
+        label: data.account_type,
+      });
+    }
+    return opts;
+  }, [data.account_type]);
 
   // Newly-selected files only, keyed by the *_url key (e.g. "photo_url").
   // If a field is absent here while editing, the existing URL on the
@@ -4856,21 +4971,20 @@ export default function EmployeeForm({
             <label className="ep-field-label text-[13px] font-medium">
               School <span className="ep-field-required">*</span>
             </label>
-            <select
-              className={`ep-input w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200 ${errors.school_id ? "ep-input-error" : ""}`}
-              value={data.school_id}
-              onChange={set("school_id")}
+            <CustomDropdown
+              className="w-full"
+              options={schoolDropdownOptions}
+              value={data.school_id ? String(data.school_id) : ""}
+              onChange={(val) => {
+                setData((d) => ({ ...d, school_id: val }));
+                if (errors.school_id) setErrors((e) => ({ ...e, school_id: "" }));
+              }}
+              placeholder={schoolsLoading ? "Loading schools..." : "Select a school"}
+              searchable={schoolDropdownOptions.length > 5}
+              searchPlaceholder="Search schools..."
               disabled={schoolsLoading}
-            >
-              <option value="">
-                {schoolsLoading ? "Loading schools..." : "Select a school"}
-              </option>
-              {schools.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
+              hasError={Boolean(errors.school_id)}
+            />
             <div className="h-4">
               {errors.school_id && (
                 <p className="ep-field-error text-[11px]">{errors.school_id}</p>
@@ -4956,16 +5070,13 @@ export default function EmployeeForm({
               <label className="ep-field-label text-[13px] font-medium">
                 Gender
               </label>
-              <select
-                className="ep-select w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200"
+              <CustomDropdown
+                className="w-full"
+                options={genderOptions}
                 value={data.gender}
-                onChange={set("gender")}
-              >
-                <option value="">Select…</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
+                onChange={(val) => setData((d) => ({ ...d, gender: val }))}
+                placeholder="Select…"
+              />
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -4984,21 +5095,13 @@ export default function EmployeeForm({
               <label className="ep-field-label text-[13px] font-medium">
                 Blood Group
               </label>
-              <select
-                className="ep-select w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200"
+              <CustomDropdown
+                className="w-full"
+                options={bloodGroupOptions}
                 value={data.blood_group}
-                onChange={set("blood_group")}
-              >
-                <option value="">Select Blood Group</option>
-                <option value="A+">A+</option>
-                <option value="A-">A-</option>
-                <option value="B+">B+</option>
-                <option value="B-">B-</option>
-                <option value="AB+">AB+</option>
-                <option value="AB-">AB-</option>
-                <option value="O+">O+</option>
-                <option value="O-">O-</option>
-              </select>
+                onChange={(val) => setData((d) => ({ ...d, blood_group: val }))}
+                placeholder="Select Blood Group"
+              />
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -5045,21 +5148,20 @@ export default function EmployeeForm({
               <label className="ep-field-label text-[13px] font-medium">
                 Designation <span className="ep-field-required">*</span>
               </label>
-              <select
-                className={inputCls("designation")}
+              <CustomDropdown
+                className="w-full"
+                options={designationDropdownOptions}
                 value={data.designation}
-                onChange={set("designation")}
+                onChange={(val) => {
+                  setData((d) => ({ ...d, designation: val }));
+                  if (errors.designation) setErrors((e) => ({ ...e, designation: "" }));
+                }}
+                placeholder={designationsLoading ? "Loading..." : "Select Designation"}
+                searchable={designationDropdownOptions.length > 5}
+                searchPlaceholder="Search designations…"
                 disabled={designationsLoading}
-              >
-                <option value="">
-                  {designationsLoading ? "Loading..." : "Select Designation"}
-                </option>
-                {employeeDesignations.map((designation) => (
-                  <option key={designation.id} value={designation.name}>
-                    {designation.name}
-                  </option>
-                ))}
-              </select>
+                hasError={Boolean(errors.designation)}
+              />
               <div className="h-4">
                 {errors.designation && (
                   <p className="ep-field-error text-[11px]">
@@ -5073,21 +5175,16 @@ export default function EmployeeForm({
               <label className="ep-field-label text-[13px] font-medium">
                 Department
               </label>
-              <select
-                className="ep-select w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200"
+              <CustomDropdown
+                className="w-full"
+                options={departmentDropdownOptions}
                 value={data.department}
-                onChange={set("department")}
+                onChange={(val) => setData((d) => ({ ...d, department: val }))}
+                placeholder={departmentsLoading ? "Loading..." : "Select Department"}
+                searchable={departmentDropdownOptions.length > 5}
+                searchPlaceholder="Search departments…"
                 disabled={departmentsLoading}
-              >
-                <option value="">
-                  {departmentsLoading ? "Loading..." : "Select Department"}
-                </option>
-                {departments.map((dept) => (
-                  <option key={dept.id} value={dept.name}>
-                    {dept.name}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -5358,18 +5455,13 @@ export default function EmployeeForm({
               <label className="ep-field-label text-[13px] font-medium">
                 Relationship
               </label>
-              <select
-                className="ep-select w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200"
+              <CustomDropdown
+                className="w-full"
+                options={relationshipOptions}
                 value={data.emergency_relationship}
-                onChange={set("emergency_relationship")}
-              >
-                <option value="">Select…</option>
-                {RELATIONSHIPS.map((r) => (
-                  <option key={r} value={r}>
-                    {r.charAt(0).toUpperCase() + r.slice(1)}
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => setData((d) => ({ ...d, emergency_relationship: val }))}
+                placeholder="Select…"
+              />
             </div>
           </div>
         </div>
@@ -5417,23 +5509,13 @@ export default function EmployeeForm({
                 Account Type
               </label>
 
-              <select
-                className="ep-input w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200"
+              <CustomDropdown
+                className="w-full"
+                options={accountTypeOptions}
                 value={data.account_type}
-                onChange={set("account_type")}
-              >
-                <option value="">Select Account Type</option>
-                <option value="SAVINGS">Savings</option>
-                <option value="CURRENT">Current</option>
-                <option value="SALARY">Salary</option>
-                <option value="FD">Fixed Deposit (FD)</option>
-                <option value="RD">Recurring Deposit (RD)</option>
-                <option value="NRE">NRE</option>
-                <option value="NRO">NRO</option>
-                <option value="FCNR">FCNR</option>
-                <option value="JOINT">Joint</option>
-                <option value="MINOR">Minor</option>
-              </select>
+                onChange={(val) => setData((d) => ({ ...d, account_type: val }))}
+                placeholder="Select Account Type"
+              />
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="ep-field-label text-[13px] font-medium">

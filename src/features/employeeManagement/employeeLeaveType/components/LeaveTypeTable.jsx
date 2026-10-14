@@ -1,5 +1,5 @@
 import React from "react";
-import { Pencil, Trash2, Check, X } from "lucide-react";
+import { Pencil, Trash2, Check, X, Loader2 } from "lucide-react";
 import Pagination from "../../../../common/components/table/Pagination";
 import usePagination from "../../../../common/components/table/usePagination";
 import "../styles/LeaveType.css";
@@ -23,6 +23,8 @@ export default function LeaveTypeTable({
     leaveTypes = [],
     onEdit,
     onDelete,
+    onToggleStatus,
+    togglingId,
     showSchoolColumn = false,
     initialPageSize = 10,
     pageSizeOptions = [5, 10, 20, 50],
@@ -134,9 +136,42 @@ export default function LeaveTypeTable({
 
                                     {/* Status */}
                                     <td className="px-3 py-3.5 text-center">
-                                        <span className={`lt-status lt-status-${leaveType.status}`}>
-                                            {leaveType.status}
-                                        </span>
+                                        <div className="flex items-center justify-center gap-2">
+                                            {togglingId === leaveType.id ? (
+                                                <Loader2 size={16} className="animate-spin text-primary" />
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        onToggleStatus &&
+                                                        onToggleStatus(
+                                                            leaveType,
+                                                            leaveType.status === "active" ? "inactive" : "active"
+                                                        )
+                                                    }
+                                                    title={`Click to ${
+                                                        leaveType.status === "active" ? "deactivate" : "activate"
+                                                    } leave type`}
+                                                    className={`lt-toggle-switch relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                                                        leaveType.status === "active"
+                                                            ? "bg-emerald-500"
+                                                            : "bg-slate-300 dark:bg-slate-700"
+                                                    }`}
+                                                >
+                                                    <span
+                                                        aria-hidden="true"
+                                                        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                                                            leaveType.status === "active"
+                                                                ? "translate-x-4"
+                                                                : "translate-x-0"
+                                                        }`}
+                                                    />
+                                                </button>
+                                            )}
+                                            <span className={`lt-status lt-status-${leaveType.status}`}>
+                                                {leaveType.status}
+                                            </span>
+                                        </div>
                                     </td>
 
                                     {/* Actions */}

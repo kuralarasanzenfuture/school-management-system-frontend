@@ -4,15 +4,23 @@ import { useDispatch, useSelector } from "react-redux";
 import EmployeeShiftCard from "../components/EmployeeShiftCard.jsx";
 import EmployeeShiftTable from "../components/EmployeeShiftTable.jsx";
 import EmployeeShiftModal from "../components/EmployeeShiftModal.jsx";
-import StatusFilterDropdown from "../components/StatusFilterDropdown.jsx";
+import EmployeeShiftStatusModal from "../components/EmployeeShiftStatusModal.jsx";
+import CustomDropdown from "../../../../common/components/dropdown/CustomDropdown.jsx";
 import {
     fetchEmployeeShifts,
     createEmployeeShiftThunk,
     updateEmployeeShiftThunk,
+    toggleEmployeeShiftStatus,
     deleteEmployeeShiftThunk,
 } from "../../../../redux/employeeShift/employeeShiftSlice.js";
 import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
 import "../styles/EmployeeShift.css";
+
+const STATUS_OPTIONS = [
+    { value: "", label: "All Statuses" },
+    { value: "active", label: "Active" },
+    { value: "inactive", label: "Inactive" },
+];
 
 const EmployeeShiftPage = () => {
     const dispatch = useDispatch();
@@ -24,56 +32,116 @@ const EmployeeShiftPage = () => {
     const schoolId = isAdmin ? null : user?.school_id;
 
     const schools = useSelector((state) => state.schoolProfile?.schools || []);
+    const schoolsLoading = useSelector(
+        (state) => state.schoolProfile?.loading || false,
+    );
+
+    const schoolList = useMemo(() => {
+        const raw = Array.isArray(schools)
+            ? schools
+            : schools?.schools || schools?.data || [];
+        return Array.isArray(raw) ? raw : [];
+    }, [schools]);
+
+    const schoolOptions = useMemo(
+        () => [
+            { value: "", label: "All Schools" },
+            ...schoolList.map((school) => ({
+                value: String(school.id),
+                label: school.name,
+            })),
+        ],
+        [schoolList],
+    );
 
     const [search, setSearch] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
     const [selectedSchool, setSelectedSchool] = useState("");
-    const [statusFilter, setStatusFilter] = useState(["active", "inactive"]);
+    const [statusFilter, setStatusFilter] = useState("");
     const [view, setView] = useState("cards"); // "cards" | "table"
 
     const [modalOpen, setModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [submitting, setSubmitting] = useState(false);
     const [deletingId, setDeletingId] = useState(null);
+    const [togglingId, setTogglingId] = useState(null);
+
+    /* Status confirmation modal state (matching Department / EmployeeDesignation) */
+    const [statusModalOpen, setStatusModalOpen] = useState(false);
+    const [statusTargetShift, setStatusTargetShift] = useState(null);
+    const [targetStatus, setTargetStatus] = useState("");
+    const [statusSubmitting, setStatusSubmitting] = useState(false);
 
     useEffect(() => {
-        dispatch(fetchEmployeeShifts());
-        if (isAdmin) dispatch(fetchSchools());
-    }, [dispatch, isAdmin]);
+        if (isAdmin && schoolList.length === 0) {
+            dispatch(fetchSchools());
+        }
+    }, [dispatch, isAdmin, schoolList.length]);
 
-    const schoolScoped = useMemo(() => {
-        return employeeShifts.filter((s) => {
-            if (isAdmin && selectedSchool) {
-                return String(s.school_id) === String(selectedSchool);
-            }
-            if (!isAdmin && schoolId) {
-                return String(s.school_id) === String(schoolId);
-            }
-            return true;
-        });
-    }, [employeeShifts, isAdmin, selectedSchool, schoolId]);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [search]);
+
+    useEffect(() => {
+        const params = {};
+        if (isAdmin && selectedSchool) {
+            params.school_id = selectedSchool;
+        }
+        if (statusFilter) {
+            params.status = statusFilter;
+        }
+        if (debouncedSearch.trim()) {
+            params.search = debouncedSearch.trim();
+        }
+        dispatch(fetchEmployeeShifts(params));
+    }, [dispatch, isAdmin, selectedSchool, statusFilter, debouncedSearch]);
+
+    const shiftList = useMemo(() => {
+        const raw = Array.isArray(employeeShifts)
+            ? employeeShifts
+            : employeeShifts?.data || employeeShifts?.rows || employeeShifts?.shifts || [];
+        return Array.isArray(raw) ? raw : [];
+    }, [employeeShifts]);
 
     const filtered = useMemo(() => {
-        const term = search.trim().toLowerCase();
-        return schoolScoped.filter((s) => {
-            const matchesSearch = term ? s.name.toLowerCase().includes(term) : true;
-            const matchesStatus = statusFilter.includes(s.status);
-            return matchesSearch && matchesStatus;
-        });
-    }, [schoolScoped, search, statusFilter]);
+        let list = shiftList;
+
+        if (search.trim()) {
+            const term = search.trim().toLowerCase();
+            list = list.filter(
+                (s) =>
+                    s.name?.toLowerCase().includes(term) ||
+                    s.shift_type?.toLowerCase().includes(term),
+            );
+        }
+
+        if (statusFilter) {
+            list = list.filter((s) => s.status === statusFilter);
+        }
+
+        if (isAdmin && selectedSchool) {
+            list = list.filter((s) => String(s.school_id) === String(selectedSchool));
+        }
+
+        return list;
+    }, [shiftList, search, statusFilter, selectedSchool, isAdmin]);
 
     const stats = useMemo(() => {
-        const active = schoolScoped.filter((s) => s.status === "active");
+        const active = shiftList.filter((s) => s.status === "active");
         const totalHours = active.reduce(
             (sum, s) => sum + (Number(s.working_hours) || 0),
             0,
         );
         return {
-            total: schoolScoped.length,
+            total: shiftList.length,
             active: active.length,
-            inactive: schoolScoped.length - active.length,
+            inactive: shiftList.length - active.length,
             avgHours: active.length ? (totalHours / active.length).toFixed(1) : "0.0",
         };
-    }, [schoolScoped]);
+    }, [shiftList]);
 
     const openAddModal = () => {
         setEditingItem(null);
@@ -90,6 +158,40 @@ const EmployeeShiftPage = () => {
         setEditingItem(null);
     };
 
+    /* Status Toggle confirmation handlers */
+    const handleStatusToggleRequest = (shift, nextStatus) => {
+        setStatusTargetShift(shift);
+        setTargetStatus(
+            nextStatus || (shift.status === "active" ? "inactive" : "active"),
+        );
+        setStatusModalOpen(true);
+    };
+
+    const closeStatusModal = () => {
+        setStatusModalOpen(false);
+        setStatusTargetShift(null);
+        setTargetStatus("");
+    };
+
+    const handleConfirmStatusChange = async (shiftId, next) => {
+        setStatusSubmitting(true);
+        setTogglingId(shiftId);
+        try {
+            await dispatch(
+                toggleEmployeeShiftStatus({
+                    id: shiftId,
+                    status: next,
+                }),
+            ).unwrap();
+            closeStatusModal();
+        } catch (err) {
+            alert(err || "Failed to update shift status");
+        } finally {
+            setStatusSubmitting(false);
+            setTogglingId(null);
+        }
+    };
+
     const handleSubmit = async (payload) => {
         setSubmitting(true);
         try {
@@ -100,7 +202,11 @@ const EmployeeShiftPage = () => {
             } else {
                 await dispatch(createEmployeeShiftThunk(payload)).unwrap();
             }
-            dispatch(fetchEmployeeShifts());
+            const params = {};
+            if (isAdmin && selectedSchool) params.school_id = selectedSchool;
+            if (statusFilter) params.status = statusFilter;
+            if (debouncedSearch.trim()) params.search = debouncedSearch.trim();
+            dispatch(fetchEmployeeShifts(params));
             closeModal();
         } catch (err) {
             alert(err || "Failed to save shift");
@@ -190,22 +296,28 @@ const EmployeeShiftPage = () => {
                     />
                 </div>
 
-                {isAdmin && (
-                    <select
-                        value={selectedSchool}
-                        onChange={(e) => setSelectedSchool(e.target.value)}
-                        className="es-search-input rounded-lg px-3 py-2 text-[13.5px] min-w-[220px]"
-                    >
-                        <option value="">All Schools</option>
-                        {schools.map((s) => (
-                            <option key={s.id} value={s.id}>
-                                {s.name}
-                            </option>
-                        ))}
-                    </select>
-                )}
+                {/* Status Filter */}
+                <CustomDropdown
+                    options={STATUS_OPTIONS}
+                    value={statusFilter}
+                    onChange={(val) => setStatusFilter(val)}
+                    placeholder="All Statuses"
+                    className="min-w-[150px]"
+                />
 
-                <StatusFilterDropdown selected={statusFilter} onChange={setStatusFilter} />
+                {/* School Filter (Admin only) */}
+                {isAdmin && (
+                    <CustomDropdown
+                        options={schoolOptions}
+                        value={selectedSchool}
+                        onChange={(val) => setSelectedSchool(val)}
+                        placeholder={schoolsLoading ? "Loading schools…" : "All Schools"}
+                        searchable={schoolOptions.length > 5}
+                        searchPlaceholder="Search schools…"
+                        disabled={schoolsLoading}
+                        className="min-w-[220px]"
+                    />
+                )}
 
                 <div className="es-view-toggle flex items-center gap-0.5 rounded-lg p-0.5 ml-auto">
                     <button
@@ -230,7 +342,7 @@ const EmployeeShiftPage = () => {
             </div>
 
             {/* Content */}
-            {loading ? (
+            {loading && shiftList.length === 0 ? (
                 <p className="es-loading px-2 py-10 text-[13.5px]">
                     Loading shifts…
                 </p>
@@ -257,7 +369,9 @@ const EmployeeShiftPage = () => {
                                 shift={shift}
                                 onEdit={openEditModal}
                                 onDelete={handleDelete}
+                                onToggleStatus={handleStatusToggleRequest}
                                 deleting={deletingId === shift.id}
+                                togglingId={togglingId}
                             />
                         ))}
                     </div>
@@ -267,8 +381,12 @@ const EmployeeShiftPage = () => {
                     shifts={filtered}
                     onEdit={openEditModal}
                     onDelete={handleDelete}
+                    onToggleStatus={handleStatusToggleRequest}
                     deletingId={deletingId}
+                    togglingId={togglingId}
                     showSchoolColumn={isAdmin && !selectedSchool}
+                    initialPageSize={10}
+                    pageSizeOptions={[5, 10, 20, 50]}
                 />
             )}
 
@@ -279,8 +397,17 @@ const EmployeeShiftPage = () => {
                 onSubmit={handleSubmit}
                 submitting={submitting}
             />
+
+            <EmployeeShiftStatusModal
+                isOpen={statusModalOpen}
+                onClose={closeStatusModal}
+                shift={statusTargetShift}
+                targetStatus={targetStatus}
+                onConfirm={handleConfirmStatusChange}
+                submitting={statusSubmitting}
+            />
         </div>
     );
 };
 
-export default EmployeeShiftPage;
+export default EmployeeShiftPage;

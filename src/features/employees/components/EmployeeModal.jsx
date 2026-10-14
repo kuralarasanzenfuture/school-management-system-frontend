@@ -1,10 +1,11 @@
+import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import EmployeeForm from "./EmployeeForm.jsx";
 
 /**
- * Modal shell for adding/editing an employee. The actual fields live in
- * EmployeeForm — this component only owns the overlay/panel/header chrome.
- * Wider + scrollable since the form has many sections.
+ * Modal shell for adding/editing an employee with smooth animations.
+ * The actual fields live in EmployeeForm — this component owns the
+ * animated overlay/panel/header chrome.
  */
 export default function EmployeeModal({
   isOpen,
@@ -14,40 +15,52 @@ export default function EmployeeModal({
   onSubmit,
   submitting,
 }) {
-  if (!isOpen) return null;
-
   return (
-    <div
-      className="ep-modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4"
-      onClick={onClose}
-    >
-      <div
-        className="ep-modal-panel w-full max-w-2xl rounded-2xl overflow-hidden max-h-[92vh] flex flex-col"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="ep-modal-header flex items-center justify-between px-6 py-4 shrink-0">
-          <h2 className="ep-modal-title text-[16px] font-bold">
-            {employee ? "Edit Employee" : "Add Employee"}
-          </h2>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            className="ep-modal-close w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className="ep-modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          onClick={onClose}
+        >
+          <motion.div
+            className="ep-modal-panel w-full max-w-2xl rounded-2xl overflow-hidden max-h-[92vh] flex flex-col shadow-2xl"
+            initial={{ opacity: 0, scale: 0.94, y: 24 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.94, y: 24 }}
+            transition={{ type: "spring", damping: 26, stiffness: 320, duration: 0.25 }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <X size={18} />
-          </button>
-        </div>
+            <div className="ep-modal-header flex items-center justify-between px-6 py-4 shrink-0">
+              <h2 className="ep-modal-title text-[16px] font-bold">
+                {employee ? "Edit Employee" : "Add Employee"}
+              </h2>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close"
+                className="ep-modal-close w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
 
-        <div className="px-6 py-5 overflow-y-auto">
-          <EmployeeForm
-            initialData={employee}
-            schoolId={schoolId}
-            onSubmit={onSubmit}
-            onCancel={onClose}
-            submitting={submitting}
-          />
-        </div>
-      </div>
-    </div>
+            <div className="px-6 py-5 overflow-y-auto">
+              <EmployeeForm
+                initialData={employee}
+                schoolId={schoolId}
+                onSubmit={onSubmit}
+                onCancel={onClose}
+                submitting={submitting}
+              />
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
+

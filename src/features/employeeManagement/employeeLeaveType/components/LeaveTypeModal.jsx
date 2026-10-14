@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, CircleCheck, FileText } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,7 +8,19 @@ import {
     fetchEmployeeLeaveTypes,
 } from "../../../../redux/employeeLeaveType/employeeLeaveTypeSlice.js";
 import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
+import CustomDropdown from "../../../../common/components/dropdown/CustomDropdown.jsx";
 import "../styles/LeaveType.css";
+
+const GENDER_OPTIONS = [
+    { value: "all", label: "All Genders" },
+    { value: "male", label: "Male only" },
+    { value: "female", label: "Female only" },
+];
+
+const STATUS_OPTIONS = [
+    { value: "active", label: "Active" },
+    { value: "inactive", label: "Inactive" },
+];
 
 const INIT = {
     school_id: "",
@@ -75,6 +87,22 @@ export default function LeaveTypeModal({
 
     const schools = useSelector((state) => state.schoolProfile?.schools ?? []);
     const schoolsLoading = useSelector((state) => state.schoolProfile?.loading ?? false);
+
+    const schoolList = useMemo(() => {
+        const raw = Array.isArray(schools)
+            ? schools
+            : schools?.schools || schools?.data || [];
+        return Array.isArray(raw) ? raw : [];
+    }, [schools]);
+
+    const schoolOptions = useMemo(
+        () =>
+            schoolList.map((school) => ({
+                value: String(school.id),
+                label: school.name,
+            })),
+        [schoolList],
+    );
 
     const [formData, setFormData] = useState(INIT);
     const [errors, setErrors] = useState({});
@@ -254,21 +282,20 @@ export default function LeaveTypeModal({
                             {/* ── School selector (admin only) ── */}
                             {isAdmin && (
                                 <Field label="School" required error={errors.school_id}>
-                                    <select
-                                        className={fi(errors.school_id)}
-                                        value={formData.school_id}
-                                        onChange={handleChange("school_id")}
+                                    <CustomDropdown
+                                        options={schoolOptions}
+                                        value={formData.school_id ? String(formData.school_id) : ""}
+                                        onChange={(val) => {
+                                            setFormData((prev) => ({ ...prev, school_id: val }));
+                                            if (errors.school_id) setErrors((prev) => ({ ...prev, school_id: null }));
+                                        }}
+                                        placeholder={schoolsLoading ? "Loading schools…" : "Select a school"}
+                                        searchable={schoolOptions.length > 5}
+                                        searchPlaceholder="Search schools…"
                                         disabled={schoolsLoading}
-                                    >
-                                        <option value="">
-                                            {schoolsLoading ? "Loading schools…" : "Select a school"}
-                                        </option>
-                                        {schools.map((school) => (
-                                            <option key={school.id} value={school.id}>
-                                                {school.name}
-                                            </option>
-                                        ))}
-                                    </select>
+                                        hasError={Boolean(errors.school_id)}
+                                        className="w-full"
+                                    />
                                 </Field>
                             )}
 
@@ -385,25 +412,26 @@ export default function LeaveTypeModal({
                             <p className="lt-section-label pb-1.5">Eligibility & Status</p>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1">
                                 <Field label="Applicable Gender">
-                                    <select
-                                        className={fi(false)}
+                                    <CustomDropdown
+                                        options={GENDER_OPTIONS}
                                         value={formData.applicable_gender}
-                                        onChange={handleChange("applicable_gender")}
-                                    >
-                                        <option value="all">All</option>
-                                        <option value="male">Male only</option>
-                                        <option value="female">Female only</option>
-                                    </select>
+                                        onChange={(val) =>
+                                            setFormData((prev) => ({ ...prev, applicable_gender: val }))
+                                        }
+                                        placeholder="Select gender"
+                                        className="w-full"
+                                    />
                                 </Field>
                                 <Field label="Status">
-                                    <select
-                                        className={fi(false)}
+                                    <CustomDropdown
+                                        options={STATUS_OPTIONS}
                                         value={formData.status}
-                                        onChange={handleChange("status")}
-                                    >
-                                        <option value="active">Active</option>
-                                        <option value="inactive">Inactive</option>
-                                    </select>
+                                        onChange={(val) =>
+                                            setFormData((prev) => ({ ...prev, status: val }))
+                                        }
+                                        placeholder="Select status"
+                                        className="w-full"
+                                    />
                                 </Field>
                             </div>
                         </div>

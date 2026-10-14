@@ -161,7 +161,7 @@
 /*-------------------pagination implementation-------------------*/
 
 import React, { useMemo, useState } from "react";
-import { Pencil, Trash2, ArrowUpDown, Eye } from "lucide-react";
+import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Eye } from "lucide-react";
 import Pagination from "../../../common/components/table/Pagination";
 import usePagination from "../../../common/components/table/usePagination";
 

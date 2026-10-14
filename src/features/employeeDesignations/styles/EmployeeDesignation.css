@@ -86,7 +86,7 @@
   color: var(--text-muted);
 }
 
-/* ── Status badges (matches employee_designations.status ENUM) ── */
+/* ── Status badges (matches departments exactly) ── */
 .edp-status {
   padding: 3px 10px;
   border-radius: 999px;
@@ -101,6 +101,15 @@
 .edp-status-inactive {
   background: var(--danger-bg);
   color: var(--danger);
+}
+
+/* ── Toggle Switch (matches departments exactly) ── */
+.edp-toggle-switch {
+  cursor: pointer;
+}
+.edp-toggle-switch:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 .edp-action-btn {

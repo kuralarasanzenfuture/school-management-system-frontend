@@ -4,15 +4,16 @@ import {
   getEmployeeShiftById,
   createEmployeeShift,
   updateEmployeeShift,
+  updateEmployeeShiftStatus,
   deleteEmployeeShift,
 } from "./employeeShift.service.js";
 
 // Fetch All
 export const fetchEmployeeShifts = createAsyncThunk(
   "employeeShifts/fetchEmployeeShifts",
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      return await getAllEmployeeShifts();
+      return await getAllEmployeeShifts(params);
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch employee shifts",
@@ -63,6 +64,22 @@ export const updateEmployeeShiftThunk = createAsyncThunk(
   },
 );
 
+// Toggle Status
+export const toggleEmployeeShiftStatus = createAsyncThunk(
+  "employeeShifts/toggleStatus",
+  async ({ id, status }, { rejectWithValue }) => {
+    try {
+      const response = await updateEmployeeShiftStatus(id, status);
+      return { id, status, response };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to update employee shift status",
+      );
+    }
+  },
+);
+
 // Delete
 export const deleteEmployeeShiftThunk = createAsyncThunk(
   "employeeShifts/deleteEmployeeShift",
@@ -78,19 +95,37 @@ export const deleteEmployeeShiftThunk = createAsyncThunk(
   },
 );
 
-const unwrap = (payload) => payload?.data ?? payload;
+const initialState = {
+  employeeShifts: [],
+  employeeShift: null,
+  filters: {
+    search: "",
+    school_id: "",
+    status: "",
+  },
+  loading: false,
+  error: null,
+};
 
 const employeeShiftSlice = createSlice({
   name: "employeeShifts",
-  initialState: {
-    employeeShifts: [],
-    employeeShift: null,
-    loading: false,
-    error: null,
-  },
+  initialState,
   reducers: {
     clearEmployeeShift(state) {
       state.employeeShift = null;
+    },
+    clearEmployeeShiftError(state) {
+      state.error = null;
+    },
+    setShiftFilters(state, action) {
+      state.filters = { ...state.filters, ...action.payload };
+    },
+    resetShiftFilters(state) {
+      state.filters = {
+        search: "",
+        school_id: "",
+        status: "",
+      };
     },
   },
   extraReducers: (builder) => {
@@ -103,7 +138,18 @@ const employeeShiftSlice = createSlice({
       })
       .addCase(fetchEmployeeShifts.fulfilled, (state, action) => {
         state.loading = false;
-        state.employeeShifts = unwrap(action.payload);
+        const p = action.payload;
+        if (Array.isArray(p)) {
+          state.employeeShifts = p;
+        } else if (Array.isArray(p?.data)) {
+          state.employeeShifts = p.data;
+        } else if (Array.isArray(p?.rows)) {
+          state.employeeShifts = p.rows;
+        } else if (Array.isArray(p?.shifts)) {
+          state.employeeShifts = p.shifts;
+        } else {
+          state.employeeShifts = [];
+        }
       })
       .addCase(fetchEmployeeShifts.rejected, (state, action) => {
         state.loading = false;
@@ -116,7 +162,7 @@ const employeeShiftSlice = createSlice({
       })
       .addCase(fetchEmployeeShiftById.fulfilled, (state, action) => {
         state.loading = false;
-        state.employeeShift = unwrap(action.payload);
+        state.employeeShift = action.payload?.data ?? action.payload;
       })
       .addCase(fetchEmployeeShiftById.rejected, (state, action) => {
         state.loading = false;
@@ -129,7 +175,11 @@ const employeeShiftSlice = createSlice({
       })
       .addCase(createEmployeeShiftThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.employeeShifts.push(unwrap(action.payload));
+        const created =
+          action.payload?.data || action.payload?.shift || action.payload;
+        if (created) {
+          state.employeeShifts.push(created);
+        }
       })
       .addCase(createEmployeeShiftThunk.rejected, (state, action) => {
         state.loading = false;
@@ -142,22 +192,37 @@ const employeeShiftSlice = createSlice({
       })
       .addCase(updateEmployeeShiftThunk.fulfilled, (state, action) => {
         state.loading = false;
+        const updated =
+          action.payload?.new_data ||
+          action.payload?.updatedShift ||
+          action.payload?.data ||
+          action.payload;
 
-        const updated = unwrap(action.payload);
-
-        const index = state.employeeShifts.findIndex(
-          (item) => item.id === updated.id,
-        );
-
-        if (index !== -1) {
-          state.employeeShifts[index] = updated;
+        if (updated?.id) {
+          const index = state.employeeShifts.findIndex(
+            (item) => item.id === updated.id,
+          );
+          if (index !== -1) {
+            state.employeeShifts[index] = updated;
+          }
+          state.employeeShift = updated;
         }
-
-        state.employeeShift = updated;
       })
       .addCase(updateEmployeeShiftThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+      // Toggle Status
+      .addCase(toggleEmployeeShiftStatus.fulfilled, (state, action) => {
+        const { id, status } = action.payload;
+        const item = state.employeeShifts.find((s) => s.id === id);
+        if (item) {
+          item.status = status;
+        }
+        if (state.employeeShift?.id === id) {
+          state.employeeShift.status = status;
+        }
       })
 
       // Delete
@@ -177,6 +242,12 @@ const employeeShiftSlice = createSlice({
   },
 });
 
-export const { clearEmployeeShift } = employeeShiftSlice.actions;
+export const {
+  clearEmployeeShift,
+  clearEmployeeShiftError,
+  setShiftFilters,
+  resetShiftFilters,
+} = employeeShiftSlice.actions;
 
 export default employeeShiftSlice.reducer;
+

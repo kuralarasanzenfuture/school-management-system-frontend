@@ -23,9 +23,8 @@ import * as XLSX from "xlsx";
 import { getStudentById } from "../../../redux/student/studentSlice.js";
 import StudentProfileTab from "../components/StudentProfileTab.jsx";
 import StudentAttendanceTab from "../components/StudentAttendanceTabnew.jsx";
+import { IMAGE_BASE_URL as BASE, IMAGE_BASE_URL as BASE_URL, getFullImageUrl } from "../../../config/env.js";
 import "../styles/StudentDetailsPage-new.css";
-
-const BASE_URL = "http://localhost:5000";
 
 /* ═══════════════════ TAB REGISTRY ════════════════════════
    Add a future tab: { id, label, icon, future: true }
@@ -39,7 +38,6 @@ const TABS = [
 ];
 
 /* ── helpers ── */
-const BASE = "http://localhost:5000";
 function getFileUrl(v) { return typeof v === "string" ? v : v?.url || v?.path || null; }
 function resolveUrl(v) {
   const r = getFileUrl(v); if (!r) return null;

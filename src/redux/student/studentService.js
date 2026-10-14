@@ -1,7 +1,7 @@
 import api from "../../common/services/api";
 
-const getStudents = async () => {
-  const response = await api.get("/students/token");
+const getStudents = async (params = {}) => {
+  const response = await api.get("/students/token", { params });
   return response.data;
 };
 
@@ -25,10 +25,16 @@ const deleteStudent = async (id) => {
   return response.data;
 };
 
+const updateStudentStatus = async ({ id, status }) => {
+  const response = await api.patch(`/students/status/${id}`, { status });
+  return response.data;
+};
+
 export default {
   getStudents,
   getStudentById,
   createStudent,
   updateStudent,
+  updateStudentStatus,
   deleteStudent,
 };

@@ -24,7 +24,15 @@ export default function CustomDropdown({
   const searchInputRef = useRef(null);
 
   const selectedOption = useMemo(() => {
-    return options.find((opt) => String(opt.value) === String(value));
+    if (value === undefined || value === null) return undefined;
+    const strVal = String(value).trim();
+    if (!strVal) return undefined;
+    const exact = options.find((opt) => String(opt.value) === strVal);
+    if (exact) return exact;
+    const lowerVal = strVal.toLowerCase();
+    return options.find(
+      (opt) => opt.value && String(opt.value).toLowerCase() === lowerVal,
+    );
   }, [options, value]);
 
   const filteredOptions = useMemo(() => {
@@ -159,7 +167,14 @@ export default function CustomDropdown({
               </div>
             ) : (
               filteredOptions.map((opt) => {
-                const isSelected = String(opt.value) === String(value);
+                const isSelected =
+                  String(opt.value) === String(value) ||
+                  Boolean(
+                    value &&
+                      opt.value &&
+                      String(opt.value).toLowerCase() ===
+                        String(value).toLowerCase(),
+                  );
                 return (
                   <button
                     key={String(opt.value)}

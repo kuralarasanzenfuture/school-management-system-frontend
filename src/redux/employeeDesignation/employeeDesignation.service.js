@@ -1,11 +1,15 @@
 import api from "../../common/services/api";
 
-export const getEmployeeDesignations = async () => {
+export const getEmployeeDesignations = async (params = {}) => {
   try {
-    const response = await api.get("/employees-designations/token");
-    // console.log("getEmployeeDesignations response:", response.data);
+    const response = await api.get("/employees-designations/token", { params });
     return response.data;
   } catch (error) {
+    // If 403 Forbidden (scoped/non-super admin) or 404, fallback to /employees-designations
+    if (error.response?.status === 403 || error.response?.status === 404) {
+      const fallback = await api.get("/employees-designations", { params });
+      return fallback.data;
+    }
     console.error("Error fetching employee designations:", error);
     throw error;
   }
@@ -37,6 +41,18 @@ export const updateEmployeeDesignation = async (id, data) => {
     return response.data;
   } catch (error) {
     console.error("Error updating employee designation:", error);
+    throw error;
+  }
+};
+
+export const updateEmployeeDesignationStatus = async (id, status) => {
+  try {
+    const response = await api.patch(`/employees-designations/status/${id}`, {
+      status,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating employee designation status:", error);
     throw error;
   }
 };

@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { Loader2, Clock, Timer, ChevronDown, Moon } from "lucide-react";
+import React, { useEffect, useState, useMemo } from "react";
+import { Loader2, Clock, Timer, Moon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
+import CustomDropdown from "../../../../common/components/dropdown/CustomDropdown.jsx";
 import {
   computeWorkingHours,
   crossesMidnight,
@@ -19,50 +20,17 @@ const EMPTY = {
   status: "active",
 };
 
-const SHIFT_TYPES = ["day", "evening", "night", "flexible"];
+const SHIFT_TYPE_OPTIONS = [
+  { value: "day", label: "Day" },
+  { value: "evening", label: "Evening" },
+  { value: "night", label: "Night" },
+  { value: "flexible", label: "Flexible" },
+];
 
 const TIME_OPTIONS = generateTimeOptions(15);
 
-function TimeSelect({ value, onChange, hasError }) {
-  return (
-    <div className="relative">
-      <select
-        className={`es-time-input w-full rounded-xl pl-3.5 pr-9 py-2.5 text-[14px] font-medium outline-none transition-all duration-150 ${hasError ? "es-input-error" : ""}`}
-        value={value}
-        onChange={onChange}
-      >
-        <option value="" disabled>
-          Select time
-        </option>
-        {TIME_OPTIONS.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-      <ChevronDown
-        size={15}
-        className="es-time-input-chevron absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-      />
-    </div>
-  );
-}
-
 /**
  * Add/edit form for a single employee shift.
- *
- * UPDATED SCHEMA: adds shift_type (day/evening/night/flexible) and
- * is_default. `working_hours` and `crosses_midnight` are NOT sent in
- * the payload at all — both are real stored columns, but per your
- * instruction the backend computes and stores them itself from
- * start_time/end_time. Here they're shown only as a live LOCAL preview
- * so the user gets instant feedback while picking times, not as
- * editable or submitted fields.
- *
- * @param {object|null} initialData
- * @param {(payload: object) => void} onSubmit
- * @param {() => void} onCancel
- * @param {boolean} submitting
  */
 export default function EmployeeShiftForm({
   initialData = null,
@@ -80,6 +48,16 @@ export default function EmployeeShiftForm({
   const schoolsLoading = useSelector(
     (state) => state.schoolProfile?.loading || false,
   );
+
+  const schoolOptions = useMemo(() => {
+    const list = Array.isArray(schools)
+      ? schools
+      : schools?.schools || schools?.data || [];
+    return list.map((s) => ({
+      value: String(s.id),
+      label: s.name,
+    }));
+  }, [schools]);
 
   // Used only to show a heads-up if another shift is already the
   // default for this school — doesn't block submission, since the
@@ -191,26 +169,23 @@ export default function EmployeeShiftForm({
           <label className="es-field-label text-[13px] font-medium">
             School <span className="es-field-required">*</span>
           </label>
-          <select
-            className={inputCls("school_id")}
-            value={data.school_id}
-            onChange={set("school_id")}
+          <CustomDropdown
+            options={schoolOptions}
+            value={data.school_id ? String(data.school_id) : ""}
+            onChange={(val) => {
+              setData((d) => ({ ...d, school_id: val }));
+              if (errors.school_id) setErrors((er) => ({ ...er, school_id: null }));
+            }}
+            placeholder={schoolsLoading ? "Loading schools..." : "Select a school"}
+            searchable={schoolOptions.length > 5}
+            searchPlaceholder="Search schools..."
             disabled={schoolsLoading}
-          >
-            <option value="">
-              {schoolsLoading ? "Loading schools..." : "Select a school"}
-            </option>
-            {schools.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </select>
-          <div className="h-4">
-            {errors.school_id && (
-              <p className="es-field-error text-[11px]">{errors.school_id}</p>
-            )}
-          </div>
+            hasError={Boolean(errors.school_id)}
+            className="w-full"
+          />
+          {errors.school_id && (
+            <p className="es-field-error text-[11px] mt-0.5">{errors.school_id}</p>
+          )}
         </div>
       )}
 
@@ -227,33 +202,26 @@ export default function EmployeeShiftForm({
             onChange={set("name")}
             maxLength={100}
           />
-          <div className="h-4">
-            {errors.name && (
-              <p className="es-field-error text-[11px]">{errors.name}</p>
-            )}
-          </div>
+          {errors.name && (
+            <p className="es-field-error text-[11px] mt-0.5">{errors.name}</p>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5">
           <label className="es-field-label text-[13px] font-medium">
             Shift Type
           </label>
-          <select
-            className="es-select w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200 capitalize"
+          <CustomDropdown
+            options={SHIFT_TYPE_OPTIONS}
             value={data.shift_type}
-            onChange={set("shift_type")}
-          >
-            {SHIFT_TYPES.map((t) => (
-              <option key={t} value={t} className="capitalize">
-                {t.charAt(0).toUpperCase() + t.slice(1)}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => setData((d) => ({ ...d, shift_type: val }))}
+            placeholder="Select shift type"
+            className="w-full"
+          />
         </div>
       </div>
 
-      {/* Time range — one dropdown per field, every time of day in
-          15-minute steps, formatted 12-hour. */}
+      {/* Time range — CustomDropdown for 15-minute intervals with search */}
       <div className="es-time-range-group rounded-xl p-3.5">
         <div className="flex items-center gap-2 mb-3">
           <Clock size={14} className="es-time-range-icon" />
@@ -266,38 +234,53 @@ export default function EmployeeShiftForm({
             <label className="es-field-label text-[13px] font-medium">
               Start Time <span className="es-field-required">*</span>
             </label>
-            <TimeSelect
+            <CustomDropdown
+              options={TIME_OPTIONS}
               value={data.start_time}
-              onChange={set("start_time")}
+              onChange={(val) => {
+                setData((d) => ({ ...d, start_time: val }));
+                if (errors.start_time)
+                  setErrors((er) => ({ ...er, start_time: null }));
+              }}
+              placeholder="Select time"
+              searchable={true}
+              searchPlaceholder="Search time…"
               hasError={Boolean(errors.start_time)}
+              className="w-full"
             />
-            <div className="h-4">
-              {errors.start_time && (
-                <p className="es-field-error text-[11px]">
-                  {errors.start_time}
-                </p>
-              )}
-            </div>
+            {errors.start_time && (
+              <p className="es-field-error text-[11px] mt-0.5">
+                {errors.start_time}
+              </p>
+            )}
           </div>
 
           <div className="flex flex-col gap-1.5">
             <label className="es-field-label text-[13px] font-medium">
               End Time <span className="es-field-required">*</span>
             </label>
-            <TimeSelect
+            <CustomDropdown
+              options={TIME_OPTIONS}
               value={data.end_time}
-              onChange={set("end_time")}
+              onChange={(val) => {
+                setData((d) => ({ ...d, end_time: val }));
+                if (errors.end_time)
+                  setErrors((er) => ({ ...er, end_time: null }));
+              }}
+              placeholder="Select time"
+              searchable={true}
+              searchPlaceholder="Search time…"
               hasError={Boolean(errors.end_time)}
+              className="w-full"
             />
-            <div className="h-4">
-              {errors.end_time && (
-                <p className="es-field-error text-[11px]">
-                  {errors.end_time}
-                </p>
-              )}
-            </div>
+            {errors.end_time && (
+              <p className="es-field-error text-[11px] mt-0.5">
+                {errors.end_time}
+              </p>
+            )}
           </div>
         </div>
+
 
         {workingHoursPreview !== null && (
           <div className="es-working-hours-preview flex items-center gap-3 mt-1 pt-3 flex-wrap">
@@ -330,13 +313,11 @@ export default function EmployeeShiftForm({
           value={data.grace_minutes}
           onChange={set("grace_minutes")}
         />
-        <div className="h-4">
-          {errors.grace_minutes && (
-            <p className="es-field-error text-[11px]">
-              {errors.grace_minutes}
-            </p>
-          )}
-        </div>
+        {errors.grace_minutes && (
+          <p className="es-field-error text-[11px] mt-0.5">
+            {errors.grace_minutes}
+          </p>
+        )}
       </div>
 
       <label

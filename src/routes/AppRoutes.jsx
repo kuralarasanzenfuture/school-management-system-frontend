@@ -110,6 +110,7 @@ const AppRoutes = () => {
             path="/employee-designations"
             element={<EmployeeDesignationPage />}
           />
+          <Route path="/employee-departments" element={<DepartmentPage />} />
           <Route
             path="/student-admissions"
             element={<StudentAdmissionPage />}

@@ -176,6 +176,15 @@
   color: var(--danger);
 }
 
+/* ── Toggle switch (matches employee shifts & designations) ── */
+.lt-toggle-switch {
+  cursor: pointer;
+}
+.lt-toggle-switch:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
 /* ── Boolean pill (paid / unpaid / yes / no) ── */
 .lt-pill {
   display: inline-flex;
@@ -432,3 +441,22 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* ── Status modal ── */
+.lt-status-info-box {
+  background: var(--input-bg);
+  border: 1px solid var(--divider);
+}
+
+.lt-status-warning-deactivate {
+  background: var(--danger-bg);
+  border: 1px solid var(--divider);
+  color: var(--danger);
+}
+
+.lt-status-warning-activate {
+  background: var(--success-bg);
+  border: 1px solid var(--divider);
+  color: var(--success);
+}
+

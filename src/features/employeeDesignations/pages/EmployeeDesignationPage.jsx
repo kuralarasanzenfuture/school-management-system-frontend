@@ -3,14 +3,23 @@ import { useDispatch, useSelector } from "react-redux";
 import { Plus, Search } from "lucide-react";
 import EmployeeDesignationTable from "../components/EmployeeDesignationTable";
 import EmployeeDesignationModal from "../components/EmployeeDesignationModal";
+import EmployeeDesignationStatusModal from "../components/EmployeeDesignationStatusModal";
 import {
   fetchEmployeeDesignations,
   addEmployeeDesignation,
   editEmployeeDesignation,
+  toggleEmployeeDesignationStatus,
   removeEmployeeDesignation,
 } from "../../../redux/employeeDesignation/employeeDesignationSlice.js";
 import "../styles/EmployeeDesignation.css";
 import { fetchSchools } from "../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
+import CustomDropdown from "../../../common/components/dropdown/CustomDropdown.jsx";
+
+const STATUS_OPTIONS = [
+  { value: "", label: "All Statuses" },
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
+];
 
 const EmployeeDesignationPage = () => {
   const dispatch = useDispatch();
@@ -20,16 +29,24 @@ const EmployeeDesignationPage = () => {
   );
 
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedSchool, setSelectedSchool] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingDesignation, setEditingDesignation] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [togglingId, setTogglingId] = useState(null);
 
-  const { user, loading: authLoading } = useSelector((state) => state.auth);
+  /* Status confirmation modal state (matching DepartmentStatusModal) */
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [statusTargetDesignation, setStatusTargetDesignation] = useState(null);
+  const [targetStatus, setTargetStatus] = useState("");
+  const [statusSubmitting, setStatusSubmitting] = useState(false);
+
+  const { user } = useSelector((state) => state.auth);
 
   const isAdmin = Boolean(user?.roles?.includes("ADMIN"));
-
   const schoolId = isAdmin ? null : user?.school_id;
 
   const schools = useSelector((state) => state.schoolProfile?.schools || []);
@@ -37,35 +54,59 @@ const EmployeeDesignationPage = () => {
     (state) => state.schoolProfile?.loading || false,
   );
 
+  const schoolList = useMemo(() => {
+    const raw = Array.isArray(schools)
+      ? schools
+      : schools?.schools || schools?.data || [];
+    return Array.isArray(raw) ? raw : [];
+  }, [schools]);
+
+  const schoolOptions = useMemo(
+    () => [
+      { value: "", label: "All Schools" },
+      ...schoolList.map((school) => ({
+        value: String(school.id),
+        label: school.name,
+      })),
+    ],
+    [schoolList],
+  );
+
   useEffect(() => {
-    if (isAdmin && schools.length === 0) {
+    if (isAdmin && schoolList.length === 0) {
       dispatch(fetchSchools());
     }
-  }, [dispatch, isAdmin, schools.length]);
+  }, [dispatch, isAdmin, schoolList.length]);
 
   useEffect(() => {
-    dispatch(fetchEmployeeDesignations());
-  }, [dispatch]);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
-  // const filteredDesignations = useMemo(() => {
-  //   const list = employeeDesignations || [];
-  //   // const list = employeeDesignations.designations || [];
-  //   const term = search.trim().toLowerCase();
-  //   if (!term) return list;
-  //   return list.filter(
-  //     (d) =>
-  //       d.name?.toLowerCase().includes(term) ||
-  //       d.description?.toLowerCase().includes(term),
-  //   );
-  // }, [employeeDesignations, search]);
+  useEffect(() => {
+    const params = {};
+    if (isAdmin && selectedSchool) {
+      params.school_id = selectedSchool;
+    }
+    if (statusFilter) {
+      params.status = statusFilter;
+    }
+    if (debouncedSearch.trim()) {
+      params.search = debouncedSearch.trim();
+    }
+    dispatch(fetchEmployeeDesignations(params));
+  }, [dispatch, isAdmin, selectedSchool, statusFilter, debouncedSearch]);
 
   const filteredDesignations = useMemo(() => {
-    let list = employeeDesignations || [];
+    let list = Array.isArray(employeeDesignations)
+      ? employeeDesignations
+      : employeeDesignations?.data || employeeDesignations?.designations || [];
 
     // Search
     if (search.trim()) {
       const term = search.toLowerCase();
-
       list = list.filter(
         (d) =>
           d.name?.toLowerCase().includes(term) ||
@@ -73,17 +114,18 @@ const EmployeeDesignationPage = () => {
       );
     }
 
+    // Status filter
+    if (statusFilter) {
+      list = list.filter((d) => d.status === statusFilter);
+    }
+
     // School filter (Admin only)
     if (isAdmin && selectedSchool) {
-      list = list.filter((d) => d.school_id === Number(selectedSchool));
+      list = list.filter((d) => Number(d.school_id) === Number(selectedSchool));
     }
 
     return list;
-  }, [employeeDesignations, search, selectedSchool, isAdmin]);
-
-  //   console.log("employeeDesignations:", employeeDesignations);
-  //   console.log("filteredDesignations:", filteredDesignations);
-  //   console.log(Array.isArray(filteredDesignations));
+  }, [employeeDesignations, search, statusFilter, selectedSchool, isAdmin]);
 
   const openAddModal = () => {
     setEditingDesignation(null);
@@ -100,6 +142,40 @@ const EmployeeDesignationPage = () => {
     setEditingDesignation(null);
   };
 
+  /* ── Status Toggle Request opens confirmation modal (matching DepartmentStatusModal) ── */
+  const handleStatusToggleRequest = (designation, nextStatus) => {
+    setStatusTargetDesignation(designation);
+    setTargetStatus(
+      nextStatus || (designation.status === "active" ? "inactive" : "active"),
+    );
+    setStatusModalOpen(true);
+  };
+
+  const closeStatusModal = () => {
+    setStatusModalOpen(false);
+    setStatusTargetDesignation(null);
+    setTargetStatus("");
+  };
+
+  const handleConfirmStatusChange = async (designationId, next) => {
+    setStatusSubmitting(true);
+    setTogglingId(designationId);
+    try {
+      await dispatch(
+        toggleEmployeeDesignationStatus({
+          id: designationId,
+          status: next,
+        }),
+      ).unwrap();
+      closeStatusModal();
+    } catch (err) {
+      alert(err || "Failed to update designation status");
+    } finally {
+      setStatusSubmitting(false);
+      setTogglingId(null);
+    }
+  };
+
   const handleSubmit = async (payload) => {
     setSubmitting(true);
     try {
@@ -113,7 +189,11 @@ const EmployeeDesignationPage = () => {
       } else {
         await dispatch(addEmployeeDesignation(payload)).unwrap();
       }
-      await dispatch(fetchEmployeeDesignations());
+      const params = {};
+      if (isAdmin && selectedSchool) params.school_id = selectedSchool;
+      if (statusFilter) params.status = statusFilter;
+      if (debouncedSearch.trim()) params.search = debouncedSearch.trim();
+      await dispatch(fetchEmployeeDesignations(params));
       closeModal();
     } catch (err) {
       alert(err || "Failed to save designation");
@@ -159,7 +239,7 @@ const EmployeeDesignationPage = () => {
       </div>
 
       {/* Toolbar */}
-      <div className="edp-toolbar flex items-center gap-3 rounded-2xl px-4 py-3 mb-5">
+      <div className="edp-toolbar flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3 mb-5">
         <div className="relative flex-1 max-w-xs">
           <Search
             size={15}
@@ -173,22 +253,27 @@ const EmployeeDesignationPage = () => {
           />
         </div>
 
+        {/* Status Filter */}
+        <CustomDropdown
+          options={STATUS_OPTIONS}
+          value={statusFilter}
+          onChange={(val) => setStatusFilter(val)}
+          placeholder="All Statuses"
+          className="min-w-[150px]"
+        />
+
         {/* School Filter */}
         {isAdmin && (
-          <select
+          <CustomDropdown
+            options={schoolOptions}
             value={selectedSchool}
-            onChange={(e) => setSelectedSchool(e.target.value)}
-            className="edp-search-input rounded-lg px-3 py-2 text-[13.5px] min-w-[220px]"
+            onChange={(val) => setSelectedSchool(val)}
+            placeholder={schoolsLoading ? "Loading schools…" : "All Schools"}
+            searchable={schoolOptions.length > 5}
+            searchPlaceholder="Search schools…"
             disabled={schoolsLoading}
-          >
-            <option value="">All Schools</option>
-
-            {schools.map((school) => (
-              <option key={school.id} value={school.id}>
-                {school.name}
-              </option>
-            ))}
-          </select>
+            className="min-w-[220px]"
+          />
         )}
 
         <span className="edp-count-text text-[12.5px] ml-auto">
@@ -218,7 +303,9 @@ const EmployeeDesignationPage = () => {
           designations={filteredDesignations}
           onEdit={openEditModal}
           onDelete={handleDelete}
+          onToggleStatus={handleStatusToggleRequest}
           deletingId={deletingId}
+          togglingId={togglingId}
           initialPageSize={10} // optional, default 10
           pageSizeOptions={[5, 10, 20, 50]} // optional
         />
@@ -230,6 +317,15 @@ const EmployeeDesignationPage = () => {
         designation={editingDesignation}
         onSubmit={handleSubmit}
         submitting={submitting}
+      />
+
+      <EmployeeDesignationStatusModal
+        isOpen={statusModalOpen}
+        onClose={closeStatusModal}
+        designation={statusTargetDesignation}
+        targetStatus={targetStatus}
+        onConfirm={handleConfirmStatusChange}
+        submitting={statusSubmitting}
       />
     </div>
   );

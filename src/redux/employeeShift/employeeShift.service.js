@@ -1,10 +1,15 @@
 import api from "../../common/services/api";
 
-export const getAllEmployeeShifts = async () => {
+export const getAllEmployeeShifts = async (params = {}) => {
   try {
-    const response = await api.get(`/employee-shifts/token`);
+    const response = await api.get(`/employee-shifts/token`, { params });
     return response.data;
   } catch (error) {
+    // If 403 Forbidden (scoped/non-super admin) or 404, fallback to /employee-shifts
+    if (error.response?.status === 403 || error.response?.status === 404) {
+      const fallback = await api.get("/employee-shifts", { params });
+      return fallback.data;
+    }
     console.error("Error fetching employee shifts:", error);
     throw error;
   }
@@ -40,6 +45,18 @@ export const updateEmployeeShift = async (id, data) => {
   }
 };
 
+export const updateEmployeeShiftStatus = async (id, status) => {
+  try {
+    const response = await api.patch(`/employee-shifts/status/${id}`, {
+      status,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating employee shift status:", error);
+    throw error;
+  }
+};
+
 export const deleteEmployeeShift = async (id) => {
   try {
     const response = await api.delete(`/employee-shifts/${id}`);
@@ -49,3 +66,4 @@ export const deleteEmployeeShift = async (id) => {
     throw error;
   }
 };
+

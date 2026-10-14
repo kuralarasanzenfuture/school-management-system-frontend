@@ -5,6 +5,7 @@
  */
 import React from "react";
 import { Download, FileText, FileImage, ExternalLink, Loader2 } from "lucide-react";
+import { IMAGE_BASE_URL as BASE_URL } from "../../../config/env.js";
 import "../styles/StudentDetailsPage.css";
 
 const PERSONAL_FIELDS = [
@@ -73,7 +74,6 @@ function SectionCard({ title, children }) {
 export default function StudentProfileTab({
     student, age, notImage, downloading, onMarkNotImage, onLightbox, onDownload, fullName,
 }) {
-    const BASE_URL = "http://localhost:5000";
     function toCamel(s) { return s.replace(/_([a-z])/g, (_, c) => c.toUpperCase()); }
     function findDoc(obj, key) {
         if (!obj || !key) return null;

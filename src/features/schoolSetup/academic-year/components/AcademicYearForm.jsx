@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Loader2 } from "lucide-react";
 import { fetchSchools } from "../../../../redux/schoolSetup/schoolProfile/schoolProfileSlice.js";
 import CustomDropdown from "../../../../common/components/dropdown/CustomDropdown.jsx";
+import CustomDatePicker from "../../../../common/components/datepicker/CustomDatePicker.jsx";
 
 const EMPTY = {
   school_id: "",
@@ -148,12 +149,11 @@ export default function AcademicYearForm({
           <label className="ay-field-label text-[13px] font-medium">
             Start Date <span className="ay-field-required">*</span>
           </label>
-          <input
-            autoFocus
-            type="date"
-            className={`ay-input w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200 ${errors.start_date ? "ay-input-error" : ""}`}
+          <CustomDatePicker
             value={data.start_date}
             onChange={set("start_date")}
+            hasError={Boolean(errors.start_date)}
+            placeholder="Select start date..."
           />
           <div className="h-4">
             {errors.start_date && (
@@ -166,11 +166,12 @@ export default function AcademicYearForm({
           <label className="ay-field-label text-[13px] font-medium">
             End Date <span className="ay-field-required">*</span>
           </label>
-          <input
-            type="date"
-            className={`ay-input w-full rounded-lg px-3.5 py-2.5 text-[14px] outline-none transition-all duration-200 ${errors.end_date ? "ay-input-error" : ""}`}
+          <CustomDatePicker
             value={data.end_date}
             onChange={set("end_date")}
+            hasError={Boolean(errors.end_date)}
+            placeholder="Select end date..."
+            align="right"
           />
           <div className="h-4">
             {errors.end_date && (

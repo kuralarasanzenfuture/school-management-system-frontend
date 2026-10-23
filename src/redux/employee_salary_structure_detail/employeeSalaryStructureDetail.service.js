@@ -10,12 +10,25 @@ export const getEmployeeSalaryStructureDetail = async (id) => {
   }
 };
 
-export const getAllEmployeeSalaryStructureDetails = async () => {
+export const getAllEmployeeSalaryStructureDetails = async (params = {}) => {
   try {
-    const response = await api.get(`/employee-salary-structures-details`);
+    const response = await api.get(`/employee-salary-structures-details`, { params });
     return response.data;
   } catch (error) {
     console.error("Error fetching employee salary structure details:", error);
+    throw error;
+  }
+};
+
+export const bulkUpsertEmployeeSalaryStructureDetails = async (data) => {
+  try {
+    const response = await api.post(
+      "/employee-salary-structures-details/bulk",
+      data,
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error bulk upserting employee salary structure details:", error);
     throw error;
   }
 };

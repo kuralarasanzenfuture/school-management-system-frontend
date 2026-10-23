@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Trash2, X } from "lucide-react";
+import { Trash2, X, AlertCircle } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { removeEmployeeLeaveType } from "../../../../redux/employeeLeaveType/employeeLeaveTypeSlice.js";
 import "../styles/LeaveType.css";
@@ -8,15 +8,28 @@ import "../styles/LeaveType.css";
 export default function DeleteLeaveTypeModal({ isOpen, onClose, leaveType }) {
     const dispatch = useDispatch();
     const [deleting, setDeleting] = useState(false);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            setError(null);
+            setDeleting(false);
+        }
+    }, [isOpen]);
 
     const handleDelete = async () => {
         if (!leaveType?.id) return;
         setDeleting(true);
+        setError(null);
         try {
             await dispatch(removeEmployeeLeaveType(leaveType.id)).unwrap();
             onClose();
         } catch (deletionError) {
-            alert(deletionError?.message ?? String(deletionError));
+            const msg =
+                deletionError?.response?.data?.message ||
+                deletionError?.message ||
+                (typeof deletionError === "string" ? deletionError : "Failed to delete leave type");
+            setError(msg);
         } finally {
             setDeleting(false);
         }
@@ -57,6 +70,13 @@ export default function DeleteLeaveTypeModal({ isOpen, onClose, leaveType }) {
                                 <span className="lt-code px-1.5 py-0.5 rounded text-[11px]">{leaveType?.code}</span>.
                                 This action cannot be undone.
                             </p>
+
+                            {error && (
+                                <div className="w-full mt-2 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 text-[12.5px] font-medium flex items-start gap-2.5 text-left leading-normal animate-in fade-in-50 duration-200">
+                                    <AlertCircle size={17} className="text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                                    <div className="flex-1">{error}</div>
+                                </div>
+                            )}
                         </div>
 
                         <div className="lt-modal-footer flex items-center justify-center gap-3 px-5 py-4">

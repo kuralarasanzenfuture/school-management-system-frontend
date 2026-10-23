@@ -6,18 +6,34 @@ import {
   updateEmployeeSalaryStructureDetail,
   deleteEmployeeSalaryStructureDetail,
   getEmployeeSalaryStructureDetailByEmployeeId,
+  bulkUpsertEmployeeSalaryStructureDetails,
 } from "./employeeSalaryStructureDetail.service.js";
 
 // ================= GET ALL =================
 export const fetchEmployeeSalaryStructureDetails = createAsyncThunk(
   "employeeSalaryStructureDetails/fetchAll",
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      return await getAllEmployeeSalaryStructureDetails();
+      return await getAllEmployeeSalaryStructureDetails(params);
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message ||
           "Failed to fetch salary structure details",
+      );
+    }
+  },
+);
+
+// ================= BULK UPSERT =================
+export const bulkUpsertEmployeeSalaryStructureDetailsThunk = createAsyncThunk(
+  "employeeSalaryStructureDetails/bulkUpsert",
+  async (data, { rejectWithValue }) => {
+    try {
+      return await bulkUpsertEmployeeSalaryStructureDetails(data);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to bulk upsert salary structure details",
       );
     }
   },
@@ -251,7 +267,32 @@ const employeeSalaryStructureDetailSlice = createSlice({
           state.loading = false;
           state.error = action.payload;
         },
-      );
+      )
+
+      // ================= BULK UPSERT =================
+      .addCase(bulkUpsertEmployeeSalaryStructureDetailsThunk.pending, (state) => {
+        state.loading = true;
+        state.submitting = true;
+        state.error = null;
+      })
+      .addCase(bulkUpsertEmployeeSalaryStructureDetailsThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.submitting = false;
+        const bulkData = action.payload?.data || action.payload?.details || [];
+        if (Array.isArray(bulkData) && bulkData.length > 0) {
+          // Merge or replace updated details
+          const updatedIds = new Set(bulkData.map((d) => d.id));
+          const kept = state.employeeSalaryStructureDetails.filter(
+            (d) => !updatedIds.has(d.id),
+          );
+          state.employeeSalaryStructureDetails = [...bulkData, ...kept];
+        }
+      })
+      .addCase(bulkUpsertEmployeeSalaryStructureDetailsThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.submitting = false;
+        state.error = action.payload;
+      });
   },
 });
 

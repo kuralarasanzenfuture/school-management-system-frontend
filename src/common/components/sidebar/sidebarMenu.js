@@ -212,6 +212,11 @@ const sidebarMenu = [
         path: "/student-admissions",
       },
       {
+        name: "Section Allocations",
+        icon: FaObjectGroup,
+        path: "/student-section-allocations",
+      },
+      {
         name: "Admission Enquiry",
         icon: FaClipboardCheck,
         path: "/admission-enquiry",
@@ -228,24 +233,24 @@ const sidebarMenu = [
     label: "Students",
     items: [
       { name: "Students", icon: FaUserGraduate, path: "/students" },
-      {
-        name: "Student Documents",
-        icon: FaFolderOpen,
-        path: "/student-documents",
-      },
-      {
-        name: "Student Promotion",
-        icon: FaArrowUp,
-        path: "/student-promotion",
-      },
-      {
-        name: "Transfer Certificate",
-        icon: FaFileExport,
-        path: "/transfer-certificate",
-      },
-      { name: "Bonafide Certificate", icon: FaCertificate, path: "/bonafide" },
-      { name: "ID Cards", icon: FaIdCard, path: "/student-id-card" },
-      { name: "Alumni", icon: FaGraduationCap, path: "/alumni" },
+      // {
+      //   name: "Student Documents",
+      //   icon: FaFolderOpen,
+      //   path: "/student-documents",
+      // },
+      // {
+      //   name: "Student Promotion",
+      //   icon: FaArrowUp,
+      //   path: "/student-promotion",
+      // },
+      // {
+      //   name: "Transfer Certificate",
+      //   icon: FaFileExport,
+      //   path: "/transfer-certificate",
+      // },
+      // { name: "Bonafide Certificate", icon: FaCertificate, path: "/bonafide" },
+      // { name: "ID Cards", icon: FaIdCard, path: "/student-id-card" },
+      // { name: "Alumni", icon: FaGraduationCap, path: "/alumni" },
     ],
   },
 
@@ -256,11 +261,11 @@ const sidebarMenu = [
       { name: "Designations", icon: FaUserTie, path: "/employee-designations" },
       { name: "Departments", icon: FaBuilding, path: "/employee-departments" },
       { name: "Employee Shifts", icon: FaClock, path: "/employee-shifts" },
-      {
-        name: "Employee Documents",
-        icon: FaFolderOpen,
-        path: "/employee-documents",
-      },
+      // {
+      //   name: "Employee Documents",
+      //   icon: FaFolderOpen,
+      //   path: "/employee-documents",
+      // },
       {
         name: "Attendance",
         icon: FaClipboardCheck,
@@ -291,11 +296,11 @@ const sidebarMenu = [
         path: "/employee-salary-structures",
       },
 
-      {
-        name: "Assign Salary",
-        icon: FaUserCog,
-        path: "/employee-salary-assignment",
-      },
+      // {
+      //   name: "Assign Salary",
+      //   icon: FaUserCog,
+      //   path: "/employee-salary-assignment",
+      // },
 
       {
         name: "Payroll Processing",
@@ -322,10 +327,10 @@ const sidebarMenu = [
     items: [
       { name: "Subjects", icon: FaBook, path: "/subjects" },
       { name: "Timetable", icon: FaClock, path: "/timetable" },
-      { name: "Assignments", icon: FaTasks, path: "/assignments" },
-      { name: "Homework", icon: FaClipboardList, path: "/homework" },
-      { name: "Lesson Plans", icon: FaBookReader, path: "/lesson-plans" },
-      { name: "Study Materials", icon: FaFolder, path: "/study-materials" },
+      // { name: "Assignments", icon: FaTasks, path: "/assignments" },
+      // { name: "Homework", icon: FaClipboardList, path: "/homework" },
+      // { name: "Lesson Plans", icon: FaBookReader, path: "/lesson-plans" },
+      // { name: "Study Materials", icon: FaFolder, path: "/study-materials" },
     ],
   },
 

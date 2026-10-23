@@ -13,6 +13,7 @@ import academicYearReducer from "../redux/schoolSetup/academic-year/academicYear
 import employeeReducer from "../redux/employee/employeeSlice.js";
 import employeeDesignationReducer from "../redux/employeeDesignation/employeeDesignationSlice.js";
 import studentAdmissionReducer from "../redux/studentsAdmission/studentAdmissionSlice.js";
+import studentSectionAllocationReducer from "../redux/studentSectionAllocation/studentSectionAllocationSlice.js";
 import studentAttendanceReducer from "../redux/studentAttendance/studentAttendanceSlice.js";
 import subjectReducer from "../redux/schoolSetup/subject/subjectSlice.js";
 import subjectGroupReducer from "../redux/schoolSetup/subject_group/subjectGroupSlice.js";
@@ -45,6 +46,7 @@ export const store = configureStore({
     employeeDesignations: employeeDesignationReducer,
 
     studentAdmissions: studentAdmissionReducer,
+    studentSectionAllocations: studentSectionAllocationReducer,
     studentAttendance: studentAttendanceReducer,
 
     subjects: subjectReducer,

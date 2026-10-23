@@ -355,3 +355,36 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* ── View Toggle Group ── */
+.ss-toggle-group {
+  border: 1px solid var(--input-border);
+}
+.ss-toggle-btn {
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+}
+.ss-toggle-btn:hover {
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+.ss-toggle-btn-active {
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+}
+
+/* ── Grid Cards ── */
+.ss-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  box-shadow: var(--card-shadow);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.ss-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+.ss-card-divider {
+  background: var(--divider);
+}
+

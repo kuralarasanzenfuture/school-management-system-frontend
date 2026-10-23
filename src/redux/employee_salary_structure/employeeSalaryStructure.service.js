@@ -1,8 +1,8 @@
 import api from "../../common/services/api";
 
-export const getAllEmployeeSalaryStructures = async () => {
+export const getAllEmployeeSalaryStructures = async (params = {}) => {
   try {
-    const response = await api.get(`/employee-salary-structures`);
+    const response = await api.get(`/employee-salary-structures/token`, { params });
     return response.data;
   } catch (error) {
     console.error("Error fetching employee salary structures:", error);

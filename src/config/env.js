@@ -35,13 +35,17 @@ export const getFullImageUrl = (path, fallback = null) => {
   if (/^https?:\/\//i.test(str) || str.startsWith("data:") || str.startsWith("blob:")) {
     return str;
   }
-  const cleanPath = str.startsWith("/") ? str : `/${str}`;
+  const normalized = str.replace(/\\/g, "/");
+  const cleanPath = normalized.startsWith("/") ? normalized : `/${normalized}`;
   return `${IMAGE_BASE_URL}${cleanPath}`;
 };
+
+export const getImageUrl = getFullImageUrl;
 
 export default {
   BASE_URL,
   IMAGE_BASE_URL,
   API_BASE_URL,
   getFullImageUrl,
+  getImageUrl,
 };

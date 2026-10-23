@@ -77,13 +77,25 @@ const SectionPage = () => {
     return list;
   }, [classes, isAdmin, selectedSchool]);
 
-  const classOptions = useMemo(
-    () => [
+  const classOptions = useMemo(() => {
+    const map = new Map();
+    classList.forEach((c) => {
+      const name = String(c.name || "").trim();
+      if (!name) return;
+      const key = name.toLowerCase().replace(/^(class|grade|standard|std)\s+/i, "");
+      if (!map.has(key)) {
+        map.set(key, {
+          value: String(c.id),
+          label: c.name,
+        });
+      }
+    });
+
+    return [
       { value: "", label: "All Classes" },
-      ...classList.map((c) => ({ value: String(c.id), label: c.name })),
-    ],
-    [classList],
-  );
+      ...Array.from(map.values()),
+    ];
+  }, [classList]);
 
   const statusOptions = [
     { value: "", label: "All Statuses" },

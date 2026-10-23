@@ -2,10 +2,16 @@ import React from "react";
 import { Pencil, Trash2, Bus, Home } from "lucide-react";
 import usePagination from "../../../common/components/table/usePagination";
 import Pagination from "../../../common/components/table/Pagination";
+import { getFullImageUrl } from "../../../config/env.js";
 
-const STATUS_CLASS = {
-  active: "sa-status-active",
-  inactive: "sa-status-inactive",
+const STATUS_STYLES = {
+  active: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40",
+  inactive: "bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/40",
+  pending: "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200/60 dark:border-amber-800/40",
+  completed: "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/40",
+  transferred: "bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-400 border border-purple-200/60 dark:border-purple-800/40",
+  dropped: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700",
+  cancelled: "bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/40",
 };
 
 function formatDate(value) {
@@ -65,11 +71,18 @@ export default function StudentAdmissionTable({
           </thead>
           <tbody>
             {pagedData.map((a) => {
+              const student = studentsById[a.student_id];
               const studentName =
                 a.student_name ||
-                (studentsById[a.student_id]
-                  ? `${studentsById[a.student_id].first_name} ${studentsById[a.student_id].last_name || ""}`.trim()
+                (student
+                  ? `${student.first_name} ${student.last_name || ""}`.trim()
                   : `Student #${a.student_id}`);
+              const studentCode = a.student_code || student?.student_code;
+              const rawPhoto = a.photo_url || student?.photo_url || student?.avatar || student?.image;
+              const photoUrl = getFullImageUrl(rawPhoto);
+              const initials =
+                `${(a.first_name || student?.first_name || studentName)?.[0] || ""}${(a.last_name || student?.last_name)?.[0] || ""}`.toUpperCase() || "S";
+              const statusKey = String(a.status || "active").toLowerCase();
 
               return (
                 <tr key={a.id} className="sa-row transition-colors">
@@ -77,14 +90,58 @@ export default function StudentAdmissionTable({
                     {a.admission_number || "—"}
                   </td>
                   <td className="sa-cell px-3 py-3.5 text-[13px]">
-                    {studentName}
+                    <div className="flex items-center gap-2.5">
+                      {photoUrl ? (
+                        <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
+                          <img
+                            src={photoUrl}
+                            alt=""
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                              if (e.currentTarget.nextElementSibling) {
+                                e.currentTarget.nextElementSibling.style.display = "flex";
+                              }
+                            }}
+                          />
+                          <span
+                            style={{ display: "none" }}
+                            className="w-full h-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-bold text-[11px] items-center justify-center"
+                          >
+                            {initials}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-bold text-[11px] flex items-center justify-center shrink-0 border border-indigo-200/50 dark:border-indigo-800/40">
+                          {initials}
+                        </div>
+                      )}
+                      <div className="flex flex-col min-w-0">
+                        <span className="font-semibold text-slate-800 dark:text-slate-100 truncate">
+                          {studentName}
+                        </span>
+                        {studentCode && (
+                          <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">
+                            {studentCode}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </td>
                   <td className="sa-cell px-3 py-3.5 text-[13px]">
-                    {a.class_name}
-                    {a.section ? ` - ${a.section}` : ""}
+                    <span className="font-medium">{a.class_name || "—"}</span>
+                    {a.section ? (
+                      <span className="text-indigo-600 dark:text-indigo-400 font-semibold ml-1.5">
+                        ({a.section})
+                      </span>
+                    ) : (
+                      <span className="text-slate-400 text-xs ml-1.5 font-normal">
+                        (Unallocated)
+                      </span>
+                    )}
                   </td>
                   <td className="sa-cell px-3 py-3.5 text-[13px]">
-                    {a.academic_year}
+                    {a.academic_year_name || a.academic_year || "—"}
                   </td>
                   <td className="sa-cell-muted px-3 py-3.5 text-[13px]">
                     {formatDate(a.joining_date)}
@@ -118,8 +175,21 @@ export default function StudentAdmissionTable({
                   </td>
                   <td className="px-3 py-3.5">
                     <span
-                      className={`sa-status ${STATUS_CLASS[a.status] || "sa-status-inactive"}`}
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-semibold capitalize ${
+                        STATUS_STYLES[statusKey] || STATUS_STYLES.inactive
+                      }`}
                     >
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          statusKey === "active"
+                            ? "bg-emerald-500"
+                            : statusKey === "pending"
+                            ? "bg-amber-500"
+                            : statusKey === "completed"
+                            ? "bg-blue-500"
+                            : "bg-rose-500"
+                        }`}
+                      />
                       {a.status}
                     </span>
                   </td>

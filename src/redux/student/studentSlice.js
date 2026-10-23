@@ -3,8 +3,10 @@ import studentService from "./studentService";
 
 const initialState = {
   students: [],
+  unadmittedStudents: [],
   student: null,
   loading: false,
+  unadmittedLoading: false,
   success: false,
   error: null,
 };
@@ -15,6 +17,20 @@ export const getStudents = createAsyncThunk(
   async (params = {}, thunkAPI) => {
     try {
       return await studentService.getStudents(params);
+    } catch (err) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || err.message,
+      );
+    }
+  },
+);
+
+// ================= GET NON-ADMISSION (UNADMITTED) STUDENTS =================
+export const getNonAdmissionStudents = createAsyncThunk(
+  "students/getNonAdmission",
+  async (params = {}, thunkAPI) => {
+    try {
+      return await studentService.getNonAdmissionStudents(params);
     } catch (err) {
       return thunkAPI.rejectWithValue(
         err.response?.data?.message || err.message,
@@ -135,6 +151,28 @@ const studentSlice = createSlice({
       .addCase(getStudents.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+      // ================= GET NON-ADMISSION (UNADMITTED) STUDENTS =================
+      .addCase(getNonAdmissionStudents.pending, (state) => {
+        state.unadmittedLoading = true;
+        state.error = null;
+      })
+
+      .addCase(getNonAdmissionStudents.fulfilled, (state, action) => {
+        state.unadmittedLoading = false;
+        const payload = action.payload;
+        state.unadmittedStudents = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.data)
+            ? payload.data
+            : [];
+      })
+
+      .addCase(getNonAdmissionStudents.rejected, (state, action) => {
+        state.unadmittedLoading = false;
+        state.error = action.payload;
+        state.unadmittedStudents = [];
       })
 
       // ================= GET BY ID =================

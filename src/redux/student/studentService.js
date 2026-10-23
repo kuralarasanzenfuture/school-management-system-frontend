@@ -5,6 +5,11 @@ const getStudents = async (params = {}) => {
   return response.data;
 };
 
+const getNonAdmissionStudents = async (params = {}) => {
+  const response = await api.get("/students/non-admissions/token", { params });
+  return response.data;
+};
+
 const getStudentById = async (id) => {
   const response = await api.get(`/students/${id}`);
   return response.data;
@@ -32,6 +37,7 @@ const updateStudentStatus = async ({ id, status }) => {
 
 export default {
   getStudents,
+  getNonAdmissionStudents,
   getStudentById,
   createStudent,
   updateStudent,

@@ -9,6 +9,11 @@
   text-align: left;
 }
 
+.custom-dropdown-root.open,
+.custom-dropdown-root.is-open {
+  z-index: 60;
+}
+
 .custom-dropdown-root.w-full {
   display: block;
   width: 100%;
@@ -82,13 +87,24 @@
   left: 0;
   z-index: 100;
   min-width: 100%;
+  width: max-content;
+  max-width: min(90vw, 380px);
+  box-sizing: border-box;
   max-height: 16rem; /* 256px */
   overflow-y: auto;
+  overflow-x: hidden;
   border-radius: 0.75rem; /* 12px */
   padding: 0.25rem;
   background: var(--panel-bg, #ffffff) !important;
   border: 1px solid var(--input-border, #e2e8f0);
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
+
+/* Full-width container (e.g. form modals) should constrain dropdown menu to 100% of the input */
+.custom-dropdown-root.w-full .custom-dropdown-menu {
+  width: 100%;
+  max-width: 100%;
+  right: 0;
 }
 
 [data-theme="dark"] .custom-dropdown-menu {
@@ -100,6 +116,8 @@
 /* ── Option Item ── */
 .custom-dropdown-item {
   width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: space-between;

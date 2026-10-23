@@ -1,7 +1,9 @@
 import React from "react";
-import { Pencil, Trash2, CalendarDays, CalendarCheck2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Pencil, Trash2, CalendarDays, CalendarCheck2, Eye } from "lucide-react";
 import Pagination from "../../../../common/components/table/Pagination.jsx";
 import usePagination from "../../../../common/components/table/usePagination.jsx";
+import { getFullImageUrl } from "../../../../config/env.js";
 
 
 function formatDate(value) {
@@ -29,12 +31,16 @@ function isStructureActive(structure) {
 
 export default function SalaryStructureTable({
     structures = [],
+    onView,
     onEdit,
     onDelete,
     showSchoolColumn = false,
     initialPageSize = 10,
     pageSizeOptions = [5, 10, 20, 50],
+    employeeMap = null,
 }) {
+    const navigate = useNavigate();
+    const handleView = (s) => (onView ? onView(s) : navigate(`/employee-salary-structures/view/${s.id}`));
     const {
         pagedData,
         currentPage,
@@ -89,11 +95,51 @@ export default function SalaryStructureTable({
                                         {/* Employee */}
                                         <td className={`${showSchoolColumn ? "px-3" : "px-5"} py-3.5`}>
                                             <div className="flex items-center gap-3">
-                                                <div className="ss-avatar w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0">
-                                                    {getInitials(structure.first_name, structure.last_name)}
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <p className="ss-cell-primary text-[13.5px] font-semibold truncate">
+                                                {(() => {
+                                                    const emp = employeeMap?.get?.(String(structure.employee_id));
+                                                    const rawPhoto =
+                                                        structure.photo_url ||
+                                                        structure.passport_size_photo_url ||
+                                                        structure.profile_image ||
+                                                        structure.photo ||
+                                                        structure.avatar ||
+                                                        structure.image ||
+                                                        emp?.photo_url ||
+                                                        emp?.passport_size_photo_url ||
+                                                        emp?.profile_image ||
+                                                        emp?.photo ||
+                                                        emp?.avatar;
+                                                    const photoUrl = rawPhoto ? getFullImageUrl(rawPhoto) : null;
+                                                    const initials = getInitials(structure.first_name, structure.last_name);
+                                                    return (
+                                                        <div className="ss-avatar w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0 overflow-hidden relative">
+                                                            {photoUrl ? (
+                                                                <img
+                                                                    src={photoUrl}
+                                                                    alt=""
+                                                                    className="w-full h-full object-cover"
+                                                                    onError={(e) => {
+                                                                        e.currentTarget.style.display = "none";
+                                                                        const fb = e.currentTarget.parentElement?.querySelector(".tbl-avatar-fb");
+                                                                        if (fb) fb.style.display = "flex";
+                                                                    }}
+                                                                />
+                                                            ) : null}
+                                                            <span
+                                                                className="tbl-avatar-fb w-full h-full items-center justify-center"
+                                                                style={{ display: photoUrl ? "none" : "flex" }}
+                                                            >
+                                                                {initials}
+                                                            </span>
+                                                        </div>
+                                                    );
+                                                })()}
+                                                <div
+                                                    className="min-w-0 cursor-pointer"
+                                                    onClick={() => handleView(structure)}
+                                                    title="View salary details"
+                                                >
+                                                    <p className="ss-cell-primary text-[13.5px] font-semibold truncate hover:text-[var(--btn-bg)] transition-colors">
                                                         {structure.first_name} {structure.last_name ?? ""}
                                                     </p>
                                                     {structure.designation && (
@@ -150,6 +196,13 @@ export default function SalaryStructureTable({
                                         {/* Actions */}
                                         <td className="px-3 py-3.5">
                                             <div className="flex items-center justify-end gap-1 pr-2">
+                                                <button
+                                                    onClick={() => handleView(structure)}
+                                                    className="ss-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30"
+                                                    title="View Structure & Components"
+                                                >
+                                                    <Eye size={15} />
+                                                </button>
                                                 <button
                                                     onClick={() => onEdit(structure)}
                                                     className="ss-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"

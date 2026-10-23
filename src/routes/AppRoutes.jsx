@@ -28,6 +28,7 @@ import ProtectedRoute from "./ProtectedRoute.jsx";
 import EmployeeDetailsPage from "../features/employees/pages/EmployeeDetailsPage-new.jsx";
 import ClassSectionPage from "../features/schoolSetup/class-section/pages/ClassSectionPage.jsx";
 import StudentAdmissionPage from "../features/studentsAdmission/pages/StudentAdmissionPage.jsx";
+import StudentSectionAllocationPage from "../features/studentSectionAllocation/pages/StudentSectionAllocationPage.jsx";
 import SubjectPage from "../features/schoolSetup/subject/pages/SubjectPage.jsx";
 import SubjectGroupPage from "../features/schoolSetup/subject_group/pages/SubjectGroupPage.jsx";
 // import ClassSubjectPage from "../features/schoolSetup/class_subject/pages/ClassSubjectPage.jsx";
@@ -41,6 +42,7 @@ import NotFoundPage from "../common/pages/404/NotFoundPage.jsx";
 import LoadingSpinner from "../common/components/loading/LoadingSpinner.jsx";
 import ProfilePage from "../common/pages/profile/ProfilePage.jsx";
 import SalaryStructurePage from "../features/employeeManagement/employeeSalaryStructure/pages/SalaryStructurePage.jsx";
+import SalaryStructureViewPage from "../features/employeeManagement/employeeSalaryStructure/pages/SalaryStructureViewPage.jsx";
 import SalaryStructureDetailPage from "../features/employeeManagement/employeeSalaryStructureDetail/pages/SalaryStructureDetailPage.jsx";
 import SalaryManagementV1 from "../features/employeeManagement/Salarymanagement/pages/SalaryManagementV1.jsx";
 import SalaryManagementV2 from "../features/employeeManagement/Salarymanagement/pages/SalaryManagementV2.jsx";
@@ -115,6 +117,10 @@ const AppRoutes = () => {
             path="/student-admissions"
             element={<StudentAdmissionPage />}
           />
+          <Route
+            path="/student-section-allocations"
+            element={<StudentSectionAllocationPage />}
+          />
           <Route path="/subjects" element={<SubjectPage />} />
           <Route path="/subject-groups" element={<SubjectGroupPage />} />
           <Route path="/class-subjects" element={<ClassSubjectPage />} />
@@ -123,11 +129,13 @@ const AppRoutes = () => {
           <Route path="/my-employee-attendance" element={<MyEmployeeAttendancePage />} />
           <Route path="/employee-leaves" element={<LeaveTypePage />} />
           <Route path="/employee-salary-components" element={<SalaryComponentPage />} />
-          {/* <Route path="/employee-salary-structures" element={<SalaryStructurePage />} /> */}
-          <Route path="/employee-salary-structures" element={<SalaryManagementV1 />} />
+          <Route path="/employee-salary-structures" element={<SalaryStructurePage />} />
+          <Route path="/employee-salary-structures/view/:id" element={<SalaryStructureViewPage />} />
+          <Route path="/employee-salary-structures/:id" element={<SalaryStructureViewPage />} />
+          {/* <Route path="/employee-salary-structures" element={<SalaryManagementV1 />} /> */}
           {/* <Route path="/employee-salary-structures" element={<SalaryManagementV2 />} /> */}
           {/* <Route path="/employee-salary-structures" element={<SalaryManagementV3 />} /> */}
-          <Route path="/employee-salary-assignment" element={<SalaryStructureDetailPage />} />
+          {/* <Route path="/employee-salary-assignment" element={<SalaryStructureDetailPage />} /> */}
 
           <Route path="/student-attendance" element={<AttendancePage />} />
 

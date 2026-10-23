@@ -16,7 +16,15 @@ export const fetchClasses = createAsyncThunk(
   "classes/fetchClasses",
   async (params = {}, { rejectWithValue }) => {
     try {
-      return await getClasses(params);
+      let queryParams = {};
+      if (params && typeof params === "object") {
+        queryParams = { paginate: false, ...params };
+      } else if (params) {
+        queryParams = { school_id: params, paginate: false };
+      } else {
+        queryParams = { paginate: false };
+      }
+      return await getClasses(queryParams);
     } catch (err) {
       return rejectWithValue(
         err.response?.data || { message: err.message }

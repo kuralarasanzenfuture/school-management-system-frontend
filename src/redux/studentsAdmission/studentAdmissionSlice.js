@@ -1,22 +1,38 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   getStudentAdmissions,
+  getAllStudentAdmissions,
   getStudentAdmissionById,
   createStudentAdmission,
   updateStudentAdmission,
   deleteStudentAdmission,
   getClassStudentSummaryByToken,
+  getAllStudentAdmissionsReport,
 } from "./studentAdmission.service";
 
-// Fetch All
+// Fetch Admissions (Token-scoped by default, accepts query filters)
 export const fetchStudentAdmissions = createAsyncThunk(
   "studentAdmissions/fetchStudentAdmissions",
-  async (_, { rejectWithValue }) => {
+  async (filters, { rejectWithValue }) => {
     try {
-      return await getStudentAdmissions();
+      return await getStudentAdmissions(filters);
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch student admissions",
+      );
+    }
+  },
+);
+
+// Fetch All Admissions (Direct query)
+export const fetchAllStudentAdmissions = createAsyncThunk(
+  "studentAdmissions/fetchAllStudentAdmissions",
+  async (filters, { rejectWithValue }) => {
+    try {
+      return await getAllStudentAdmissions(filters);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch all student admissions",
       );
     }
   },
@@ -79,6 +95,7 @@ export const deleteStudentAdmissionThunk = createAsyncThunk(
   },
 );
 
+// Class Student Summary & Roster
 export const fetchClassStudentSummaryByToken = createAsyncThunk(
   "studentAdmissions/fetchClassStudentSummaryByToken",
   async (filters, { rejectWithValue }) => {
@@ -86,7 +103,21 @@ export const fetchClassStudentSummaryByToken = createAsyncThunk(
       return await getClassStudentSummaryByToken(filters);
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch student admissions",
+        error.response?.data?.message || "Failed to fetch class student summary",
+      );
+    }
+  },
+);
+
+// Admissions Report
+export const fetchStudentAdmissionsReport = createAsyncThunk(
+  "studentAdmissions/fetchStudentAdmissionsReport",
+  async (filters, { rejectWithValue }) => {
+    try {
+      return await getAllStudentAdmissionsReport(filters);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch student admissions report",
       );
     }
   },
@@ -99,6 +130,8 @@ const studentAdmissionSlice = createSlice({
   initialState: {
     studentAdmissions: [],
     classStudentSummary: [],
+    classSummaryDetails: null,
+    admissionsReport: [],
     studentAdmission: null,
     loading: false,
     error: null,
@@ -107,20 +140,39 @@ const studentAdmissionSlice = createSlice({
     clearStudentAdmission(state) {
       state.studentAdmission = null;
     },
+    clearClassStudentSummary(state) {
+      state.classStudentSummary = [];
+      state.classSummaryDetails = null;
+    },
   },
   extraReducers: (builder) => {
     builder
-
-      // Fetch All
+      // Fetch Admissions (Token)
       .addCase(fetchStudentAdmissions.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchStudentAdmissions.fulfilled, (state, action) => {
         state.loading = false;
-        state.studentAdmissions = unwrap(action.payload);
+        const data = unwrap(action.payload);
+        state.studentAdmissions = Array.isArray(data) ? data : (data?.data ?? []);
       })
       .addCase(fetchStudentAdmissions.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Fetch All Admissions (Direct)
+      .addCase(fetchAllStudentAdmissions.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllStudentAdmissions.fulfilled, (state, action) => {
+        state.loading = false;
+        const data = unwrap(action.payload);
+        state.studentAdmissions = Array.isArray(data) ? data : (data?.data ?? []);
+      })
+      .addCase(fetchAllStudentAdmissions.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
@@ -144,7 +196,10 @@ const studentAdmissionSlice = createSlice({
       })
       .addCase(createStudentAdmissionThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.studentAdmissions.push(unwrap(action.payload));
+        const newRecord = unwrap(action.payload);
+        if (newRecord && typeof newRecord === "object") {
+          state.studentAdmissions.unshift(newRecord);
+        }
       })
       .addCase(createStudentAdmissionThunk.rejected, (state, action) => {
         state.loading = false;
@@ -157,17 +212,15 @@ const studentAdmissionSlice = createSlice({
       })
       .addCase(updateStudentAdmissionThunk.fulfilled, (state, action) => {
         state.loading = false;
-
         const updated = unwrap(action.payload);
-
-        const index = state.studentAdmissions.findIndex(
-          (item) => item.id === updated.id,
-        );
-
-        if (index !== -1) {
-          state.studentAdmissions[index] = updated;
+        if (updated?.id) {
+          const index = state.studentAdmissions.findIndex(
+            (item) => item.id === updated.id,
+          );
+          if (index !== -1) {
+            state.studentAdmissions[index] = updated;
+          }
         }
-
         state.studentAdmission = updated;
       })
       .addCase(updateStudentAdmissionThunk.rejected, (state, action) => {
@@ -190,23 +243,44 @@ const studentAdmissionSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Fetch By Token ClassStudentSummary
-
+      // Class Student Summary & Roster
       .addCase(fetchClassStudentSummaryByToken.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchClassStudentSummaryByToken.fulfilled, (state, action) => {
         state.loading = false;
-        state.classStudentSummary = unwrap(action.payload);
+        const payload = action.payload;
+        // Backend returns: { school_id, academic_year_id, total_classes, summary, students }
+        state.classSummaryDetails = payload;
+        state.classStudentSummary = Array.isArray(payload)
+          ? payload
+          : (payload?.students || payload?.data || []);
       })
       .addCase(fetchClassStudentSummaryByToken.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.classStudentSummary = [];
+      })
+
+      // Admissions Report
+      .addCase(fetchStudentAdmissionsReport.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchStudentAdmissionsReport.fulfilled, (state, action) => {
+        state.loading = false;
+        const data = unwrap(action.payload);
+        state.admissionsReport = Array.isArray(data) ? data : (data?.data ?? []);
+      })
+      .addCase(fetchStudentAdmissionsReport.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
   },
 });
 
-export const { clearStudentAdmission } = studentAdmissionSlice.actions;
+export const { clearStudentAdmission, clearClassStudentSummary } =
+  studentAdmissionSlice.actions;
 
 export default studentAdmissionSlice.reducer;

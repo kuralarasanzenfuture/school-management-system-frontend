@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Trash2, X } from "lucide-react";
+import { Trash2, X, AlertCircle } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { removeEmployeeSalaryStructureDetail } from "../../../../redux/employee_salary_structure_detail/employeeSalaryStructureDetailSlice.js";
 import "../styles/SalaryStructureDetail.css";
@@ -8,15 +8,28 @@ import "../styles/SalaryStructureDetail.css";
 export default function DeleteSalaryStructureDetailModal({ isOpen, onClose, detail }) {
     const dispatch = useDispatch();
     const [deleting, setDeleting] = useState(false);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            setError(null);
+            setDeleting(false);
+        }
+    }, [isOpen]);
 
     const handleDelete = async () => {
         if (!detail?.id) return;
         setDeleting(true);
+        setError(null);
         try {
             await dispatch(removeEmployeeSalaryStructureDetail(detail.id)).unwrap();
             onClose();
         } catch (err) {
-            alert(err?.message ?? String(err));
+            const msg =
+                err?.response?.data?.message ||
+                err?.message ||
+                (typeof err === "string" ? err : "Failed to remove component");
+            setError(msg);
         } finally {
             setDeleting(false);
         }
@@ -58,6 +71,13 @@ export default function DeleteSalaryStructureDetailModal({ isOpen, onClose, deta
                                 <span className="font-semibold">"{detail?.structure_name}"</span>.
                                 This action cannot be undone.
                             </p>
+
+                            {error && (
+                                <div className="w-full mt-2 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 text-[12.5px] font-medium flex items-start gap-2.5 text-left leading-normal animate-in fade-in-50 duration-200">
+                                    <AlertCircle size={17} className="text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                                    <div className="flex-1">{error}</div>
+                                </div>
+                            )}
                         </div>
 
                         <div className="ssd-modal-footer flex items-center justify-center gap-3 px-5 py-4">

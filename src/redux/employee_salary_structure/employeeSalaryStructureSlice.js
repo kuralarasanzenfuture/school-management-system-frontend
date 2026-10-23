@@ -10,9 +10,9 @@ import {
 // ================= GET ALL =================
 export const fetchEmployeeSalaryStructures = createAsyncThunk(
   "employeeSalaryStructure/fetchAll",
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      return await getAllEmployeeSalaryStructures();
+      return await getAllEmployeeSalaryStructures(params);
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message ||

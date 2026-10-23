@@ -14,7 +14,15 @@ export const fetchAcademicYears = createAsyncThunk(
   "academicYears/fetchAcademicYears",
   async (params = {}, { rejectWithValue }) => {
     try {
-      return await getAcademicYears(params);
+      let queryParams = {};
+      if (params && typeof params === "object") {
+        queryParams = { paginate: false, ...params };
+      } else if (params) {
+        queryParams = { school_id: params, paginate: false };
+      } else {
+        queryParams = { paginate: false };
+      }
+      return await getAcademicYears(queryParams);
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || error.message || "Failed to fetch academic years",

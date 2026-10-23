@@ -1921,12 +1921,21 @@ export function SalaryDetailFormModal({ isOpen, onClose, detail = null, structur
 export function SalaryDeleteModal({ isOpen, onClose, type = "structure", item = null }) {
     const dispatch = useDispatch();
     const [busy, setBusy] = useState(false);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            setError(null);
+            setBusy(false);
+        }
+    }, [isOpen]);
 
     const isStructure = type === "structure";
 
     const handleDelete = async () => {
         if (!item?.id) return;
         setBusy(true);
+        setError(null);
         try {
             if (isStructure) {
                 await dispatch(removeEmployeeSalaryStructure(item.id)).unwrap();
@@ -1934,7 +1943,13 @@ export function SalaryDeleteModal({ isOpen, onClose, type = "structure", item = 
                 await dispatch(removeEmployeeSalaryStructureDetail(item.id)).unwrap();
             }
             onClose();
-        } catch (err) { alert(err?.message ?? String(err)); }
+        } catch (err) {
+            const msg =
+                err?.response?.data?.message ||
+                err?.message ||
+                (typeof err === "string" ? err : "Cannot delete active salary structure");
+            setError(msg);
+        }
         finally { setBusy(false); }
     };
 
@@ -1958,6 +1973,12 @@ export function SalaryDeleteModal({ isOpen, onClose, type = "structure", item = 
                             </div>
                             <p className="sm-delete-title text-[15px] font-semibold">Are you sure?</p>
                             <p className="sm-delete-desc text-[13px] leading-relaxed">{desc} This cannot be undone.</p>
+                            {error && (
+                                <div className="w-full mt-2 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 text-[12.5px] font-medium flex items-start gap-2.5 text-left leading-normal animate-in fade-in-50 duration-200">
+                                    <AlertTriangle size={17} className="text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                                    <div className="flex-1">{error}</div>
+                                </div>
+                            )}
                         </div>
                         <div className="sm-modal-footer flex justify-center gap-3 px-5 py-4">
                             <button type="button" onClick={onClose} className="sm-modal-btn-cancel flex-1 py-2.5 rounded-lg text-[13.5px] font-semibold transition-colors">Cancel</button>

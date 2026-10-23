@@ -409,8 +409,10 @@ const sortClassList = (classList) => {
       reloadAllocations();
       setModalOpen(false);
       setEditingItem(null);
+      return { success: true };
     } catch (err) {
-      alert(err || "Failed to save section allocation");
+      const msg = typeof err === "string" ? err : err?.message || "Failed to save section allocation";
+      return { success: false, error: msg };
     } finally {
       setSubmitting(false);
     }
@@ -644,6 +646,7 @@ const sortClassList = (classList) => {
         initialData={editingItem}
         onSubmit={handleSubmitModal}
         submitting={submitting}
+        allocations={allocations}
         admissions={studentAdmissions}
         classes={classes}
         sections={sections}

@@ -56,6 +56,7 @@ export default function AdmissionReportCharts({
   genderData = [],
   facilityData = [],
   totalAdmissions = 0,
+  loading = false,
 }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
@@ -75,13 +76,29 @@ export default function AdmissionReportCharts({
               </p>
             </div>
           </div>
-          <span className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-0.5 rounded-full border border-indigo-200/50 dark:border-indigo-800/50">
-            {totalAdmissions} Total Recorded
-          </span>
+          {loading ? (
+            <div className="sar-skeleton h-5 w-24 rounded-full" />
+          ) : (
+            <span className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-0.5 rounded-full border border-indigo-200/50 dark:border-indigo-800/50">
+              {totalAdmissions} Total Recorded
+            </span>
+          )}
         </div>
 
         <div className="h-[250px] w-full pt-2">
-          {timelineData.length === 0 ? (
+          {loading ? (
+            <div className="h-full w-full flex flex-col justify-between p-2">
+              <div className="sar-skeleton h-[180px] w-full rounded-xl" />
+              <div className="flex justify-between gap-4 pt-3">
+                <div className="sar-skeleton h-3 w-10 rounded" />
+                <div className="sar-skeleton h-3 w-10 rounded" />
+                <div className="sar-skeleton h-3 w-10 rounded" />
+                <div className="sar-skeleton h-3 w-10 rounded" />
+                <div className="sar-skeleton h-3 w-10 rounded" />
+                <div className="sar-skeleton h-3 w-10 rounded" />
+              </div>
+            </div>
+          ) : timelineData.length === 0 ? (
             <div className="h-full flex items-center justify-center text-slate-400 text-xs">
               No timeline intake data for selected filters.
             </div>
@@ -106,6 +123,7 @@ export default function AdmissionReportCharts({
                   strokeWidth={2.5}
                   fillOpacity={1}
                   fill="url(#admissionTrendGradient)"
+                  isAnimationActive={false}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -130,7 +148,11 @@ export default function AdmissionReportCharts({
         </div>
 
         <div className="h-[210px] w-full flex items-center justify-center relative">
-          {genderData.length === 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center w-full h-full">
+              <div className="sar-skeleton w-36 h-36 rounded-full" />
+            </div>
+          ) : genderData.length === 0 ? (
             <div className="text-slate-400 text-xs">No gender data available.</div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
@@ -142,6 +164,7 @@ export default function AdmissionReportCharts({
                   paddingAngle={4}
                   dataKey="count"
                   nameKey="name"
+                  isAnimationActive={false}
                 >
                   {genderData.map((entry) => (
                     <Cell
@@ -159,16 +182,23 @@ export default function AdmissionReportCharts({
 
         {/* Legend */}
         <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center gap-4 text-xs font-medium">
-          {genderData.map((item) => (
-            <div key={item.name} className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-              <span
-                className="w-2.5 h-2.5 rounded-full inline-block"
-                style={{ backgroundColor: GENDER_COLORS[item.name] || "#94a3b8" }}
-              />
-              <span>{item.name}:</span>
-              <span className="font-bold text-slate-900 dark:text-white">{item.count}</span>
+          {loading ? (
+            <div className="flex gap-4">
+              <div className="sar-skeleton h-3.5 w-16 rounded" />
+              <div className="sar-skeleton h-3.5 w-16 rounded" />
             </div>
-          ))}
+          ) : (
+            genderData.map((item) => (
+              <div key={item.name} className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                <span
+                  className="w-2.5 h-2.5 rounded-full inline-block"
+                  style={{ backgroundColor: GENDER_COLORS[item.name] || "#94a3b8" }}
+                />
+                <span>{item.name}:</span>
+                <span className="font-bold text-slate-900 dark:text-white">{item.count}</span>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
@@ -188,13 +218,27 @@ export default function AdmissionReportCharts({
               </p>
             </div>
           </div>
-          <span className="text-[11px] font-medium text-slate-500">
-            {classData.length} Classes Enrolled
-          </span>
+          {loading ? (
+            <div className="sar-skeleton h-4 w-24 rounded" />
+          ) : (
+            <span className="text-[11px] font-medium text-slate-500">
+              {classData.length} Classes Enrolled
+            </span>
+          )}
         </div>
 
         <div className="h-[250px] w-full pt-2">
-          {classData.length === 0 ? (
+          {loading ? (
+            <div className="h-full w-full flex items-end justify-between gap-3 p-4">
+              <div className="sar-skeleton h-24 flex-1 rounded-t-lg" />
+              <div className="sar-skeleton h-40 flex-1 rounded-t-lg" />
+              <div className="sar-skeleton h-32 flex-1 rounded-t-lg" />
+              <div className="sar-skeleton h-48 flex-1 rounded-t-lg" />
+              <div className="sar-skeleton h-28 flex-1 rounded-t-lg" />
+              <div className="sar-skeleton h-36 flex-1 rounded-t-lg" />
+              <div className="sar-skeleton h-20 flex-1 rounded-t-lg" />
+            </div>
+          ) : classData.length === 0 ? (
             <div className="h-full flex items-center justify-center text-slate-400 text-xs">
               No class distribution data available.
             </div>
@@ -219,6 +263,7 @@ export default function AdmissionReportCharts({
                   fill="#10b981"
                   radius={[5, 5, 0, 0]}
                   maxBarSize={38}
+                  isAnimationActive={false}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -243,7 +288,11 @@ export default function AdmissionReportCharts({
         </div>
 
         <div className="h-[210px] w-full flex items-center justify-center">
-          {facilityData.length === 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center w-full h-full">
+              <div className="sar-skeleton w-36 h-36 rounded-full" />
+            </div>
+          ) : facilityData.length === 0 ? (
             <div className="text-slate-400 text-xs">No facility data available.</div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
@@ -255,6 +304,7 @@ export default function AdmissionReportCharts({
                   paddingAngle={4}
                   dataKey="count"
                   nameKey="name"
+                  isAnimationActive={false}
                 >
                   {facilityData.map((entry) => (
                     <Cell

@@ -132,6 +132,7 @@ const studentAdmissionSlice = createSlice({
     classStudentSummary: [],
     classSummaryDetails: null,
     admissionsReport: [],
+    admissionsReportStats: null,
     studentAdmission: null,
     loading: false,
     error: null,
@@ -270,8 +271,22 @@ const studentAdmissionSlice = createSlice({
       })
       .addCase(fetchStudentAdmissionsReport.fulfilled, (state, action) => {
         state.loading = false;
-        const data = unwrap(action.payload);
-        state.admissionsReport = Array.isArray(data) ? data : (data?.data ?? []);
+        const payload = action.payload;
+        const data = unwrap(payload);
+        if (Array.isArray(data)) {
+          state.admissionsReport = data;
+          state.admissionsReportStats = payload?.stats || null;
+        } else if (data && typeof data === "object") {
+          state.admissionsReport = Array.isArray(data.admissions)
+            ? data.admissions
+            : Array.isArray(data.data)
+              ? data.data
+              : [];
+          state.admissionsReportStats = data.stats || payload?.stats || null;
+        } else {
+          state.admissionsReport = [];
+          state.admissionsReportStats = null;
+        }
       })
       .addCase(fetchStudentAdmissionsReport.rejected, (state, action) => {
         state.loading = false;

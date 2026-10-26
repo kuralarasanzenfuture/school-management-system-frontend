@@ -8,7 +8,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-export default function AdmissionReportKPIs({ stats }) {
+export default function AdmissionReportKPIs({ stats, loading = false }) {
   const {
     total = 0,
     active = 0,
@@ -96,15 +96,19 @@ export default function AdmissionReportKPIs({ stats }) {
             className="sar-card sar-kpi-card rounded-2xl p-4 flex flex-col justify-between relative"
           >
             <div className="flex items-start justify-between gap-3">
-              <div>
+              <div className="min-w-0 flex-1">
                 <p className="text-[11.5px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   {kpi.label}
                 </p>
-                <div className="flex items-baseline gap-2 mt-1.5">
-                  <span className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
-                    {kpi.value.toLocaleString()}
-                  </span>
-                </div>
+                {loading ? (
+                  <div className="sar-skeleton h-7 w-20 rounded-lg mt-2 mb-0.5" />
+                ) : (
+                  <div className="flex items-baseline gap-2 mt-1.5">
+                    <span className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+                      {kpi.value.toLocaleString()}
+                    </span>
+                  </div>
+                )}
               </div>
               <div
                 className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${kpi.iconBg}`}
@@ -114,14 +118,23 @@ export default function AdmissionReportKPIs({ stats }) {
             </div>
 
             <div className="mt-3.5 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px]">
-              <span className="text-slate-500 dark:text-slate-400 truncate max-w-[140px]">
-                {kpi.sublabel}
-              </span>
-              <span
-                className={`font-semibold px-2 py-0.5 rounded-full text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300`}
-              >
-                {kpi.pill}
-              </span>
+              {loading ? (
+                <>
+                  <div className="sar-skeleton h-3 w-24 rounded" />
+                  <div className="sar-skeleton h-4 w-16 rounded-full" />
+                </>
+              ) : (
+                <>
+                  <span className="text-slate-500 dark:text-slate-400 truncate max-w-[140px]">
+                    {kpi.sublabel}
+                  </span>
+                  <span
+                    className="font-semibold px-2 py-0.5 rounded-full text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+                  >
+                    {kpi.pill}
+                  </span>
+                </>
+              )}
             </div>
           </div>
         );

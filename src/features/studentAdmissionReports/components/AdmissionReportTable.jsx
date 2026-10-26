@@ -46,27 +46,38 @@ export default function AdmissionReportTable({
   onSelectAdmission,
   currentSchoolName = "School",
   currentAcademicYearName = "Academic Year",
+  loading = false,
 }) {
   const [sortField, setSortField] = useState("admission_number");
   const [sortAsc, setSortAsc] = useState(true);
 
-  // Sorting
+  // Sorting (Ultra-fast direct comparison avoiding expensive localeCompare on 15k rows)
   const sortedAdmissions = React.useMemo(() => {
+    if (!admissions || admissions.length === 0) return [];
+
     return [...admissions].sort((a, b) => {
-      let valA = a[sortField] || "";
-      let valB = b[sortField] || "";
+      let valA = a[sortField];
+      let valB = b[sortField];
 
       if (sortField === "student_name") {
-        const studentA = studentsById[a.student_id];
-        const studentB = studentsById[b.student_id];
-        valA = a.student_name || `${studentA?.first_name || ""} ${studentA?.last_name || ""}`;
-        valB = b.student_name || `${studentB?.first_name || ""} ${studentB?.last_name || ""}`;
+        valA = a.student_name;
+        if (!valA) {
+          const studentA = studentsById[a.student_id];
+          valA = studentA ? `${studentA.first_name || ""} ${studentA.last_name || ""}` : "";
+        }
+        valB = b.student_name;
+        if (!valB) {
+          const studentB = studentsById[b.student_id];
+          valB = studentB ? `${studentB.first_name || ""} ${studentB.last_name || ""}` : "";
+        }
       }
 
-      if (typeof valA === "string") {
-        return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
-      }
-      return sortAsc ? (valA > valB ? 1 : -1) : (valA < valB ? 1 : -1);
+      valA = valA == null ? "" : valA;
+      valB = valB == null ? "" : valB;
+
+      if (valA < valB) return sortAsc ? -1 : 1;
+      if (valA > valB) return sortAsc ? 1 : -1;
+      return 0;
     });
   }, [admissions, sortField, sortAsc, studentsById]);
 
@@ -316,7 +327,48 @@ export default function AdmissionReportTable({
           </thead>
 
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-[12.5px] text-slate-700 dark:text-slate-200">
-            {pagedData.length === 0 ? (
+            {loading ? (
+              Array.from({ length: 6 }).map((_, idx) => (
+                <tr key={`sar-skel-${idx}`} className="animate-pulse">
+                  <td className="px-5 py-3.5">
+                    <div className="sar-skeleton h-4 w-24 rounded" />
+                  </td>
+                  <td className="px-3 py-3.5">
+                    <div className="flex items-center gap-2.5">
+                      <div className="sar-skeleton w-8 h-8 rounded-full shrink-0" />
+                      <div className="space-y-1.5 flex-1">
+                        <div className="sar-skeleton h-3.5 w-32 rounded" />
+                        <div className="sar-skeleton h-2.5 w-16 rounded" />
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-3 py-3.5">
+                    <div className="sar-skeleton h-4 w-16 rounded" />
+                  </td>
+                  <td className="px-3 py-3.5">
+                    <div className="sar-skeleton h-4 w-20 rounded" />
+                  </td>
+                  <td className="px-3 py-3.5">
+                    <div className="sar-skeleton h-4 w-20 rounded" />
+                  </td>
+                  <td className="px-3 py-3.5">
+                    <div className="sar-skeleton h-4 w-14 rounded" />
+                  </td>
+                  <td className="px-3 py-3.5">
+                    <div className="sar-skeleton h-5 w-16 rounded-md" />
+                  </td>
+                  <td className="px-3 py-3.5">
+                    <div className="sar-skeleton h-4 w-24 rounded" />
+                  </td>
+                  <td className="px-3 py-3.5">
+                    <div className="sar-skeleton h-5 w-16 rounded-full" />
+                  </td>
+                  <td className="px-4 py-3.5 text-right pr-6">
+                    <div className="sar-skeleton h-6 w-6 rounded ml-auto" />
+                  </td>
+                </tr>
+              ))
+            ) : pagedData.length === 0 ? (
               <tr>
                 <td colSpan={10} className="py-12 text-center text-slate-400">
                   No admission records found matching current criteria.

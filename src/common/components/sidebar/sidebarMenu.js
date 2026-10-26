@@ -216,11 +216,11 @@ const sidebarMenu = [
         icon: FaObjectGroup,
         path: "/student-section-allocations",
       },
-      {
-        name: "Admission Enquiry",
-        icon: FaClipboardCheck,
-        path: "/admission-enquiry",
-      },
+      // {
+      //   name: "Admission Enquiry",
+      //   icon: FaClipboardCheck,
+      //   path: "/admission-enquiry",
+      // },
       {
         name: "Admission Reports",
         icon: FaChartBar,

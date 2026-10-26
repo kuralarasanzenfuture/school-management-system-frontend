@@ -7,11 +7,13 @@ import {
   Layers,
   GraduationCap,
   Sparkles,
+  Users,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import CustomDropdown from "../../../common/components/dropdown/CustomDropdown.jsx";
 import StudentSectionAllocationTable from "../components/StudentSectionAllocationTable.jsx";
 import StudentSectionAllocationModal from "../components/StudentSectionAllocationModal.jsx";
+import BulkSectionAllocationModal from "../components/BulkSectionAllocationModal.jsx";
 import DeleteSectionAllocationModal from "../components/DeleteSectionAllocationModal.jsx";
 
 import {
@@ -87,6 +89,7 @@ export default function StudentSectionAllocationPage() {
 
   // Modals
   const [modalOpen, setModalOpen] = useState(false);
+  const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -454,16 +457,27 @@ const sortClassList = (classList) => {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            setEditingItem(null);
-            setModalOpen(true);
-          }}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-600/20 active:scale-[0.98] transition-all"
-        >
-          <Plus size={16} /> Allocate Student
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => setBulkModalOpen(true)}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 shadow-xs active:scale-[0.98] transition-all"
+          >
+            <Users size={16} className="text-indigo-600 dark:text-indigo-400" />
+            Bulk Class Allocation
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setEditingItem(null);
+              setModalOpen(true);
+            }}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-600/20 active:scale-[0.98] transition-all"
+          >
+            <Plus size={16} /> Allocate Student
+          </button>
+        </div>
       </div>
 
       {/* Quick Summary Cards */}
@@ -654,6 +668,21 @@ const sortClassList = (classList) => {
         academicYears={academicYears}
         effectiveSchoolId={effectiveSchoolId}
         schools={schools}
+        isAdmin={isAdmin}
+      />
+
+      {/* Bulk Class Allocation Modal */}
+      <BulkSectionAllocationModal
+        isOpen={bulkModalOpen}
+        onClose={() => setBulkModalOpen(false)}
+        onSuccess={() => {
+          reloadAllocations();
+        }}
+        effectiveSchoolId={effectiveSchoolId}
+        schools={schools}
+        classes={classes}
+        classSections={classSections}
+        academicYears={academicYears}
         isAdmin={isAdmin}
       />
 

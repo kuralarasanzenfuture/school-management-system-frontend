@@ -7,7 +7,37 @@ import {
   createSectionAllocation,
   updateSectionAllocation,
   deleteSectionAllocation,
+  getClassStudentsForAllocation,
+  bulkCreateSectionAllocations,
 } from "./studentSectionAllocation.service";
+
+// Fetch Class Students for Section Allocation
+export const fetchClassStudentsForAllocationThunk = createAsyncThunk(
+  "studentSectionAllocations/fetchClassStudents",
+  async (filters, { rejectWithValue }) => {
+    try {
+      return await getClassStudentsForAllocation(filters);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch class students for section allocation",
+      );
+    }
+  },
+);
+
+// Bulk Create / Transfer Section Allocations
+export const bulkCreateSectionAllocationThunk = createAsyncThunk(
+  "studentSectionAllocations/bulkCreateSectionAllocation",
+  async (data, { rejectWithValue }) => {
+    try {
+      return await bulkCreateSectionAllocations(data);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to perform bulk section allocation",
+      );
+    }
+  },
+);
 
 // Fetch Allocations (Token-based)
 export const fetchSectionAllocations = createAsyncThunk(
@@ -103,10 +133,19 @@ const studentSectionAllocationSlice = createSlice({
     currentAllocation: null,
     loading: false,
     error: null,
+    classStudents: [],
+    classStudentsLoading: false,
+    classStudentsError: null,
+    bulkLoading: false,
+    bulkError: null,
   },
   reducers: {
     clearCurrentAllocation(state) {
       state.currentAllocation = null;
+    },
+    clearClassStudents(state) {
+      state.classStudents = [];
+      state.classStudentsError = null;
     },
   },
   extraReducers: (builder) => {
@@ -191,10 +230,39 @@ const studentSectionAllocationSlice = createSlice({
       .addCase(deleteSectionAllocationThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+      // Fetch Class Students for Allocation
+      .addCase(fetchClassStudentsForAllocationThunk.pending, (state) => {
+        state.classStudentsLoading = true;
+        state.classStudentsError = null;
+      })
+      .addCase(fetchClassStudentsForAllocationThunk.fulfilled, (state, action) => {
+        state.classStudentsLoading = false;
+        const data = unwrap(action.payload);
+        state.classStudents = Array.isArray(data) ? data : (data?.data ?? []);
+      })
+      .addCase(fetchClassStudentsForAllocationThunk.rejected, (state, action) => {
+        state.classStudentsLoading = false;
+        state.classStudentsError = action.payload;
+        state.classStudents = [];
+      })
+
+      // Bulk Create Section Allocations
+      .addCase(bulkCreateSectionAllocationThunk.pending, (state) => {
+        state.bulkLoading = true;
+        state.bulkError = null;
+      })
+      .addCase(bulkCreateSectionAllocationThunk.fulfilled, (state) => {
+        state.bulkLoading = false;
+      })
+      .addCase(bulkCreateSectionAllocationThunk.rejected, (state, action) => {
+        state.bulkLoading = false;
+        state.bulkError = action.payload;
       });
   },
 });
 
-export const { clearCurrentAllocation } = studentSectionAllocationSlice.actions;
+export const { clearCurrentAllocation, clearClassStudents } = studentSectionAllocationSlice.actions;
 
 export default studentSectionAllocationSlice.reducer;

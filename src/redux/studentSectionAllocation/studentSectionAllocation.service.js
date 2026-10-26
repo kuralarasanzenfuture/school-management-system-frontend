@@ -130,3 +130,36 @@ export const deleteSectionAllocation = async (id) => {
     throw error;
   }
 };
+
+/**
+ * Fetch students of a specific class along with their current active section allocations.
+ * Backend route: GET /student-section-allocations/class-students
+ * Params: { class_id, school_id, academic_year_id, status, search }
+ */
+export const getClassStudentsForAllocation = async (filters = {}) => {
+  try {
+    const response = await api.get(`/student-section-allocations/class-students`, {
+      params: filters,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching class students for allocation:", error);
+    throw error;
+  }
+};
+
+/**
+ * Bulk create or transfer section allocations.
+ * Backend route: POST /student-section-allocations/bulk
+ * Body: { class_id, academic_year_id, school_id, allocation_date, status, remarks, allocations: [...] }
+ */
+export const bulkCreateSectionAllocations = async (data) => {
+  try {
+    const response = await api.post(`/student-section-allocations/bulk`, data);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating bulk section allocations:", error);
+    throw error;
+  }
+};
+

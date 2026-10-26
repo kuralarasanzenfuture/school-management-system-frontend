@@ -85,6 +85,39 @@ const sortClassList = (classList) => {
   });
 };
 
+const isCurrentAcademicYear = (ay) => {
+  if (!ay) return false;
+  if (
+    ay.is_current === true ||
+    ay.is_current === 1 ||
+    ay.is_current === "1" ||
+    String(ay.is_current).toLowerCase() === "true"
+  ) {
+    return true;
+  }
+
+  const now = new Date();
+  if (ay.start_date && ay.end_date) {
+    const start = new Date(ay.start_date);
+    const end = new Date(ay.end_date);
+    if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && now >= start && now <= end) {
+      return true;
+    }
+  }
+
+  if (String(ay.status || "").toLowerCase() === "active" || ay.is_active === 1) {
+    return true;
+  }
+
+  const currentYearStr = String(now.getFullYear());
+  const yearName = String(ay.year || ay.name || "");
+  if (yearName.includes(currentYearStr)) {
+    return true;
+  }
+
+  return false;
+};
+
 export default function StudentSectionAllocationModal({
   isOpen,
   onClose,
@@ -265,6 +298,18 @@ export default function StudentSectionAllocationModal({
       });
     }
 
+    // In Add mode, strictly allow only admissions for the current academic year
+    if (!isEdit) {
+      const currentYearIds = new Set(
+        (academicYears || []).filter(isCurrentAcademicYear).map((y) => String(y.id))
+      );
+      if (currentYearIds.size > 0) {
+        result = result.filter(
+          (a) => !a.academic_year_id || currentYearIds.has(String(a.academic_year_id))
+        );
+      }
+    }
+
     // Filter by Unassigned Only if active
     if (filterUnassignedOnly) {
       result = result.filter((a) => !activeAllocMap.has(String(a.id)));
@@ -313,7 +358,7 @@ export default function StudentSectionAllocationModal({
         rawStudent: a,
       };
     });
-  }, [admissions, activeSchoolId, allocations, filterClassId, filterUnassignedOnly, classOptions]);
+  }, [admissions, activeSchoolId, allocations, filterClassId, filterUnassignedOnly, classOptions, isEdit, academicYears]);
 
   // Selected student object for preview card
   const selectedStudent = useMemo(() => {

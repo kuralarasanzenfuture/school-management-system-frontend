@@ -163,3 +163,31 @@ export const bulkCreateSectionAllocations = async (data) => {
   }
 };
 
+/**
+ * Fetch class section allocation history for a specific student/admission.
+ * Backend route: GET /student-section-allocations/history
+ * Supports params: { admission_id } or { student_id } or passing admission_id as an ID/string
+ */
+export const getStudentSectionAllocationHistory = async (params = {}) => {
+  try {
+    const queryParams = typeof params === "object" ? params : { admission_id: params };
+    try {
+      const response = await api.get(`/student-section-allocations/history`, {
+        params: queryParams,
+      });
+      return response.data;
+    } catch (err) {
+      if (err.response?.status === 404) {
+        const fallback = await api.get(`/student-section-allocations/token`, {
+          params: queryParams,
+        });
+        return fallback.data;
+      }
+      throw err;
+    }
+  } catch (error) {
+    console.error("Error fetching section allocation history:", error);
+    throw error;
+  }
+};
+

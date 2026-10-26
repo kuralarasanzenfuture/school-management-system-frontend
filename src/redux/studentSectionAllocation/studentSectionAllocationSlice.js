@@ -9,7 +9,22 @@ import {
   deleteSectionAllocation,
   getClassStudentsForAllocation,
   bulkCreateSectionAllocations,
+  getStudentSectionAllocationHistory,
 } from "./studentSectionAllocation.service";
+
+// Fetch Student Section Allocation History
+export const fetchStudentSectionAllocationHistory = createAsyncThunk(
+  "studentSectionAllocations/fetchHistory",
+  async (params, { rejectWithValue }) => {
+    try {
+      return await getStudentSectionAllocationHistory(params);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch student section allocation history",
+      );
+    }
+  },
+);
 
 // Fetch Class Students for Section Allocation
 export const fetchClassStudentsForAllocationThunk = createAsyncThunk(
@@ -138,6 +153,9 @@ const studentSectionAllocationSlice = createSlice({
     classStudentsError: null,
     bulkLoading: false,
     bulkError: null,
+    history: [],
+    historyLoading: false,
+    historyError: null,
   },
   reducers: {
     clearCurrentAllocation(state) {
@@ -146,6 +164,11 @@ const studentSectionAllocationSlice = createSlice({
     clearClassStudents(state) {
       state.classStudents = [];
       state.classStudentsError = null;
+    },
+    clearAllocationHistory(state) {
+      state.history = [];
+      state.historyError = null;
+      state.historyLoading = false;
     },
   },
   extraReducers: (builder) => {
@@ -259,10 +282,30 @@ const studentSectionAllocationSlice = createSlice({
       .addCase(bulkCreateSectionAllocationThunk.rejected, (state, action) => {
         state.bulkLoading = false;
         state.bulkError = action.payload;
+      })
+
+      // Section Allocation History
+      .addCase(fetchStudentSectionAllocationHistory.pending, (state) => {
+        state.historyLoading = true;
+        state.historyError = null;
+      })
+      .addCase(fetchStudentSectionAllocationHistory.fulfilled, (state, action) => {
+        state.historyLoading = false;
+        const data = unwrap(action.payload);
+        state.history = Array.isArray(data) ? data : (data?.data ?? []);
+      })
+      .addCase(fetchStudentSectionAllocationHistory.rejected, (state, action) => {
+        state.historyLoading = false;
+        state.historyError = action.payload;
+        state.history = [];
       });
   },
 });
 
-export const { clearCurrentAllocation, clearClassStudents } = studentSectionAllocationSlice.actions;
+export const {
+  clearCurrentAllocation,
+  clearClassStudents,
+  clearAllocationHistory,
+} = studentSectionAllocationSlice.actions;
 
 export default studentSectionAllocationSlice.reducer;

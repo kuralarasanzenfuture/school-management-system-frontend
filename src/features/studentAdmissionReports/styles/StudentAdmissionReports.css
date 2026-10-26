@@ -1,0 +1,102 @@
+/* Student Admission Reports Styles */
+
+.sar-container {
+  min-height: calc(100vh - 4.5rem);
+}
+
+/* Glass & Card Tokens */
+.sar-card {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.03);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:is([data-theme="dark"]) .sar-card {
+  background: #0f172a;
+  border-color: rgba(30, 41, 59, 0.85);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
+}
+
+.sar-kpi-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sar-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.07);
+}
+
+:is([data-theme="dark"]) .sar-kpi-card:hover {
+  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.35);
+}
+
+/* Table styling */
+.sar-table-head {
+  background: #f8fafc;
+}
+:is([data-theme="dark"]) .sar-table-head {
+  background: rgba(30, 41, 59, 0.6);
+}
+
+.sar-table-row {
+  transition: background-color 0.15s ease;
+}
+.sar-table-row:hover {
+  background-color: rgba(241, 245, 249, 0.65);
+}
+:is([data-theme="dark"]) .sar-table-row:hover {
+  background-color: rgba(30, 41, 59, 0.45);
+}
+
+/* Print Stylesheet */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #admission-report-print-area,
+  #admission-report-print-area * {
+    visibility: visible;
+  }
+
+  #admission-report-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 16px;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .sar-card {
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+  }
+
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+
+  th, td {
+    border: 1px solid #cbd5e1 !important;
+    padding: 6px 10px !important;
+    font-size: 11px !important;
+    color: #0f172a !important;
+  }
+
+  th {
+    background-color: #f1f5f9 !important;
+    font-weight: 700 !important;
+  }
+}

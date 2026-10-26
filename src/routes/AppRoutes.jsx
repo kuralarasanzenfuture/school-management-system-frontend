@@ -29,6 +29,7 @@ import EmployeeDetailsPage from "../features/employees/pages/EmployeeDetailsPage
 import ClassSectionPage from "../features/schoolSetup/class-section/pages/ClassSectionPage.jsx";
 import StudentAdmissionPage from "../features/studentsAdmission/pages/StudentAdmissionPage.jsx";
 import StudentSectionAllocationPage from "../features/studentSectionAllocation/pages/StudentSectionAllocationPage.jsx";
+import StudentAdmissionReportsPage from "../features/studentAdmissionReports/pages/StudentAdmissionReportsPage.jsx";
 import SubjectPage from "../features/schoolSetup/subject/pages/SubjectPage.jsx";
 import SubjectGroupPage from "../features/schoolSetup/subject_group/pages/SubjectGroupPage.jsx";
 // import ClassSubjectPage from "../features/schoolSetup/class_subject/pages/ClassSubjectPage.jsx";
@@ -120,6 +121,10 @@ const AppRoutes = () => {
           <Route
             path="/student-section-allocations"
             element={<StudentSectionAllocationPage />}
+          />
+          <Route
+            path="/admission-reports"
+            element={<StudentAdmissionReportsPage />}
           />
           <Route path="/subjects" element={<SubjectPage />} />
           <Route path="/subject-groups" element={<SubjectGroupPage />} />

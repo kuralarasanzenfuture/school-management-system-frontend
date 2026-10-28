@@ -226,3 +226,34 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* ── Modern Shimmer Skeleton for Student Admissions ── */
+.sa-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--input-bg, #f1f5f9) 0%,
+    var(--divider, #e2e8f0) 50%,
+    var(--input-bg, #f1f5f9) 100%
+  );
+  background-size: 200% 100%;
+  animation: sa-shimmer 1.5s infinite ease-in-out;
+}
+
+.dark .sa-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  background-size: 200% 100%;
+}
+
+@keyframes sa-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

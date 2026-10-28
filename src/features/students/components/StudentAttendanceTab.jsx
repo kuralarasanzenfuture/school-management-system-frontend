@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAttendanceByStudent } from "../../../redux/studentAttendance/studentAttendanceSlice.js";
 import Pagination from "../../../common/components/table/Pagination.jsx";
 import usePagination from "../../../common/components/table/usePagination.jsx";
+import CustomDropdown from "../../../common/components/dropdown/CustomDropdown.jsx";
 import "../styles/StudentDetailsPage-new.css";
 import {
     UserCheck, UserX, Clock, CalendarDays,
@@ -173,17 +174,32 @@ export default function StudentAttendanceTab({ studentId }) {
                         value={search} onChange={(e) => setSearch(e.target.value)} />
                 </div>
 
-                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-                    className="sd-att-cell text-[13.5px] rounded-lg px-3 py-2" style={{ border: "1px solid var(--divider)", background: "var(--panel-bg)" }}>
-                    <option value="All">All Status</option>
-                    {STATUS_LIST.map((s) => <option key={s} value={s}>{s.replace("_", " ")}</option>)}
-                </select>
+                <div className="min-w-[145px]">
+                    <CustomDropdown
+                        options={[
+                            { value: "All", label: "All Status" },
+                            ...STATUS_LIST.map((s) => ({ value: s, label: s.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase()) }))
+                        ]}
+                        value={statusFilter}
+                        onChange={(val) => setStatusFilter(val)}
+                        placeholder="Status"
+                    />
+                </div>
 
-                <select value={monthFilter} onChange={(e) => setMonthFilter(e.target.value)}
-                    className="sd-att-cell text-[13.5px] rounded-lg px-3 py-2" style={{ border: "1px solid var(--divider)", background: "var(--panel-bg)" }}>
-                    <option value="">All Months</option>
-                    {monthOptions.map((m) => <option key={m} value={m}>{new Date(m + "-01").toLocaleDateString("en-IN", { month: "long", year: "numeric" })}</option>)}
-                </select>
+                <div className="min-w-[160px]">
+                    <CustomDropdown
+                        options={[
+                            { value: "", label: "All Months" },
+                            ...monthOptions.map((m) => ({
+                                value: m,
+                                label: new Date(m + "-01").toLocaleDateString("en-IN", { month: "long", year: "numeric" })
+                            }))
+                        ]}
+                        value={monthFilter}
+                        onChange={(val) => setMonthFilter(val)}
+                        placeholder="Month"
+                    />
+                </div>
 
                 <span className="sd-att-muted text-[12.5px] ml-auto">
                     {filtered.length} record{filtered.length !== 1 ? "s" : ""}

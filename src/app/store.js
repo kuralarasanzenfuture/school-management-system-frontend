@@ -27,11 +27,13 @@ import employeeSalaryStructureReducer from "../redux/employee_salary_structure/e
 import employeeSalaryStructureDetailReducer from "../redux/employee_salary_structure_detail/employeeSalaryStructureDetailSlice.js";
 
 import changePasswordReducer from "../redux/changePassword/changePasswordSlice.js";
+import auditLogReducer from "../redux/auditlogs/auditLogSlice.js";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     changePassword: changePasswordReducer,
+    auditLogs: auditLogReducer,
     schoolProfile: schoolProfileReducer,
     students: studentReducer,
     roles: roleReducer,

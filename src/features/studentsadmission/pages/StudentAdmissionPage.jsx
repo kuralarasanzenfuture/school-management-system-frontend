@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Plus, Search, RotateCcw } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import StudentAdmissionTable from "../components/StudentAdmissionTable.jsx";
+import StudentAdmissionTable, { StudentAdmissionTableSkeleton } from "../components/StudentAdmissionTable.jsx";
 import StudentAdmissionModal from "../components/StudentAdmissionModal.jsx";
 import DeleteStudentAdmissionModal from "../components/DeleteStudentAdmissionModal.jsx";
 import StatusFilterDropdown from "../components/StatusFilterDropdown";
@@ -509,9 +509,7 @@ const StudentAdmissionPage = () => {
 
       {/* Content */}
       {loading ? (
-        <p className="sa-loading px-2 py-10 text-[13.5px]">
-          Loading student admissions…
-        </p>
+        <StudentAdmissionTableSkeleton />
       ) : error ? (
         <div className="text-center py-10">
           <p className="sa-error text-[13.5px] mb-3">{error}</p>

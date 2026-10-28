@@ -347,8 +347,7 @@ const authSlice = createSlice({
         const userData = unwrapUser(action.payload);
         // console.log("current user",userData);
         state.user = userData;
-
-        // localStorage.setItem("user", JSON.stringify(userData));
+        localStorage.setItem("user", JSON.stringify(userData));
       })
       .addCase(fetchCurrentUser.rejected, (state, action) => {
         state.loading = false;

@@ -1,3 +1,42 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ── Global Shimmer Skeleton Animation ── */
+.app-skeleton,
+.sk-shimmer,
+.sa-skeleton,
+.sp-skeleton,
+.sd-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(226, 232, 240, 0.65) 0%,
+    rgba(203, 213, 225, 0.95) 50%,
+    rgba(226, 232, 240, 0.65) 100%
+  );
+  background-size: 200% 100%;
+  animation: app-shimmer-anim 1.5s infinite ease-in-out;
+}
+
+.dark .app-skeleton,
+.dark .sk-shimmer,
+.dark .sa-skeleton,
+.dark .sp-skeleton,
+.dark .sd-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 200% 100%;
+}
+
+@keyframes app-shimmer-anim {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

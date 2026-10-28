@@ -1156,9 +1156,11 @@ import {
     createStudent,
     updateStudent,
     getStudents,
+    getStudentById,
 } from "../../../redux/student/studentSlice";
 import { fetchSchools } from "../../../redux/schoolSetup/schoolProfile/schoolProfileSlice";
 import { handleRestrictedInput } from "../../../common/utils/inputHandlers";
+import { getFullImageUrl } from "../../../config/env.js";
 import StudentForm from "../components/StudentForm.jsx";
 import "../styles/StudentFormPage.css";
 
@@ -1244,18 +1246,31 @@ export default function StudentFormPage() {
     const { id } = useParams();
     const isEdit = Boolean(id);
 
-    const { students, loading: studentsLoading } = useSelector((state) => state.students);
-    const student = useMemo(
-        () => (isEdit ? students?.find((s) => String(s.id) === String(id)) : null),
-        [students, id, isEdit],
-    );
+    const { students, student: reduxStudentObj, loading: studentsLoading } = useSelector((state) => state.students);
+    const [directStudent, setDirectStudent] = useState(null);
 
-    // Direct-URL edits (refresh, shared link) may land here before the list
-    // has loaded — fetch it if it's missing.
+    const student = useMemo(() => {
+        if (!isEdit) return null;
+        if (directStudent && String(directStudent.id) === String(id)) return directStudent;
+        const reduxStudent = reduxStudentObj?.data ?? reduxStudentObj?.student ?? reduxStudentObj;
+        if (reduxStudent && String(reduxStudent.id) === String(id)) return reduxStudent;
+        return students?.find((s) => String(s.id) === String(id)) || null;
+    }, [students, directStudent, reduxStudentObj, id, isEdit]);
+
+    // Fetch the exact student by ID directly for instant hydration
     useEffect(() => {
-        if (isEdit && !student && !studentsLoading) dispatch(getStudents());
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isEdit, student, studentsLoading]);
+        if (isEdit && id) {
+            dispatch(getStudentById(id))
+                .unwrap()
+                .then((res) => {
+                    const loaded = res?.data ?? res?.student ?? res;
+                    if (loaded) setDirectStudent(loaded);
+                })
+                .catch(() => {
+                    if (!student && !studentsLoading) dispatch(getStudents());
+                });
+        }
+    }, [dispatch, isEdit, id]);
 
     const [step, setStep] = useState(1);
     const [direction, setDirection] = useState(1);
@@ -1292,29 +1307,32 @@ export default function StudentFormPage() {
             setData({
                 ...INIT,
                 ...student,
+                date_of_birth: student.date_of_birth
+                    ? String(student.date_of_birth).split("T")[0]
+                    : "",
                 current_address_same_as_permanent: Boolean(
                     Number(student.current_address_same_as_permanent),
                 ),
             });
-            setPhotoPreview(student.photo_url ? `${IMAGE_BASE_URL}${student.photo_url}` : null);
+            setPhotoPreview(student.photo_url ? getFullImageUrl(student.photo_url) : null);
             setSignaturePreview(
-                student.signature_url ? `${IMAGE_BASE_URL}${student.signature_url}` : null,
+                student.signature_url ? getFullImageUrl(student.signature_url) : null,
             );
             setDocMeta({
                 birth_certificate: student.birth_certificate_url
-                    ? { name: "Birth Certificate", url: `${IMAGE_BASE_URL}${student.birth_certificate_url}`, existing: true }
+                    ? { name: "Birth Certificate", url: getFullImageUrl(student.birth_certificate_url), existing: true }
                     : null,
                 aadhaar_front: student.aadhaar_front_url
-                    ? { name: "Aadhaar Front", url: `${IMAGE_BASE_URL}${student.aadhaar_front_url}`, existing: true }
+                    ? { name: "Aadhaar Front", url: getFullImageUrl(student.aadhaar_front_url), existing: true }
                     : null,
                 aadhaar_back: student.aadhaar_back_url
-                    ? { name: "Aadhaar Back", url: `${IMAGE_BASE_URL}${student.aadhaar_back_url}`, existing: true }
+                    ? { name: "Aadhaar Back", url: getFullImageUrl(student.aadhaar_back_url), existing: true }
                     : null,
                 transfer_certificate: student.transfer_certificate_url
-                    ? { name: "Transfer Certificate", url: `${IMAGE_BASE_URL}${student.transfer_certificate_url}`, existing: true }
+                    ? { name: "Transfer Certificate", url: getFullImageUrl(student.transfer_certificate_url), existing: true }
                     : null,
                 previous_marksheets: student.previous_marksheets_url
-                    ? { name: "Previous Marksheet", url: `${IMAGE_BASE_URL}${student.previous_marksheets_url}`, existing: true }
+                    ? { name: "Previous Marksheet", url: getFullImageUrl(student.previous_marksheets_url), existing: true }
                     : null,
             });
             setHydrated(true);
@@ -1528,7 +1546,13 @@ export default function StudentFormPage() {
         }
     };
 
-    const goBackToList = () => navigate("/students");
+    const goBackToList = () => {
+        if (isEdit && id) {
+            navigate(`/students/${id}`);
+        } else {
+            navigate("/students");
+        }
+    };
 
     /* ── Build FormData ── */
     const buildFormData = () => {
@@ -1593,7 +1617,7 @@ export default function StudentFormPage() {
 
     return (
         <div className="sfp-page min-h-full p-6">
-            <div className="sfp-card w-full rounded-3xl overflow-hidden">
+            <div className="sfp-card w-full rounded-3xl">
                 {submitted ? (
                     <div className="p-10 text-center">
                         <motion.div
@@ -1617,7 +1641,7 @@ export default function StudentFormPage() {
                                 </button>
                             )}
                             <button onClick={goBackToList} className="sfp-btn-done px-5 py-2.5 rounded-lg text-[14px] font-semibold transition-colors">
-                                Back to Students
+                                {isEdit ? "Back to Student Profile" : "Back to Students"}
                             </button>
                         </div>
                     </div>

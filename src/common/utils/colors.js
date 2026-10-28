@@ -23,8 +23,6 @@ export const colors = [
   "bg-stone-500",
 ];
 
-
-
 export const avatarColors = [
   "bg-red-500",
   "bg-orange-500",
@@ -49,3 +47,18 @@ export const avatarColors = [
   "bg-neutral-500",
   "bg-stone-500",
 ];
+
+/**
+ * Deterministically generates a vibrant background color class for avatars
+ * based on any string (e.g. name, id, email).
+ * Produces consistent, vivid colors across the entire application.
+ */
+export function getAvatarColor(value) {
+  if (!value) return avatarColors[0];
+  let hash = 0;
+  const str = String(value);
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return avatarColors[Math.abs(hash) % avatarColors.length];
+}

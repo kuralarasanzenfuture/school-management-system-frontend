@@ -60,6 +60,7 @@ import BackupsPage from "../features/health/pages/BackupsPage.jsx";
 import SoftwareUpdatesPage from "../features/health/pages/SoftwareUpdatesPage.jsx";
 import StoragePage from "../features/health/pages/StoragePage.jsx";
 import SchoolViewPage from "../features/schoolSetup/schoolProfile/pages/SchoolViewPage.jsx";
+import AuditLogsPage from "../features/auditlogs/pages/AuditLogsPage.jsx";
 
 // import TeacherList from "../features/teachers/pages/TeacherList";
 
@@ -96,6 +97,7 @@ const AppRoutes = () => {
           {/* <Route path="/roles/:id" element={<RolePage />} /> */}
           <Route path="/users" element={<UserPage />} />
           {/* <Route path="/users/:id" element={<UserPage />} /> */}
+          <Route path="/audit-logs" element={<AuditLogsPage />} />
 
           <Route path="/assign-to-employees" element={<EmployeeAssignPage />} />
 

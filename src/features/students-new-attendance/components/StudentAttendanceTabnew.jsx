@@ -1,262 +1,404 @@
 /**
- * StudentAttendanceTab.jsx  — updated for new API
+ * StudentAttendanceTab.jsx — Unified Attendance View
  *
- * API: GET /api/students-attendance/student/:admissionId
- *      ?from_date=YYYY-MM-DD
- *      &to_date=YYYY-MM-DD
- *      &attendance_type=daily,period   (optional, defaults to both)
- *      &academic_year_id=1             (optional, defaults to current year)
- *
- * Response:
- *  { admission_id, summary: { total_records, daily_count, period_count },
- *    data: { daily: [{ date, records[] }], period: [{ date, periods: [{ period_no, records[] }] }] } }
- *
- * Split into 4 sub-components:
- *   StudentAttendanceCalendar    — month grid with status colours
- *   StudentAttendanceDailyTable  — flat daily table with pagination
- *   StudentAttendancePeriodTable — period-wise table with pagination
- *   (stats cards inline here)
+ * Implements clean, uncluttered layout matching Payfit UI (Dribbble reference):
+ *  - Two primary views: [ Calendar ] and [ List View ] (no duplicate or conflicting toggles)
+ *  - In "Calendar": Full-width Payfit monthly calendar with multi-segment distribution bar and in-cell accent cards
+ *  - In "List View": Monthly/Weekly/Daily range filters, Daily Attendance table, and Period Attendance table (with Single Row & List layouts)
  */
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Calendar, List, LayoutGrid, RefreshCw, UserCheck, UserX, Clock, Umbrella, CalendarOff, CalendarDays } from "lucide-react";
+import dayjs from "dayjs";
+import {
+  Calendar as CalendarIcon,
+  List as ListIcon,
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight,
+  CalendarDays,
+  Clock,
+  Layers,
+} from "lucide-react";
 import StudentAttendanceCalendar from "./StudentAttendanceCalendar.jsx";
 import StudentAttendanceDailyTable from "./StudentAttendanceDailyTable.jsx";
 import StudentAttendancePeriodTable from "./StudentAttendancePeriodTable.jsx";
-import "../styles/StudentDetailsPage.css";
+import CustomDropdown from "../../../common/components/dropdown/CustomDropdown.jsx";
+import "../styles/StudentDetailsPage-new.css";
 import api from "../../../common/services/api.js";
 
-/* ── helpers ── */
-const pad = (n) => String(n).padStart(2, "0");
-const ym = (y, m) => `${y}-${pad(m + 1)}`;
-const ymFirst = (y, m) => `${ym(y, m)}-01`;
-const ymLast = (y, m) => {
-    const last = new Date(y, m + 1, 0).getDate();
-    return `${ym(y, m)}-${pad(last)}`;
-};
+const ATTENDANCE_TYPE_OPTIONS = [
+  { value: "daily,period", label: "Daily + Period" },
+  { value: "daily", label: "Daily Only" },
+  { value: "period", label: "Period Only" },
+];
 
-/* ── Attendance stat card ── */
-function AttStat({ icon: Icon, bg, color, value, label }) {
-    return (
-        <div className="sd-att-stat-card flex items-center gap-3 rounded-2xl px-4 py-3.5">
-            <div className={`${bg} w-10 h-10 rounded-xl flex items-center justify-center shrink-0`}>
-                <Icon size={18} className={color} />
-            </div>
-            <div>
-                <p className="sd-att-stat-value text-[18px] font-bold leading-none">{value}</p>
-                <p className="sd-att-stat-label text-[12px] mt-0.5">{label}</p>
-            </div>
-        </div>
-    );
-}
-
-/* ── Circular attendance % ring ── */
-function AttendanceRing({ pct }) {
-    const r = 38;
-    const circ = 2 * Math.PI * r;
-    const dash = ((pct ?? 0) / 100) * circ;
-    const color = pct >= 75 ? "var(--success)" : pct >= 50 ? "var(--warning)" : "var(--danger)";
-    return (
-        <div className="flex flex-col items-center">
-            <svg width="100" height="100" viewBox="0 0 100 100" style={{ transform: "rotate(-90deg)" }}>
-                <circle cx="50" cy="50" r={r} fill="none" stroke="var(--input-bg)" strokeWidth="8" />
-                <circle cx="50" cy="50" r={r} fill="none" stroke={color} strokeWidth="8"
-                    strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" />
-            </svg>
-            <div style={{ marginTop: "-68px", textAlign: "center" }}>
-                <p className="text-[22px] font-extrabold" style={{ color }}>{Math.round(pct ?? 0)}%</p>
-                <p className="sd-att-muted text-[11px]">Attendance</p>
-            </div>
-            <div style={{ marginTop: "36px" }} />
-        </div>
-    );
-}
-
-/* ══════════════════════════════════════════════════════
-   MAIN TAB
-══════════════════════════════════════════════════════ */
 export default function StudentAttendanceTab({ studentId }) {
-    const now = new Date();
+  /* ── View Mode: "calendar" (Default) | "list" ── */
+  const [viewMode, setViewMode] = useState("calendar");
 
-    /* ── State ── */
-    const [year, setYear] = useState(now.getFullYear());
-    const [month, setMonth] = useState(now.getMonth());
-    const [attendType, setAttendType] = useState("daily,period"); // "daily" | "period" | "daily,period"
-    const [viewMode, setViewMode] = useState("calendar");     // "calendar" | "daily" | "period"
-    const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+  /* ── Range Mode (Used for List View): "monthly" | "weekly" | "daily" ── */
+  const [rangeMode, setRangeMode] = useState("monthly");
+  const [anchorDate, setAnchorDate] = useState(() => dayjs());
 
-    /* ── Fetch ── */
-    const fetchData = useCallback(() => {
-        if (!studentId) return;
-        setLoading(true);
-        setError(null);
-        const params = {
-            from_date: ymFirst(year, month),
-            to_date: ymLast(year, month),
-            attendance_type: attendType,
-        };
-        api.get(`/students-attendance/student/${studentId}`, { params })
-            .then((res) => setData(res.data))
-            .catch((e) => setError(e.response?.data?.message || e.message))
-            .finally(() => setLoading(false));
-    }, [studentId, year, month, attendType]);
+  /* ── Attendance Type: "daily,period" | "daily" | "period" ── */
+  const [attendType, setAttendType] = useState("daily,period");
 
-    useEffect(() => { fetchData(); }, [fetchData]);
+  /* ── In List View when both are selected, user can toggle sub-tabs ── */
+  const [listSubTab, setListSubTab] = useState("daily"); // "daily" | "period"
 
-    /* ── Handle calendar month navigation ── */
-    const handleMonthChange = (y, m) => { setYear(y); setMonth(m); };
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-    /* ── Derived data ── */
-    const dailyRows = data?.data?.daily ?? [];
-    const periodRows = data?.data?.period ?? [];
-    const summary = data?.summary ?? {};
+  const year = anchorDate.year();
+  const month = anchorDate.month(); // 0-indexed
 
-    /* ── Compute stats from daily records ── */
-    const stats = useMemo(() => {
-        const allRecords = dailyRows.flatMap((d) => d.records ?? []);
-        const cnt = (s) => allRecords.filter((r) => r.status === s).length;
-        const present = cnt("present");
-        const absent = cnt("absent");
-        const late = cnt("late");
-        const leave = cnt("leave");
-        const holiday = cnt("holiday");
-        const half_day = cnt("half_day");
-        const attendable = allRecords.length - holiday;
-        const pct = attendable > 0
-            ? (((present + half_day * 0.5 + late) / attendable) * 100)
-            : 0;
-        return { present, absent, late, leave, holiday, half_day, attendable, total: allRecords.length, pct };
-    }, [dailyRows]);
+  const handleMonthChange = (newYear, newMonth) => {
+    setAnchorDate((prev) => prev.year(newYear).month(newMonth).startOf("month"));
+  };
 
-    /* ── Type filter changes → auto-switch view ── */
-    const handleTypeChange = (type) => {
-        setAttendType(type);
-        if (type === "daily") setViewMode("daily");
-        if (type === "period") setViewMode("period");
-        if (type === "daily,period") setViewMode("calendar");
+  /* ── Date range calculation according to viewMode & rangeMode ── */
+  const { from_date, to_date, rangeDisplayTitle, isAtCurrent } = useMemo(() => {
+    const today = dayjs();
+
+    // In Calendar mode: always full month of anchorDate
+    if (viewMode === "calendar") {
+      const start = anchorDate.startOf("month");
+      const end = anchorDate.endOf("month");
+      return {
+        from_date: start.format("YYYY-MM-DD"),
+        to_date: end.format("YYYY-MM-DD"),
+        rangeDisplayTitle: anchorDate.format("MMMM YYYY"),
+        isAtCurrent:
+          anchorDate.isSame(today, "month") || anchorDate.isAfter(today, "month"),
+      };
+    }
+
+    // In List View: support monthly, weekly, or single-day ranges
+    if (rangeMode === "monthly") {
+      const start = anchorDate.startOf("month");
+      const end = anchorDate.endOf("month");
+      return {
+        from_date: start.format("YYYY-MM-DD"),
+        to_date: end.format("YYYY-MM-DD"),
+        rangeDisplayTitle: anchorDate.format("MMMM YYYY"),
+        isAtCurrent:
+          anchorDate.isSame(today, "month") || anchorDate.isAfter(today, "month"),
+      };
+    } else if (rangeMode === "weekly") {
+      const start = anchorDate.startOf("week");
+      const end = anchorDate.endOf("week");
+      return {
+        from_date: start.format("YYYY-MM-DD"),
+        to_date: end.format("YYYY-MM-DD"),
+        rangeDisplayTitle: `${start.format("D MMM")} – ${end.format("D MMM YYYY")}`,
+        isAtCurrent:
+          anchorDate.isSame(today, "week") || anchorDate.isAfter(today, "week"),
+      };
+    } else {
+      const formatted = anchorDate.format("YYYY-MM-DD");
+      return {
+        from_date: formatted,
+        to_date: formatted,
+        rangeDisplayTitle: anchorDate.format("D MMMM YYYY"),
+        isAtCurrent:
+          anchorDate.isSame(today, "day") || anchorDate.isAfter(today, "day"),
+      };
+    }
+  }, [viewMode, rangeMode, anchorDate]);
+
+  /* ── Navigation helpers ── */
+  const handlePrev = () => {
+    if (viewMode === "calendar" || rangeMode === "monthly") {
+      setAnchorDate((prev) => prev.subtract(1, "month"));
+    } else if (rangeMode === "weekly") {
+      setAnchorDate((prev) => prev.subtract(1, "week"));
+    } else {
+      setAnchorDate((prev) => prev.subtract(1, "day"));
+    }
+  };
+
+  const handleNext = () => {
+    if (viewMode === "calendar" || rangeMode === "monthly") {
+      setAnchorDate((prev) => prev.add(1, "month"));
+    } else if (rangeMode === "weekly") {
+      setAnchorDate((prev) => prev.add(1, "week"));
+    } else {
+      setAnchorDate((prev) => prev.add(1, "day"));
+    }
+  };
+
+  const handleJumpToToday = () => {
+    setAnchorDate(dayjs());
+  };
+
+  /* ── Fetch Attendance API ── */
+  const fetchData = useCallback(() => {
+    if (!studentId) return;
+    setLoading(true);
+    setError(null);
+    const params = {
+      from_date,
+      to_date,
+      attendance_type: attendType,
     };
+    api
+      .get(`/students-attendance/student/${studentId}`, { params })
+      .then((res) => setData(res.data))
+      .catch((e) => setError(e.response?.data?.message || e.message))
+      .finally(() => setLoading(false));
+  }, [studentId, from_date, to_date, attendType]);
 
-    const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-    return (
-        <div className="flex flex-col gap-5">
+  const dailyRows = data?.data?.daily ?? [];
+  const periodRows = data?.data?.period ?? [];
+  const summary = data?.summary ?? {};
 
-            {/* ── Filter / control bar ── */}
-            <div className="sd-att-table-card rounded-2xl px-4 py-3 flex flex-wrap items-center gap-3">
-
-                {/* Month navigation */}
-                <div className="flex items-center gap-1">
-                    <button
-                        onClick={() => handleMonthChange(...(() => { const d = new Date(year, month - 1, 1); return [d.getFullYear(), d.getMonth()]; })())}
-                        className="sd-doc-view-btn w-8 h-8 rounded-lg flex items-center justify-center text-sm">‹</button>
-                    <span className="sd-att-cell text-[13.5px] font-semibold px-2 min-w-[110px] text-center">
-                        {MONTHS_SHORT[month]} {year}
-                    </span>
-                    <button
-                        onClick={() => handleMonthChange(...(() => { const d = new Date(year, month + 1, 1); return [d.getFullYear(), d.getMonth()]; })())}
-                        disabled={new Date(year, month) >= new Date(now.getFullYear(), now.getMonth())}
-                        className="sd-doc-view-btn w-8 h-8 rounded-lg flex items-center justify-center text-sm disabled:opacity-40">›</button>
-                </div>
-
-                {/* Attendance type filter */}
-                <select value={attendType} onChange={(e) => handleTypeChange(e.target.value)}
-                    className="sd-att-cell text-[13.5px] rounded-lg px-3 py-2"
-                    style={{ border: "1px solid var(--divider)", background: "var(--panel-bg)" }}>
-                    <option value="daily,period">Daily + Period</option>
-                    <option value="daily">Daily Only</option>
-                    <option value="period">Period Only</option>
-                </select>
-
-                {/* View mode toggle */}
-                <div className="flex rounded-lg overflow-hidden" style={{ border: "1px solid var(--divider)" }}>
-                    <button onClick={() => setViewMode("calendar")}
-                        className={`px-3 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors
-              ${viewMode === "calendar" ? "sd-att-present-bg sd-att-present" : "sd-att-muted"}`}>
-                        <Calendar size={13} /> Calendar
-                    </button>
-                    <button onClick={() => setViewMode("daily")}
-                        disabled={!attendType.includes("daily")}
-                        className={`px-3 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-40
-              ${viewMode === "daily" ? "sd-att-present-bg sd-att-present" : "sd-att-muted"}`}>
-                        <List size={13} /> Daily
-                    </button>
-                    <button onClick={() => setViewMode("period")}
-                        disabled={!attendType.includes("period")}
-                        className={`px-3 py-2 text-[12.5px] font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-40
-              ${viewMode === "period" ? "sd-att-present-bg sd-att-present" : "sd-att-muted"}`}>
-                        <LayoutGrid size={13} /> Period
-                    </button>
-                </div>
-
-                {/* Summary badges from API */}
-                {data && (
-                    <div className="flex items-center gap-2 flex-wrap">
-                        {summary.daily_count > 0 && <span className="sd-tab-badge">{summary.daily_count} daily</span>}
-                        {summary.period_count > 0 && <span className="sd-tab-badge">{summary.period_count} period</span>}
-                    </div>
-                )}
-
-                {/* Refresh */}
-                <button onClick={fetchData}
-                    className="sd-doc-view-btn w-8 h-8 rounded-lg flex items-center justify-center ml-auto"
-                    title="Refresh" disabled={loading}>
-                    <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
-                </button>
+  return (
+    <div className="flex flex-col gap-4">
+      {/* ══════════════════════════════════════════════════════════
+          TOP CONTROL BAR (Streamlined & Clean - No Duplicates)
+      ══════════════════════════════════════════════════════════ */}
+      <div className="sd-att-table-card rounded-2xl px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 shadow-xs border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* In List View: Show Range Switcher (Monthly, Weekly, Daily) */}
+          {viewMode === "list" && (
+            <div className="flex rounded-xl p-0.5 border border-slate-200 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-800/60">
+              <button
+                type="button"
+                onClick={() => setRangeMode("monthly")}
+                className={`px-3 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all ${
+                  rangeMode === "monthly"
+                    ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs"
+                    : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                type="button"
+                onClick={() => setRangeMode("weekly")}
+                className={`px-3 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all ${
+                  rangeMode === "weekly"
+                    ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs"
+                    : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                }`}
+              >
+                Weekly
+              </button>
+              <button
+                type="button"
+                onClick={() => setRangeMode("daily")}
+                className={`px-3 py-1.5 rounded-lg text-[12.5px] font-semibold transition-all ${
+                  rangeMode === "daily"
+                    ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs"
+                    : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                }`}
+              >
+                Daily
+              </button>
             </div>
+          )}
 
-            {/* ── Loading / error ── */}
-            {loading && <p className="sd-att-muted text-[13.5px] text-center py-8">Loading attendance…</p>}
-            {!loading && error && <p className="text-[13.5px] text-center py-8" style={{ color: "var(--danger)" }}>Error: {error}</p>}
-
-            {/* ── Stats row (only when daily data is available) ── */}
-            {!loading && !error && data && dailyRows.length > 0 && (
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-                    <div className="sd-att-stat-card rounded-2xl p-4 flex flex-col items-center justify-center gap-1">
-                        <AttendanceRing pct={stats.pct} />
-                        <p className="sd-att-stat-label text-[12px] text-center mt-1">
-                            {stats.present} of {stats.attendable} days present
-                        </p>
-                    </div>
-                    <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        <AttStat icon={UserCheck} bg="sd-att-present-bg" color="sd-att-present" value={stats.present} label="Present" />
-                        <AttStat icon={UserX} bg="sd-att-absent-bg" color="sd-att-absent" value={stats.absent} label="Absent" />
-                        <AttStat icon={Clock} bg="sd-att-late-bg" color="sd-att-late" value={stats.late} label="Late" />
-                        <AttStat icon={Umbrella} bg="sd-att-leave-bg" color="sd-att-leave" value={stats.leave} label="Leave" />
-                        <AttStat icon={CalendarOff} bg="sd-att-present-bg" color="sd-att-present" value={stats.holiday} label="Holiday" />
-                        <AttStat icon={CalendarDays} bg="sd-att-absent-bg" color="sd-att-absent" value={stats.total} label="Total Days" />
-                    </div>
-                </div>
+          {/* Date Navigator */}
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={handlePrev}
+              className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              title="Previous"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <span className="sd-att-cell text-[14px] font-bold px-2.5 min-w-[130px] text-center whitespace-nowrap">
+              {rangeDisplayTitle}
+            </span>
+            <button
+              type="button"
+              onClick={handleNext}
+              disabled={isAtCurrent}
+              className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-40 cursor-pointer"
+              title="Next"
+            >
+              <ChevronRight size={16} />
+            </button>
+            {!isAtCurrent && (
+              <button
+                type="button"
+                onClick={handleJumpToToday}
+                className="px-2.5 py-1 text-xs rounded-lg border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors font-semibold ml-0.5 cursor-pointer"
+              >
+                Today
+              </button>
             )}
+          </div>
 
-            {/* ── No data state ── */}
-            {!loading && !error && data && dailyRows.length === 0 && periodRows.length === 0 && (
-                <div className="sd-coming-soon rounded-2xl flex flex-col items-center justify-center gap-3 py-16 text-center">
-                    <CalendarDays size={36} className="sd-att-muted opacity-40" />
-                    <p className="sd-field-value text-[14px] font-semibold">No attendance records for this period</p>
-                    <p className="sd-att-muted text-[13px]">Try selecting a different month or attendance type</p>
-                </div>
-            )}
-
-            {/* ── CALENDAR VIEW ── */}
-            {!loading && !error && viewMode === "calendar" && dailyRows.length > 0 && (
-                <StudentAttendanceCalendar
-                    dailyData={dailyRows}
-                    year={year}
-                    month={month}
-                    onMonthChange={handleMonthChange}
-                />
-            )}
-
-            {/* ── DAILY TABLE VIEW ── */}
-            {!loading && !error && viewMode === "daily" && (
-                <StudentAttendanceDailyTable rows={dailyRows} />
-            )}
-
-            {/* ── PERIOD TABLE VIEW ── */}
-            {!loading && !error && viewMode === "period" && (
-                <StudentAttendancePeriodTable rows={periodRows} />
-            )}
+          {/* Attendance Type Selector Dropdown */}
+          <div className="min-w-[155px]">
+            <CustomDropdown
+              options={ATTENDANCE_TYPE_OPTIONS}
+              value={attendType}
+              onChange={setAttendType}
+              placeholder="Attendance Type"
+            />
+          </div>
         </div>
-    );
+
+        {/* Right: Payfit View Switch [ Calendar ] | [ List View ] + Refresh */}
+        <div className="flex items-center gap-2.5">
+          <div className="flex rounded-xl p-0.5 border border-slate-200 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-800/60">
+            <button
+              type="button"
+              onClick={() => setViewMode("calendar")}
+              className={`px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                viewMode === "calendar"
+                  ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs"
+                  : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <CalendarIcon size={14} />
+              <span>Calendar</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("list")}
+              className={`px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                viewMode === "list"
+                  ? "bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-xs"
+                  : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              <ListIcon size={14} />
+              <span>List View</span>
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={fetchData}
+            className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
+            title="Refresh"
+          >
+            <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+          </button>
+        </div>
+      </div>
+
+      {/* ── Loading / Error states ── */}
+      {loading && (
+        <div className="flex flex-col gap-5">
+          {/* 6 Stat cards skeleton */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="sd-cal-stat-card flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <div className="sd-skeleton h-3 w-16 rounded" />
+                  <div className="sd-skeleton w-7 h-7 rounded-lg" />
+                </div>
+                <div className="sd-skeleton h-6 w-12 rounded-md" />
+              </div>
+            ))}
+          </div>
+
+          {/* Calendar grid skeleton */}
+          <div className="sd-section-card rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800">
+            <div className="grid grid-cols-7 bg-[#f0f2f5] dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700 py-3">
+              {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+                <div key={i} className="flex justify-center">
+                  <div className="sd-skeleton h-4 w-10 rounded" />
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-7 border-l border-slate-200 dark:border-slate-800">
+              {Array.from({ length: 35 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="min-h-[140px] p-2.5 flex flex-col justify-between border-r border-b border-slate-200 dark:border-slate-800"
+                >
+                  <div className="sd-skeleton h-4 w-5 rounded" />
+                  <div className="sd-skeleton h-6 w-3/4 rounded-lg my-auto" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!loading && error && (
+        <div className="p-4 rounded-xl border border-rose-200 bg-rose-50 dark:bg-rose-950/30 text-rose-600 text-sm">
+          Error: {error}
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════
+          VIEW 1: PAYFIT CALENDAR VIEW
+      ══════════════════════════════════════════════════════════ */}
+      {!loading && !error && viewMode === "calendar" && (
+        <StudentAttendanceCalendar
+          dailyData={dailyRows}
+          periodData={periodRows}
+          year={year}
+          month={month}
+          onMonthChange={handleMonthChange}
+        />
+      )}
+
+      {/* ══════════════════════════════════════════════════════════
+          VIEW 2: LIST VIEW (Clean Tables & Sub-tabs if needed)
+      ══════════════════════════════════════════════════════════ */}
+      {!loading && !error && viewMode === "list" && (
+        <div className="flex flex-col gap-4">
+          {/* Sub-tab navigation if user selected "Daily + Period" */}
+          {attendType === "daily,period" && (
+            <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
+              <button
+                type="button"
+                onClick={() => setListSubTab("daily")}
+                className={`px-4 py-2 rounded-xl text-[13px] font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+                  listSubTab === "daily"
+                    ? "bg-indigo-600 text-white shadow-xs"
+                    : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                }`}
+              >
+                <CalendarDays size={14} />
+                <span>Daily Attendance</span>
+                {summary.daily_count > 0 && (
+                  <span className="px-1.5 py-0.5 rounded-full text-[10.5px] bg-white/20">
+                    {summary.daily_count}
+                  </span>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => setListSubTab("period")}
+                className={`px-4 py-2 rounded-xl text-[13px] font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+                  listSubTab === "period"
+                    ? "bg-indigo-600 text-white shadow-xs"
+                    : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                }`}
+              >
+                <Clock size={14} />
+                <span>Period Attendance</span>
+                {summary.period_count > 0 && (
+                  <span className="px-1.5 py-0.5 rounded-full text-[10.5px] bg-white/20">
+                    {summary.period_count}
+                  </span>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* Render Active Table */}
+          {attendType === "daily" ||
+          (attendType === "daily,period" && listSubTab === "daily") ? (
+            <StudentAttendanceDailyTable rows={dailyRows} />
+          ) : (
+            <StudentAttendancePeriodTable rows={periodRows} />
+          )}
+        </div>
+      )}
+    </div>
+  );
 }

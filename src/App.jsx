@@ -12,7 +12,7 @@ function App() {
   const { accessToken, user } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    if (accessToken && !user) {
+    if (accessToken) {
       dispatch(fetchCurrentUser());
     }
   }, [dispatch, accessToken]);

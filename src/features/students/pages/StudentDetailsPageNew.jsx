@@ -228,7 +228,7 @@ export default function StudentDetailsPageNew() {
           <button onClick={handleExportExcel} className="sd-btn-outline inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors">
             <Download size={16} /> Export Excel
           </button>
-          <button onClick={() => navigate(`/students?edit=${student.id}`)}
+          <button onClick={() => navigate(`/students/${student?.id || id}/edit`)}
             className="sd-btn-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors">
             <Pencil size={15} /> Edit Student
           </button>

@@ -6,7 +6,7 @@
 import React from "react";
 import { Download, FileText, FileImage, ExternalLink, Loader2 } from "lucide-react";
 import { IMAGE_BASE_URL as BASE_URL } from "../../../config/env.js";
-import "../styles/StudentDetailsPage.css";
+import "../styles/StudentDetailsPage-new.css";
 
 const PERSONAL_FIELDS = [
     ["First Name", "first_name"], ["Middle Name", "middle_name"], ["Last Name", "last_name"],

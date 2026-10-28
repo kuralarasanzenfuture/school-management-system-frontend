@@ -1,0 +1,276 @@
+/* AuditLogs.css
+   Clean, human-designed styling using theme variables matching the application.
+*/
+
+.al-page {
+  background: var(--bg, #ffffff) !important;
+}
+
+[data-theme="dark"] .al-page {
+  background: var(--bg, #0d0f1e) !important;
+}
+
+.al-title {
+  color: var(--text-primary, #0f172a);
+}
+
+.al-subtitle {
+  color: var(--text-muted, #64748b);
+}
+
+/* ── Primary & Outline Buttons ── */
+.al-btn-primary {
+  background: var(--btn-bg, #4f46e5);
+  color: var(--btn-text, #ffffff);
+}
+
+.al-btn-primary:hover {
+  background: var(--btn-hover, #4338ca);
+}
+
+.al-btn-outline {
+  background: var(--panel-bg, #ffffff);
+  border: 1px solid var(--input-border, #e2e8f0);
+  color: var(--text-secondary, #475569);
+}
+
+.al-btn-outline:hover {
+  background: var(--input-bg, #f8fafc);
+  color: var(--text-primary, #0f172a);
+}
+
+/* ── Toolbar ── */
+.al-toolbar {
+  background: var(--panel-bg, #ffffff);
+  border: 1px solid var(--divider, #eaedf8);
+  box-shadow: var(--card-shadow, 0 1px 3px rgba(0, 0, 0, 0.04));
+}
+
+.al-search-input {
+  background: var(--input-bg, #ffffff);
+  border: 1px solid var(--input-border, #e2e8f0);
+  color: var(--text-primary, #0f172a);
+}
+
+.al-search-input::placeholder {
+  color: var(--text-muted, #94a3b8);
+}
+
+.al-search-input:focus {
+  outline: none;
+  border-color: var(--input-focus, #4f46e5);
+  box-shadow: 0 0 0 3px var(--focus-ring, rgba(79, 70, 229, 0.15));
+}
+
+/* ── Table Card ── */
+.al-table-card {
+  background: var(--panel-bg, #ffffff);
+  border: 1px solid var(--divider, #eaedf8);
+  box-shadow: var(--card-shadow, 0 1px 3px rgba(0, 0, 0, 0.04));
+}
+
+.al-thead {
+  background: #f8fafc;
+  color: var(--text-muted, #64748b);
+}
+
+[data-theme="dark"] .al-thead {
+  background: #101424;
+  color: #94a3b8;
+}
+
+.al-row {
+  border-top: 1px solid var(--divider, #f1f5f9);
+  transition: background-color 0.15s ease;
+}
+
+.al-row:hover {
+  background: #f8fafc;
+}
+
+[data-theme="dark"] .al-row:hover {
+  background: #161b2e;
+}
+
+/* ── Clean Action Badges ── */
+.al-badge-success {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.al-badge-primary {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.al-badge-danger {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.al-badge-warning {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.al-badge-purple {
+  background: #f5f3ff;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+}
+
+.al-badge-neutral {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+[data-theme="dark"] .al-badge-success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #6ee7b7;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+[data-theme="dark"] .al-badge-primary {
+  background: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+[data-theme="dark"] .al-badge-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+[data-theme="dark"] .al-badge-warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fcd34d;
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+[data-theme="dark"] .al-badge-purple {
+  background: rgba(139, 92, 246, 0.15);
+  color: #c4b5fd;
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+[data-theme="dark"] .al-badge-neutral {
+  background: rgba(148, 163, 184, 0.15);
+  color: #cbd5e1;
+  border-color: rgba(148, 163, 184, 0.3);
+}
+
+/* ── Side-Over Drawer Styling (Matches Screenshot & Theme) ── */
+.al-drawer-backdrop {
+  background-color: var(--modal-overlay-bg, rgba(15, 23, 42, 0.07));
+  /* backdrop-filter: blur(1px); */
+  /* -webkit-backdrop-filter: blur(3px); */
+}
+
+.al-drawer-panel {
+  background: var(--panel-bg, #ffffff);
+  color: var(--text-primary, #0f172a);
+  border-left: 1px solid var(--divider, #eaedf8);
+  box-shadow: -10px 0 35px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .al-drawer-panel {
+  background: var(--panel-bg, #101424);
+  border-left-color: rgba(255, 255, 255, 0.08);
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+}
+
+.al-drawer-card {
+  background: var(--panel-bg, #ffffff);
+  border: 1px solid var(--divider, #eaedf8);
+  border-radius: 14px;
+}
+
+[data-theme="dark"] .al-drawer-card {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ── Clean Diff Table ── */
+.al-diff-table th {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 8px 12px;
+}
+
+[data-theme="dark"] .al-diff-table th {
+  background: #151a2d;
+  color: #94a3b8;
+}
+
+.al-diff-old {
+  background: #fef2f2;
+  color: #dc2626;
+  text-decoration: line-through;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.al-diff-new {
+  background: #ecfdf5;
+  color: #059669;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  word-break: break-all;
+}
+
+[data-theme="dark"] .al-diff-old {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+[data-theme="dark"] .al-diff-new {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+/* ── Code / Payload Box ── */
+.al-code-box {
+  background: #090d16;
+  color: #e2e8f0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  border-radius: 10px;
+  padding: 14px;
+  max-height: 420px;
+  overflow: auto;
+  border: 1px solid #1e293b;
+}
+
+/* Custom scrollbars */
+.al-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.al-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.al-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 9999px;
+}
+
+.al-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.6);
+}

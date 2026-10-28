@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import CustomDropdown from "../../../common/components/dropdown/CustomDropdown.jsx";
-import StudentSectionAllocationTable from "../components/StudentSectionAllocationTable.jsx";
+import StudentSectionAllocationTable, { StudentSectionAllocationTableSkeleton } from "../components/StudentSectionAllocationTable.jsx";
 import StudentSectionAllocationModal from "../components/StudentSectionAllocationModal.jsx";
 import BulkSectionAllocationModal from "../components/BulkSectionAllocationModal.jsx";
 import DeleteSectionAllocationModal from "../components/DeleteSectionAllocationModal.jsx";
@@ -619,12 +619,7 @@ const sortClassList = (classList) => {
 
       {/* Main Table */}
       {loading ? (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center text-slate-400">
-          <div className="inline-block animate-spin mb-2">
-            <RotateCcw size={22} className="text-indigo-600" />
-          </div>
-          <div className="text-[13.5px]">Loading student section allocations...</div>
-        </div>
+        <StudentSectionAllocationTableSkeleton />
       ) : error ? (
         <div className="bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/40 rounded-2xl p-8 text-center">
           <div className="text-rose-600 dark:text-rose-400 text-[14px] font-medium mb-3">

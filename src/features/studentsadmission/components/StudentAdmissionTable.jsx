@@ -1,8 +1,10 @@
 import React from "react";
-import { Pencil, Trash2, Bus, Home } from "lucide-react";
+import { Eye, Pencil, Trash2, Bus, Home } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import usePagination from "../../../common/components/table/usePagination";
 import Pagination from "../../../common/components/table/Pagination";
 import { getFullImageUrl } from "../../../config/env.js";
+import { getAvatarColor } from "../../../common/utils/colors.js";
 
 const STATUS_STYLES = {
   active: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40",
@@ -47,6 +49,7 @@ export default function StudentAdmissionTable({
   initialPageSize = 10,
   pageSizeOptions = [5, 10, 20, 50],
 }) {
+  const navigate = useNavigate();
   const { pagedData, currentPage, pageSize, totalItems, setPage, setPageSize } =
     usePagination({ data: admissions, initialSize: initialPageSize });
 
@@ -84,40 +87,42 @@ export default function StudentAdmissionTable({
                 `${(a.first_name || student?.first_name || studentName)?.[0] || ""}${(a.last_name || student?.last_name)?.[0] || ""}`.toUpperCase() || "S";
               const statusKey = String(a.status || "active").toLowerCase();
 
+              const studentTargetId = a.student_id || student?.id;
+              const avatarColor = getAvatarColor(
+                `${studentTargetId || a.id}-${student?.first_name || a.first_name || studentName}-${student?.last_name || a.last_name || ""}`
+              );
+
               return (
                 <tr key={a.id} className="sa-row transition-colors">
                   <td className="sa-cell px-5 py-3.5 text-[13px] font-semibold">
                     {a.admission_number || "—"}
                   </td>
                   <td className="sa-cell px-3 py-3.5 text-[13px]">
-                    <div className="flex items-center gap-2.5">
-                      {photoUrl ? (
-                        <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
+                    <div
+                      className="flex items-center gap-2.5 cursor-pointer group"
+                      onClick={() => {
+                        if (studentTargetId) navigate(`/students/${studentTargetId}`);
+                      }}
+                      title="View full details"
+                    >
+                      <div
+                        className={`w-9 h-9 rounded-full overflow-hidden flex items-center justify-center text-white text-[12px] font-bold shrink-0 shadow-2xs ${avatarColor}`}
+                      >
+                        {photoUrl ? (
                           <img
                             src={photoUrl}
-                            alt=""
+                            alt={studentName}
                             className="w-full h-full object-cover"
                             onError={(e) => {
                               e.currentTarget.style.display = "none";
-                              if (e.currentTarget.nextElementSibling) {
-                                e.currentTarget.nextElementSibling.style.display = "flex";
-                              }
                             }}
                           />
-                          <span
-                            style={{ display: "none" }}
-                            className="w-full h-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-bold text-[11px] items-center justify-center"
-                          >
-                            {initials}
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-bold text-[11px] flex items-center justify-center shrink-0 border border-indigo-200/50 dark:border-indigo-800/40">
-                          {initials}
-                        </div>
-                      )}
+                        ) : (
+                          initials
+                        )}
+                      </div>
                       <div className="flex flex-col min-w-0">
-                        <span className="font-semibold text-slate-800 dark:text-slate-100 truncate">
+                        <span className="font-semibold text-slate-800 dark:text-slate-100 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                           {studentName}
                         </span>
                         {studentCode && (
@@ -196,8 +201,17 @@ export default function StudentAdmissionTable({
                   <td className="px-3 py-3.5">
                     <div className="flex items-center justify-end gap-1 pr-2">
                       <button
+                        onClick={() => {
+                          if (studentTargetId) navigate(`/students/${studentTargetId}`);
+                        }}
+                        className="sa-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 cursor-pointer"
+                        title="View full details"
+                      >
+                        <Eye size={15} />
+                      </button>
+                      <button
                         onClick={() => onEdit(a)}
-                        className="sa-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+                        className="sa-action-btn w-8 h-8 rounded-lg flex items-center justify-center transition-colors text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                         title="Edit"
                       >
                         <Pencil size={15} />
@@ -205,7 +219,7 @@ export default function StudentAdmissionTable({
                       <button
                         onClick={() => onDelete(a.id)}
                         disabled={deletingId === a.id}
-                        className="sa-action-btn sa-action-btn-danger w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50"
+                        className="sa-action-btn sa-action-btn-danger w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 cursor-pointer"
                         title="Delete"
                       >
                         <Trash2 size={15} />
@@ -240,3 +254,102 @@ export default function StudentAdmissionTable({
     </div>
   );
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Skeleton Loading Component for Student Admissions Table
+───────────────────────────────────────────────────────────── */
+export function StudentAdmissionTableSkeleton() {
+  return (
+    <div className="sa-table-card rounded-2xl overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full text-left">
+          <thead>
+            <tr className="sa-thead text-[11.5px] uppercase tracking-wide">
+              <th className="px-5 py-3 font-semibold">
+                <div className="sa-skeleton h-3.5 w-24 rounded" />
+              </th>
+              <th className="px-3 py-3 font-semibold">
+                <div className="sa-skeleton h-3.5 w-16 rounded" />
+              </th>
+              <th className="px-3 py-3 font-semibold">
+                <div className="sa-skeleton h-3.5 w-24 rounded" />
+              </th>
+              <th className="px-3 py-3 font-semibold">
+                <div className="sa-skeleton h-3.5 w-24 rounded" />
+              </th>
+              <th className="px-3 py-3 font-semibold">
+                <div className="sa-skeleton h-3.5 w-20 rounded" />
+              </th>
+              <th className="px-3 py-3 font-semibold">
+                <div className="sa-skeleton h-3.5 w-12 rounded" />
+              </th>
+              <th className="px-3 py-3 font-semibold">
+                <div className="sa-skeleton h-3.5 w-16 rounded" />
+              </th>
+              <th className="px-3 py-3 font-semibold">
+                <div className="sa-skeleton h-3.5 w-14 rounded" />
+              </th>
+              <th className="px-3 py-3 font-semibold text-right pr-5">
+                <div className="sa-skeleton h-3.5 w-16 rounded ml-auto" />
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((row) => (
+              <tr
+                key={row}
+                className="sa-row border-b border-slate-100 dark:border-slate-800"
+              >
+                <td className="px-5 py-3.5">
+                  <div className="sa-skeleton h-4 w-28 rounded" />
+                </td>
+                <td className="px-3 py-3.5">
+                  <div className="flex items-center gap-2.5">
+                    <div className="sa-skeleton w-9 h-9 rounded-full shrink-0" />
+                    <div className="flex flex-col gap-1.5">
+                      <div className="sa-skeleton h-3.5 w-28 rounded" />
+                      <div className="sa-skeleton h-2.5 w-20 rounded" />
+                    </div>
+                  </div>
+                </td>
+                <td className="px-3 py-3.5">
+                  <div className="sa-skeleton h-4 w-16 rounded" />
+                </td>
+                <td className="px-3 py-3.5">
+                  <div className="sa-skeleton h-4 w-20 rounded" />
+                </td>
+                <td className="px-3 py-3.5">
+                  <div className="sa-skeleton h-4 w-20 rounded" />
+                </td>
+                <td className="px-3 py-3.5">
+                  <div className="sa-skeleton h-4 w-12 rounded" />
+                </td>
+                <td className="px-3 py-3.5">
+                  <div className="sa-skeleton h-5 w-20 rounded-md" />
+                </td>
+                <td className="px-3 py-3.5">
+                  <div className="sa-skeleton h-5 w-16 rounded-full" />
+                </td>
+                <td className="px-3 py-3.5">
+                  <div className="flex items-center justify-end gap-1.5 pr-2">
+                    <div className="sa-skeleton w-7 h-7 rounded-lg" />
+                    <div className="sa-skeleton w-7 h-7 rounded-lg" />
+                    <div className="sa-skeleton w-7 h-7 rounded-lg" />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="px-5 py-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div className="sa-skeleton h-4 w-32 rounded" />
+        <div className="flex items-center gap-2">
+          <div className="sa-skeleton h-8 w-20 rounded-lg" />
+          <div className="sa-skeleton h-8 w-24 rounded-lg" />
+        </div>
+      </div>
+    </div>
+  );
+}
+

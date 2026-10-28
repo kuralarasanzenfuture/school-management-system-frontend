@@ -547,7 +547,14 @@ export default function AttendancePage() {
         setRows(
             sortedRoster.map((student) => {
                 const admissionId = student.admission_id ?? student.id ?? student.student_admission_id;
-                const studentId = student.student_id;
+                const studentId = student.student_id ?? student.id;
+                const rawPhoto =
+                    student.photo_url ||
+                    student.photo ||
+                    student.student_photo ||
+                    student.avatar ||
+                    student.image ||
+                    null;
                 const mark =
                     marksByAdmission.get(String(admissionId)) ||
                     (studentId != null ? marksByAdmission.get(String(studentId)) : undefined);
@@ -559,6 +566,7 @@ export default function AttendancePage() {
                     first_name: student.first_name,
                     last_name: student.last_name,
                     roll_no: student.roll_no,
+                    photo_url: rawPhoto,
                     status: normalizeStatus(mark?.attendance_status),
                     remarks: mark?.remarks || "",
                     sessionId: mark?.session_id ?? null,

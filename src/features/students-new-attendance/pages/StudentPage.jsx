@@ -4,6 +4,7 @@ import {
   UserCheck,
   UserX,
   AlertTriangle,
+  CheckCircle2,
   Download,
   Plus,
   Search,
@@ -29,14 +30,6 @@ import { avatarColors } from "../../../common/utils/colors";
 import { IMAGE_BASE_URL, getFullImageUrl } from "../../../config/env.js";
 import "../styles/StudentPage.css";
 
-const CLASS_TABS = [
-  "All Classes",
-  "Class VIII",
-  "Class IX",
-  "Class X",
-  "Class XI",
-  "Class XII",
-];
 
 /* ── helpers ── */
 function StatCard({ icon: Icon, tone, value, label }) {
@@ -108,7 +101,6 @@ export default function StudentsPage() {
   const [editingStudent, setEditingStudent] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState("All Classes");
   const [statusFilter, setStatusFilter] = useState("All");
   const [genderFilter, setGenderFilter] = useState("All");
   const [selectedSchool, setSelectedSchool] = useState("");
@@ -212,17 +204,6 @@ export default function StudentsPage() {
       });
     }
 
-    // Class tab filter
-    if (activeTab !== "All Classes") {
-      const cls = activeTab.replace("Class ", "");
-      result = result.filter(
-        (student) =>
-          student.student_class === cls ||
-          student.class === cls ||
-          student.studentClass === cls,
-      );
-    }
-
     // Status filter
     if (statusFilter !== "All") {
       result = result.filter(
@@ -246,7 +227,6 @@ export default function StudentsPage() {
     schoolId,
     selectedSchool,
     search,
-    activeTab,
     statusFilter,
     genderFilter,
   ]);
@@ -265,10 +245,6 @@ export default function StudentsPage() {
   /* ── Filter change handlers — reset to page 1 ── */
   const handleSearch = (e) => {
     setSearch(e.target.value);
-    reset();
-  };
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
     reset();
   };
 
@@ -316,7 +292,6 @@ export default function StudentsPage() {
 
   const resetAllFilters = () => {
     setSearch("");
-    setActiveTab("All Classes");
     setStatusFilter("All");
     setGenderFilter("All");
     setSelectedSchool("");
@@ -327,11 +302,10 @@ export default function StudentsPage() {
     search ||
       (isAdmin && selectedSchool) ||
       statusFilter !== "All" ||
-      genderFilter !== "All" ||
-      activeTab !== "All Classes",
+      genderFilter !== "All",
   );
 
-  if (loading) return <h3 className="sp-loading px-6 py-10">Loading...</h3>;
+  if (loading) return <StudentPageSkeleton />;
   if (error) return <h3 className="sp-error px-6 py-10">{error}</h3>;
 
   return (
@@ -372,10 +346,10 @@ export default function StudentsPage() {
           label="Showing"
         />
         <StatCard
-          icon={AlertTriangle}
+          icon={CheckCircle2}
           tone="warning"
-          value={CLASS_TABS.length - 1}
-          label="Classes tracked"
+          value={students?.filter((s) => s.status?.toLowerCase() === "active").length ?? 0}
+          label="Active students"
         />
         <StatCard
           icon={UserX}
@@ -403,22 +377,6 @@ export default function StudentsPage() {
 
       {/* ── Filter bar ── */}
       <div className="sp-filter-bar flex flex-wrap items-center gap-2.5 rounded-2xl px-4 py-3 mb-6">
-        {/* Class tabs */}
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {CLASS_TABS.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => handleTabChange(tab)}
-              className={`px-3.5 py-2 rounded-lg text-[13px] font-semibold transition-colors ${activeTab === tab ? "sp-tab-active" : "sp-tab"
-                }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        <div className="sp-divider w-px h-6 mx-1" />
-
         {/* Status filter */}
         <CustomDropdown
           options={statusOptions}
@@ -527,11 +485,6 @@ export default function StudentsPage() {
                 <th className="px-3 py-3 font-semibold">Gender</th>
                 <th className="px-3 py-3 font-semibold">
                   <span className="inline-flex items-center gap-1">
-                    Class <ArrowUpDown size={11} />
-                  </span>
-                </th>
-                <th className="px-3 py-3 font-semibold">
-                  <span className="inline-flex items-center gap-1">
                     City <ArrowUpDown size={11} />
                   </span>
                 </th>
@@ -551,7 +504,7 @@ export default function StudentsPage() {
               {pageRows.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={9}
+                    colSpan={8}
                     className="sp-empty-state px-5 py-10 text-center text-[13.5px]"
                   >
                     No students found for this filter.
@@ -616,14 +569,6 @@ export default function StudentsPage() {
                       <td className="sp-cell px-3 py-3.5 text-[13.5px] capitalize">
                         {student.gender || (
                           <span className="sp-cell-muted">—</span>
-                        )}
-                      </td>
-
-                      <td className="px-3 py-3.5">
-                        {studentClass ? (
-                          <Badge>{studentClass}</Badge>
-                        ) : (
-                          <Badge className="sp-badge-fallback">—</Badge>
                         )}
                       </td>
 
@@ -702,6 +647,143 @@ export default function StudentsPage() {
         onClose={closeDeleteModal}
         student={deleteTarget}
       />
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Skeleton Loading Component for Students Directory
+───────────────────────────────────────────────────────────── */
+function StudentPageSkeleton() {
+  return (
+    <div className="sp-page min-h-screen p-6">
+      {/* ── Header Skeleton ── */}
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <div className="sp-skeleton h-7 w-36 rounded-lg mb-2" />
+          <div className="sp-skeleton h-4 w-72 rounded-md" />
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="sp-skeleton h-10 w-24 rounded-xl" />
+          <div className="sp-skeleton h-10 w-32 rounded-xl" />
+        </div>
+      </div>
+
+      {/* ── Stat Cards Skeleton ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {[1, 2, 3, 4].map((i) => (
+          <div
+            key={i}
+            className="sp-stat-card flex items-center gap-3.5 rounded-2xl px-5 py-4"
+          >
+            <div className="sp-skeleton w-11 h-11 rounded-xl shrink-0" />
+            <div className="flex-1">
+              <div className="sp-skeleton h-6 w-16 rounded-md mb-2" />
+              <div className="sp-skeleton h-3.5 w-24 rounded" />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Search Bar Skeleton ── */}
+      <div className="sp-toolbar flex items-center gap-3 rounded-2xl px-4 py-3 mb-4">
+        <div className="sp-skeleton h-9 w-80 rounded-lg" />
+      </div>
+
+      {/* ── Filter Bar Skeleton ── */}
+      <div className="sp-filter-bar flex flex-wrap items-center gap-2.5 rounded-2xl px-4 py-3 mb-6">
+        <div className="sp-skeleton h-9 w-36 rounded-lg" />
+        <div className="sp-skeleton h-9 w-36 rounded-lg" />
+        <div className="sp-skeleton h-9 w-44 rounded-lg" />
+      </div>
+
+      {/* ── Table Skeleton ── */}
+      <div className="sp-table-card rounded-2xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="sp-thead text-[11.5px] uppercase tracking-wide">
+                <th className="px-5 py-3 w-10">
+                  <div className="sp-skeleton w-4 h-4 rounded" />
+                </th>
+                <th className="px-3 py-3">
+                  <div className="sp-skeleton h-3.5 w-20 rounded" />
+                </th>
+                <th className="px-3 py-3">
+                  <div className="sp-skeleton h-3.5 w-16 rounded" />
+                </th>
+                <th className="px-3 py-3">
+                  <div className="sp-skeleton h-3.5 w-16 rounded" />
+                </th>
+                <th className="px-3 py-3">
+                  <div className="sp-skeleton h-3.5 w-16 rounded" />
+                </th>
+                <th className="px-3 py-3">
+                  <div className="sp-skeleton h-3.5 w-24 rounded" />
+                </th>
+                <th className="px-3 py-3">
+                  <div className="sp-skeleton h-3.5 w-16 rounded" />
+                </th>
+                <th className="px-3 py-3 text-right pr-5">
+                  <div className="sp-skeleton h-3.5 w-16 rounded ml-auto" />
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((row) => (
+                <tr
+                  key={row}
+                  className="sp-row border-b border-slate-100 dark:border-slate-800"
+                >
+                  <td className="px-5 py-3.5">
+                    <div className="sp-skeleton w-4 h-4 rounded" />
+                  </td>
+                  <td className="px-3 py-3.5">
+                    <div className="flex items-center gap-3">
+                      <div className="sp-skeleton w-9 h-9 rounded-full shrink-0" />
+                      <div className="flex flex-col gap-1.5">
+                        <div className="sp-skeleton h-3.5 w-32 rounded" />
+                        <div className="sp-skeleton h-2.5 w-44 rounded" />
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-3 py-3.5">
+                    <div className="sp-skeleton h-3.5 w-24 rounded" />
+                  </td>
+                  <td className="px-3 py-3.5">
+                    <div className="sp-skeleton h-3.5 w-16 rounded" />
+                  </td>
+                  <td className="px-3 py-3.5">
+                    <div className="sp-skeleton h-3.5 w-20 rounded" />
+                  </td>
+                  <td className="px-3 py-3.5">
+                    <div className="sp-skeleton h-3.5 w-20 rounded" />
+                  </td>
+                  <td className="px-3 py-3.5">
+                    <div className="sp-skeleton h-5 w-16 rounded-full" />
+                  </td>
+                  <td className="px-3 py-3.5">
+                    <div className="flex items-center justify-end gap-1.5 pr-2">
+                      <div className="sp-skeleton w-7 h-7 rounded-lg" />
+                      <div className="sp-skeleton w-7 h-7 rounded-lg" />
+                      <div className="sp-skeleton w-7 h-7 rounded-lg" />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination Skeleton */}
+        <div className="px-5 py-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <div className="sp-skeleton h-4 w-32 rounded" />
+          <div className="flex items-center gap-2">
+            <div className="sp-skeleton h-8 w-20 rounded-lg" />
+            <div className="sp-skeleton h-8 w-24 rounded-lg" />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

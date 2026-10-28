@@ -651,6 +651,8 @@ import {
   pincode,
 } from "../../../common/utils/inputHandlers";
 import ImageLightbox from "../../../common/components/ImageLightbox/ImageLightbox.jsx";
+import CustomDatePicker from "../../../common/components/datepicker/CustomDatePicker.jsx";
+import CustomDropdown from "../../../common/components/dropdown/CustomDropdown.jsx";
 
 /* ── Field wrapper ── */
 function Field({ label, required, error, children }) {
@@ -889,21 +891,16 @@ export default function StudentForm({
 
           {isAdmin && (
             <Field label="School" required error={errors.school_id}>
-              <select
-                className={tInput(errors.school_id)}
-                value={data.school_id}
-                onChange={set("school_id")}
+              <CustomDropdown
+                options={schools.map((s) => ({ value: String(s.id), label: s.name }))}
+                value={data.school_id ? String(data.school_id) : ""}
+                onChange={(val) => set("school_id")(val)}
+                placeholder={schoolsLoading ? "Loading schools..." : "Select a school"}
                 disabled={schoolsLoading}
-              >
-                <option value="">
-                  {schoolsLoading ? "Loading schools..." : "Select a school"}
-                </option>
-                {schools.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
+                hasError={Boolean(errors.school_id)}
+                searchable
+                className="w-full"
+              />
             </Field>
           )}
 
@@ -940,11 +937,17 @@ export default function StudentForm({
             />
           </Field>
           <Field label="Date of Birth" required error={errors.date_of_birth}>
-            <input
-              type="date"
-              className={tInput(errors.date_of_birth)}
+            <CustomDatePicker
               value={data.date_of_birth}
-              onChange={set("date_of_birth")}
+              onChange={(val) => {
+                const dateStr = val?.target?.value ?? (typeof val === "string" ? val : "");
+                set("date_of_birth")(dateStr);
+              }}
+              placeholder="Select date of birth"
+              displayFormat="DD-MM-YYYY"
+              maxDate={new Date()}
+              hasError={Boolean(errors.date_of_birth)}
+              className="w-full"
             />
           </Field>
           <Field label="Auto-Calculated Age">
@@ -956,30 +959,36 @@ export default function StudentForm({
             />
           </Field>
           <Field label="Gender" required error={errors.gender}>
-            <select
-              className={tInput(errors.gender)}
+            <CustomDropdown
+              options={[
+                { value: "male", label: "Male" },
+                { value: "female", label: "Female" },
+                { value: "other", label: "Other" },
+              ]}
               value={data.gender}
-              onChange={set("gender")}
-            >
-              <option value="">Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
+              onChange={(val) => set("gender")(val)}
+              placeholder="Select Gender"
+              hasError={Boolean(errors.gender)}
+              className="w-full"
+            />
           </Field>
           <Field label="Blood Group">
-            <select
-              className={tInput()}
+            <CustomDropdown
+              options={[
+                { value: "A+", label: "A+" },
+                { value: "A-", label: "A-" },
+                { value: "B+", label: "B+" },
+                { value: "B-", label: "B-" },
+                { value: "AB+", label: "AB+" },
+                { value: "AB-", label: "AB-" },
+                { value: "O+", label: "O+" },
+                { value: "O-", label: "O-" },
+              ]}
               value={data.blood_group}
-              onChange={set("blood_group")}
-            >
-              <option value="">Select Blood Group</option>
-              {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map(
-                (bloodType) => (
-                  <option key={bloodType}>{bloodType}</option>
-                ),
-              )}
-            </select>
+              onChange={(val) => set("blood_group")(val)}
+              placeholder="Select Blood Group"
+              className="w-full"
+            />
           </Field>
           <Field label="Mobile Number" required error={errors.mobile_no}>
             <input
@@ -1101,17 +1110,18 @@ export default function StudentForm({
             />
           </Field>
           <Field label="Relationship with Emergency Contact">
-            <select
-              className={tInput()}
+            <CustomDropdown
+              options={[
+                { value: "FATHER", label: "Father" },
+                { value: "MOTHER", label: "Mother" },
+                { value: "UNCLE", label: "Uncle" },
+                { value: "GUARDIAN", label: "Guardian" },
+              ]}
               value={data.emergency_relationship}
-              onChange={set("emergency_relationship")}
-            >
-              <option value="">Select</option>
-              <option value="FATHER">Father</option>
-              <option value="MOTHER">Mother</option>
-              <option value="UNCLE">Uncle</option>
-              <option value="GUARDIAN">Guardian</option>
-            </select>
+              onChange={(val) => set("emergency_relationship")(val)}
+              placeholder="Select Relationship"
+              className="w-full"
+            />
           </Field>
         </div>
       )}

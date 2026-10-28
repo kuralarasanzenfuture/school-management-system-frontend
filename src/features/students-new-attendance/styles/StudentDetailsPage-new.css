@@ -236,6 +236,8 @@
   background: var(--panel-bg);
   border: 1px solid var(--divider);
   box-shadow: var(--card-shadow);
+  position: relative;
+  z-index: 20;
 }
 .sd-att-thead {
   background: var(--input-bg);
@@ -326,3 +328,340 @@
 .sd-progress-ring {
   transform: rotate(-90deg);
 }
+
+/* ── Modern Period Single Row & List Display ── */
+.sd-period-track {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.sd-period-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  cursor: default;
+  position: relative;
+}
+
+.sd-period-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.sd-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.sd-period-chip-present {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.25);
+}
+.sd-period-chip-present .sd-status-dot {
+  background: #10b981;
+}
+
+.sd-period-chip-absent {
+  background: rgba(244, 63, 94, 0.1);
+  color: #e11d48;
+  border-color: rgba(244, 63, 94, 0.25);
+}
+.sd-period-chip-absent .sd-status-dot {
+  background: #f43f5e;
+}
+
+.sd-period-chip-late {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+  border-color: rgba(245, 158, 11, 0.25);
+}
+.sd-period-chip-late .sd-status-dot {
+  background: #f59e0b;
+}
+
+.sd-period-chip-half_day {
+  background: rgba(168, 85, 247, 0.1);
+  color: #9333ea;
+  border-color: rgba(168, 85, 247, 0.25);
+}
+.sd-period-chip-half_day .sd-status-dot {
+  background: #a855f7;
+}
+
+.sd-period-chip-leave {
+  background: rgba(99, 102, 241, 0.1);
+  color: #4f46e5;
+  border-color: rgba(99, 102, 241, 0.25);
+}
+.sd-period-chip-leave .sd-status-dot {
+  background: #6366f1;
+}
+
+.sd-period-chip-holiday {
+  background: rgba(6, 182, 212, 0.1);
+  color: #0891b2;
+  border-color: rgba(6, 182, 212, 0.25);
+}
+.sd-period-chip-holiday .sd-status-dot {
+  background: #06b6d4;
+}
+
+.sd-period-chip-unmarked {
+  background: var(--input-bg);
+  color: var(--text-muted);
+  border-color: var(--divider);
+}
+.sd-period-chip-unmarked .sd-status-dot {
+  background: var(--text-muted);
+}
+
+.sd-user-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--badge-bg);
+  color: var(--btn-bg);
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.sd-day-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--input-bg);
+  color: var(--text-muted);
+  border: 1px solid var(--divider);
+}
+
+.sd-view-toggle {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: 10px;
+  background: var(--input-bg);
+  border: 1px solid var(--divider);
+}
+
+.sd-view-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: all 0.15s ease;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.sd-view-toggle-btn.active {
+  background: var(--panel-bg);
+  color: var(--btn-bg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.sd-expandable-card {
+  background: var(--input-bg);
+  border: 1px solid var(--divider);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.sd-expandable-card:hover {
+  border-color: var(--btn-bg);
+}
+
+/* ── Payfit-style Calendar Theme (Dribbble Ref) ── */
+.sd-payfit-pill {
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.sd-payfit-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.sd-payfit-present {
+  border-left: 3.5px solid #10b981;
+  background: #f0fdf4;
+  color: #166534;
+}
+.dark .sd-payfit-present {
+  background: rgba(16, 185, 129, 0.15);
+  color: #6ee7b7;
+}
+
+.sd-payfit-absent {
+  border-left: 3.5px solid #f43f5e;
+  background: #fff1f2;
+  color: #9f1239;
+}
+.dark .sd-payfit-absent {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fda4af;
+}
+
+.sd-payfit-late {
+  border-left: 3.5px solid #f59e0b;
+  background: #fffbeb;
+  color: #92400e;
+}
+.dark .sd-payfit-late {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fde68a;
+}
+
+.sd-payfit-half_day {
+  border-left: 3.5px solid #a855f7;
+  background: #faf5ff;
+  color: #6b21a8;
+}
+.dark .sd-payfit-half_day {
+  background: rgba(168, 85, 247, 0.15);
+  color: #d8b4fe;
+}
+
+.sd-payfit-leave {
+  border-left: 3.5px solid #6366f1;
+  background: #eef2ff;
+  color: #3730a3;
+}
+.dark .sd-payfit-leave {
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+}
+
+.sd-payfit-holiday {
+  border-left: 3.5px solid #06b6d4;
+  background: #ecfeff;
+  color: #155e75;
+}
+.dark .sd-payfit-holiday {
+  background: rgba(6, 182, 212, 0.15);
+  color: #67e8f9;
+}
+
+.sd-payfit-period {
+  border-left: 3.5px solid #3b82f6;
+  background: #eff6ff;
+  color: #1e40af;
+}
+.dark .sd-payfit-period {
+  background: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
+}
+
+/* ── Big Calendar Diagonal Stripe Texture (User Reference Style) ── */
+.sd-stripe-pattern {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 6px,
+    rgba(226, 232, 240, 0.6) 6px,
+    rgba(226, 232, 240, 0.6) 7px
+  );
+}
+.dark .sd-stripe-pattern {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 6px,
+    rgba(51, 65, 85, 0.35) 6px,
+    rgba(51, 65, 85, 0.35) 7px
+  );
+}
+
+/* ── Full Red Sunday Column Styling ── */
+.sd-sunday-cell {
+  background-color: #fee2e2 !important; /* Rich clear red for Sunday */
+}
+.dark .sd-sunday-cell {
+  background-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+.sd-sunday-cell-dim {
+  background-color: #fef2f2 !important; /* Dimmer red for adjacent month days */
+  opacity: 0.7;
+}
+.dark .sd-sunday-cell-dim {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+.sd-cal-stat-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--divider);
+  border-radius: 16px;
+  padding: 14px 18px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+.sd-cal-stat-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* ── Modern Shimmer Skeleton for Student Details ── */
+.sd-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--input-bg, #f1f5f9) 0%,
+    var(--divider, #e2e8f0) 50%,
+    var(--input-bg, #f1f5f9) 100%
+  );
+  background-size: 200% 100%;
+  animation: sd-shimmer 1.5s infinite ease-in-out;
+}
+
+.dark .sd-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  background-size: 200% 100%;
+}
+
+@keyframes sd-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+
+

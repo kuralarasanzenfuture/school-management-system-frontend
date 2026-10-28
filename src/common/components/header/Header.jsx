@@ -1546,9 +1546,22 @@ const Header = () => {
     : authUser?.roles
       ? [authUser.roles]
       : ["Super Admin"];
-  const primaryRole = roles[0];
-  const extraRolesCount = roles.length - 1;
-  const allRolesLabel = roles.join(", ");
+  const sortedRoles = [...roles].sort((a, b) => {
+    const aAdmin =
+      String(a).toUpperCase() === "ADMIN" ||
+      String(a).toUpperCase() === "SUPER_ADMIN" ||
+      String(a).toUpperCase() === "SUPER ADMIN";
+    const bAdmin =
+      String(b).toUpperCase() === "ADMIN" ||
+      String(b).toUpperCase() === "SUPER_ADMIN" ||
+      String(b).toUpperCase() === "SUPER ADMIN";
+    if (aAdmin && !bAdmin) return -1;
+    if (!aAdmin && bAdmin) return 1;
+    return 0;
+  });
+  const primaryRole = sortedRoles[0];
+  const extraRolesCount = sortedRoles.length - 1;
+  const allRolesLabel = sortedRoles.join(", ");
 
   const avatarUrl =
     authUser?.avatar ??

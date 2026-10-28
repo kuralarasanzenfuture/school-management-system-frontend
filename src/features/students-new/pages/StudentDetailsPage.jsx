@@ -391,7 +391,7 @@ function StudentDetailsPage() {
             <Download size={16} /> Download Excel
           </button>
           <button
-            onClick={() => navigate(`/students?edit=${student.id}`)}
+            onClick={() => navigate(`/students/${student?.id || id}/edit`)}
             className="sd-btn-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors"
           >
             <Pencil size={15} /> Edit Student

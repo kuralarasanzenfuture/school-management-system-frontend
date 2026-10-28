@@ -197,7 +197,7 @@ export default function StudentDetailsPageNew() {
   };
 
   if (fetching && !student) {
-    return <div className="sd-page min-h-screen p-6"><p className="sd-loading text-[14px] py-12 text-center">Loading student details…</p></div>;
+    return <StudentDetailsSkeleton />;
   }
   if (!student) {
     return (
@@ -226,7 +226,7 @@ export default function StudentDetailsPageNew() {
           <button onClick={handleExportExcel} className="sd-btn-outline inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors">
             <Download size={16} /> Export Excel
           </button>
-          <button onClick={() => navigate(`/students?edit=${student.id}`)}
+          <button onClick={() => navigate(`/students/${student?.id || id}/edit`)}
             className="sd-btn-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors">
             <Pencil size={15} /> Edit Student
           </button>
@@ -333,3 +333,72 @@ export default function StudentDetailsPageNew() {
     </div>
   );
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Skeleton Loading Component for Student Profile & Details
+───────────────────────────────────────────────────────────── */
+function StudentDetailsSkeleton() {
+  return (
+    <div className="sd-page min-h-screen p-5 sm:p-6">
+      {/* ── Top bar Skeleton ── */}
+      <div className="flex items-center justify-between mb-5">
+        <div className="sd-skeleton h-6 w-36 rounded-lg" />
+        <div className="flex items-center gap-3">
+          <div className="sd-skeleton h-10 w-32 rounded-xl" />
+          <div className="sd-skeleton h-10 w-28 rounded-xl" />
+        </div>
+      </div>
+
+      {/* ── Hero Profile Card Skeleton ── */}
+      <div className="sd-hero-card rounded-2xl p-6 mb-5 flex flex-col sm:flex-row items-center sm:items-start gap-6">
+        <div className="sd-skeleton w-28 h-28 rounded-full shrink-0" />
+        <div className="text-center sm:text-left flex-1 flex flex-col gap-2.5">
+          <div className="sd-skeleton h-7 w-52 rounded-lg mx-auto sm:mx-0" />
+          <div className="sd-skeleton h-4 w-44 rounded-md mx-auto sm:mx-0" />
+          <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-2">
+            <div className="sd-skeleton h-6 w-20 rounded-full" />
+            <div className="sd-skeleton h-6 w-16 rounded-full" />
+            <div className="sd-skeleton h-6 w-28 rounded-full" />
+            <div className="sd-skeleton h-6 w-16 rounded-full" />
+          </div>
+        </div>
+        {/* Signature box placeholder */}
+        <div className="flex flex-col items-center gap-1.5 shrink-0">
+          <div className="sd-skeleton h-3 w-16 rounded" />
+          <div className="sd-skeleton w-28 h-12 rounded-xl" />
+        </div>
+      </div>
+
+      {/* ── Navigation Tabs Skeleton ── */}
+      <div className="sd-tab-nav flex items-center gap-2 mb-6 border-b border-slate-200 dark:border-slate-800 pb-3">
+        <div className="sd-skeleton h-9 w-24 rounded-xl" />
+        <div className="sd-skeleton h-9 w-28 rounded-xl" />
+        <div className="sd-skeleton h-9 w-20 rounded-xl" />
+        <div className="sd-skeleton h-9 w-20 rounded-xl" />
+      </div>
+
+      {/* ── Information Cards Grid Skeleton ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {[1, 2, 3].map((card) => (
+          <div
+            key={card}
+            className="sd-section-card rounded-2xl p-5 flex flex-col gap-4"
+          >
+            <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="sd-skeleton w-8 h-8 rounded-lg shrink-0" />
+              <div className="sd-skeleton h-4 w-32 rounded" />
+            </div>
+            <div className="flex flex-col gap-3">
+              {[1, 2, 3, 4, 5].map((row) => (
+                <div key={row} className="flex items-center justify-between">
+                  <div className="sd-skeleton h-3 w-20 rounded" />
+                  <div className="sd-skeleton h-3.5 w-28 rounded" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

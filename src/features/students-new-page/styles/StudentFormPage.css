@@ -22,6 +22,8 @@
 /* ── Header ── */
 .sfp-header {
   border-bottom: 1px solid var(--divider);
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
 }
 .sfp-title {
   color: var(--text-primary);
@@ -75,6 +77,8 @@
 /* ── Footer ── */
 .sfp-footer {
   border-top: 1px solid var(--divider);
+  border-bottom-left-radius: 1.5rem;
+  border-bottom-right-radius: 1.5rem;
 }
 .sfp-btn-prev {
   color: var(--text-secondary);
